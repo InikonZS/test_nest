@@ -1,15 +1,17 @@
 import { Controller, Get, Post, Req } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Request } from 'express';
+import { Role, Roles } from './roles.decorator';
+import { UserInfo } from './user.guard';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get('hello')
-  async getHello(@Req() req: Request){
-    const token: string = req.headers['auth-token'].toString();
-    const result = await this.appService.auth(token);
+  @Roles(Role.user, Role.admin)
+  async getHello(@Req() req: Request, @UserInfo() user: any){
+    console.log('user', user);
     return this.appService.getHello();
   }
 
@@ -20,6 +22,13 @@ export class AppController {
 
   @Post('auth')
   auth(@Req() req: Request){
+    console.log(req.headers)
+    const token: string = req.headers['auth-token'].toString();
+    return this.appService.auth(token);
+  }
+
+  @Post('register')
+  register(@Req() req: Request){
     console.log(req.headers)
     const token: string = req.headers['auth-token'].toString();
     return this.appService.auth(token);

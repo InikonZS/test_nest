@@ -1,9 +1,25 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { getData, login, register } from "./api";
 
 export function App() {
     const [loginInput, setLoginInput] = useState({ login: '', password: '' });
     const [isLogined, setLogined] = useState(false);
+    useEffect(()=>{
+        const socket = new WebSocket('ws://localhost:3000');
+        socket.onopen = ()=>{
+            console.log('open');
+            socket.send(JSON.stringify({
+                event: 'events/s2',
+                data: 'data1'
+            }));
+            socket.onmessage = (msg)=>{
+                console.log(msg);
+            }
+        }
+        return ()=>{
+            socket.close();
+        }
+    }, []);
     return <div>
         {
             !isLogined ? (

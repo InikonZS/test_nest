@@ -3,6 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JwtModule } from '@nestjs/jwt';
 import { RolesGuard } from './user.guard';
+import { SocketGateway } from './socket/socket.service';
+import { SocketGateway2 } from './socket/s2.service';
 
 @Module({
   imports: [
@@ -14,7 +16,9 @@ import { RolesGuard } from './user.guard';
   ],
   controllers: [AppController],
   providers: [
-    AppService,   
+    AppService, 
+    SocketGateway,
+    SocketGateway2,
     {
       provide: 'APP_GUARD',
       useClass: RolesGuard,

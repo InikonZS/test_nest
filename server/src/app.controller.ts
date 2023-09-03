@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Request } from 'express';
 import { Role, Roles } from './roles.decorator';
@@ -12,12 +12,12 @@ export class AppController {
   @Roles(Role.user, Role.admin)
   async getHello(@Req() req: Request, @UserInfo() user: any){
     console.log('user', user);
-    return this.appService.getHello();
+    return JSON.stringify({data: this.appService.getHello(), user: user.name});
   }
 
   @Post('sign-in')
-  signIn(){
-    return this.appService.signIn();
+  signIn(@Body() body: {login: string, password: string}){
+    return this.appService.signIn(body);
   }
 
   @Post('auth')
@@ -28,9 +28,8 @@ export class AppController {
   }
 
   @Post('register')
-  register(@Req() req: Request){
-    console.log(req.headers)
-    const token: string = req.headers['auth-token'].toString();
-    return this.appService.auth(token);
+  register(@Body() body: {login: string, password: string}){
+    console.log(body)
+    return this.appService.register(body);
   }
 }

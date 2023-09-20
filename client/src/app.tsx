@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { getData, login, register } from "./api";
+import { CardsView } from "./cards/cardsView";
 
 export function App() {
     const [loginInput, setLoginInput] = useState({ login: '', password: '' });
@@ -73,6 +74,6 @@ export function App() {
             const data = await response.text();
             console.log(data);
         }}>for authorized</button>
-
+        <CardsView></CardsView>
     </div>
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { getData, login, register } from "./api";
 import { CardsView } from "./cards/cardsView";
+import { Views } from "./cards/views";
 
 export function App() {
     const [loginInput, setLoginInput] = useState({ login: '', password: '' });
@@ -22,7 +23,7 @@ export function App() {
         }
     }, []);
     return <div>
-        {
+        {/*
             !isLogined ? (
                 <>
                 <form onSubmit={(async (e) => {
@@ -68,12 +69,14 @@ export function App() {
                 </div>
             )
             
-        }
-        <button onClick={async ()=>{
+            */}
+        {/*<button onClick={async ()=>{
             const response = await getData();
             const data = await response.text();
             console.log(data);
         }}>for authorized</button>
-        <CardsView></CardsView>
+    */}
+        {/*<CardsView></CardsView>*/}
+        <Views></Views>
     </div>
 }

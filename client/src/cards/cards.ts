@@ -23,7 +23,7 @@ export class BotPlayer {
             }
             await new Promise((res)=>{
                     clearTimeout(out);
-                    out = setTimeout(()=>res(null), 200)
+                    out = setTimeout(()=>res(null), 500)
             })
             log('player: ' + player.index + ' - ' + game.currentPlayerIndex + ' - ' + game.getDefender() + ' deck: ' + game.deck.length + JSON.stringify(player.cards))
             if (game.currentPlayerIndex == player.index){
@@ -127,12 +127,12 @@ export class Player{
  * @returns 
  */
 function isBeats(a: Card, b: Card, trump: number){
-    if (a.type == trump && b.type != trump){
+    if ((a.type == trump) && (b.type != trump)){
         return true;
     }
 
     if ((a.type == b.type) && (a.value > b.value)){
-        return a.value > b.value;
+        return true;
     }
     
     return false;
@@ -161,7 +161,7 @@ function rotateSequence(sequence: Array<number>, currentPlayer: number){
 
 function createDeck(){
     const deck: Array<Card> = [];
-    for (let i=0; i<14; i++){
+    for (let i=4; i<13; i++){
         for (let j=0; j<4; j++){
             deck.push(new Card(i, j));
         } 
@@ -295,9 +295,12 @@ export class Cards{
         this.currentPairs = [];
         this.moveCards();
         if (this.players.filter(it=>!it.isWin).length == 1){
-            //emit winners
-            //this.onGameState();
             log('fold win');
+            this.isFinished = true;
+            return;
+        }
+        if (this.players.filter(it=>!it.isWin).length == 0){
+            log('unknown win');
             this.isFinished = true;
             return;
         }

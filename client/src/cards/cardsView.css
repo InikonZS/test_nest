@@ -1,0 +1,37 @@
+.player_cards{
+    display: flex;
+}
+
+.pairs{
+    display: flex;
+}
+
+.pair{
+    position: relative;
+}
+
+.pair_attack{
+    
+}
+
+.pair_defend{
+    position: absolute;
+    top: 30px;
+    left: 30px;
+}
+
+.deck{
+    display: flex;
+}
+
+.deck_trump{
+    width: 40px;
+}
+
+.deck_cards{
+    display: flex;
+}
+
+.deck_card{
+    width: 20px;
+}

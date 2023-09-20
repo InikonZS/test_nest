@@ -8,5 +8,5 @@
     "jsx": "react",
     "sourceMap": true
   },
-  "files": ["src/index.ts"]
+  "files": ["src/index.ts", "./assets.d.ts"]
 }

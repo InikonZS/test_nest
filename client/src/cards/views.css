@@ -1,0 +1,32 @@
+*{box-sizing: border-box;}
+.views_container{
+    position: relative;
+    height: 600px;
+}
+.views_card{
+    width: 150px;
+    height: 200px;
+    background-color: #f008;
+    position: absolute;
+}
+
+.views_slot{
+    width: 150px;
+    height: 200px;
+    background-color: #f99;
+    border: 1px solid;
+    position: absolute;
+}
+
+.views_player{
+    display: flex;
+    position: absolute;
+}
+
+.views_slot2{
+    width: 150px;
+    height: 200px;
+    background-color: #f99;
+    border: 1px solid;
+    position: absolute;
+}

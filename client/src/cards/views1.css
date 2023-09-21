@@ -1,0 +1,31 @@
+.v_table{
+    background-color: #0f09;
+    width: 500px;
+    height: 250px;
+    position: absolute;
+}
+
+.v_pair{
+    position: absolute;
+}
+
+.v_player{
+    background-color: #0f09;
+    width: 150px;
+    height: 150px;
+    position: absolute;
+}
+
+.v_my_player{
+    background-color: #0f09;
+    width: 300px;
+    height: 200px;
+    position: absolute;
+}
+
+.v_wrapper{
+    background-color: #00f9;
+    width: 800px;
+    height: 600px;
+    position: relative;
+}

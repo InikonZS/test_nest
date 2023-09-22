@@ -2,8 +2,94 @@ import React, { useEffect, useRef, useState } from "react";
 import "./views.css";
 import "./views1.css";
 
+const testMoves = [
+    {
+        type: 'deck',
+        player: 0
+    },
+    {
+        type: 'deck',
+        player: 1
+    },
+    {
+        type: 'deck',
+        player: 2
+    },
+    {
+        type: 'deck',
+        player: 0
+    },
+    {
+        type: 'deck',
+        player: 1
+    },
+    {
+        type: 'deck',
+        player: 2
+    }
+];
+
+const deckPositions = new Array(36).fill(null).map((it, i)=>{
+    if (i==0) {
+        return `translate(${120 + i*3}px, 100px) rotate(${90+ Math.random() *  12-6}deg) scale(0.3)`
+    }
+    return `translate(${140 + i*3}px, 100px) rotate(${ Math.random() *  12-6}deg) scale(0.3)`
+    //return `translate(${500 + Math.random() *  30}px, ${90 + Math.random() *  30}px) rotate(${i * 10}deg) scale(0.3)`
+})
+
+const playerPos = [
+    {
+        x: 0,
+        y: 0
+    },
+    {
+        x: 325,
+        y: 0
+    },
+    {
+        x: 650,
+        y: 0
+    },
+    {
+        x: 0,
+        y: 250
+    },
+    {
+        x: 650,
+        y: 250
+    }
+]
+function getPlayerCardTransform(player: number, index: number, length: number){
+    return `translate(${(playerPos[player].x + (index - (length-1) / 2)*5)}px, ${playerPos[player].y}px) rotate(${(index - (length-1) / 2)*Math.min((120/length), 15)}deg) translateY(${-20}px) scale(0.3)`
+}
+
 export function Views(){
-    const playerCards = [1,2,3,4,5,6,7,8,9,2,3,4,5,6,7,8,9];
+    const [playerCards, setPlayerCards] = useState([1]);
+    const [moveIndex, setMoveIndex] = useState(0);
+    const [animate, setAnimate] = useState(false);
+    const [initial, setInitial] = useState('');
+    const [dest, setDest] = useState('');
+    const [deckTop, setDeckTop] = useState(0);
+
+    useEffect(()=>{
+        setInitial(deckPositions[deckPositions.length-1 - deckTop]);
+        setDeckTop(last=> last+1);
+        const i = 3;
+        setDest(getPlayerCardTransform(testMoves[moveIndex].player, playerCards.length, playerCards.length +1));
+        setTimeout(()=>{
+        requestAnimationFrame(()=>{
+            setAnimate(true);  
+        })},500)
+
+        setTimeout(()=>{
+            setPlayerCards(last => new Array(last.length+1).fill(1))
+            setAnimate(false)
+            if (moveIndex < testMoves.length - 1){
+                setMoveIndex(last=> last+1); 
+            }
+        },1500); 
+    }, [moveIndex]);
+
     return <div className="v_wrapper">
         {/*<div className="views_player" style={{left: '300px'}}>
                 {playerCards.map((it, i)=>{
@@ -56,11 +142,12 @@ export function Views(){
             {playerCards.map((it, i)=>{
                 return <div className="views_slot2" style={{transform: `translate(${650 + (i - (playerCards.length-1) / 2)*5}px, 250px) rotate(${(i - (playerCards.length-1) / 2)*Math.min((120/playerCards.length), 15)}deg) translateY(${-20}px) scale(0.3)`}}></div>
             })}
-            {new Array(36).fill(null).map((it, i)=>{
-                if (i==0) {
-                    return <div className="views_slot" style={{transform: `translate(${120 + i*3}px, 100px) rotate(${90+ Math.random() *  12-6}deg) scale(0.3)`}}></div>
-                }
-                return <div className="views_slot" style={{transform: `translate(${140 + i*3}px, 100px) rotate(${ Math.random() *  12-6}deg) scale(0.3)`}}></div>
+            {deckPositions.slice(0, deckPositions.length - deckTop).map((it, i)=>{
+                return <div className="views_slot" style={{transform:it}}></div>
+                //if (i==0) {
+                //    return <div className="views_slot" style={{transform: `translate(${120 + i*3}px, 100px) rotate(${90+ Math.random() *  12-6}deg) scale(0.3)`}}></div>
+                //}
+                //return <div className="views_slot" style={{transform: `translate(${140 + i*3}px, 100px) rotate(${ Math.random() *  12-6}deg) scale(0.3)`}}></div>
             })}
             {new Array(36).fill(null).map((it, i)=>{
                 return <div className="views_slot" style={{transform: `translate(${500 + Math.random() *  30}px, ${90 + Math.random() *  30}px) rotate(${i * 10}deg) scale(0.3)`}}></div>
@@ -71,7 +158,7 @@ export function Views(){
                     <div className="views_slot" style={{transform: `translate(${150 + i*70}px, 220px) rotate(20deg) scale(0.5)`}}></div>
                 </>
             })}
-           
+            <div className="views_card" style={{transition: animate ? '1s': '0s', transform: animate ? dest : initial}}></div>
         </div>
     </div>
 }

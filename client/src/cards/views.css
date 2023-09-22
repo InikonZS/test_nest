@@ -8,6 +8,7 @@
     height: 200px;
     background-color: #f008;
     position: absolute;
+    border: 1px solid;
 }
 
 .views_slot{

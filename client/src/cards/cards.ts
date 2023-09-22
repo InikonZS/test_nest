@@ -1,10 +1,12 @@
 export class Card{
     value: number;
     type: number;
+    id: number;
 
-    constructor(value: number, type: number){
+    constructor(value: number, type: number, id: number){
         this.value = value;
         this.type = type;
+        this.id = id;
     }
 }
 
@@ -161,9 +163,11 @@ function rotateSequence(sequence: Array<number>, currentPlayer: number){
 
 function createDeck(){
     const deck: Array<Card> = [];
+    let id = 0;
     for (let i=4; i<13; i++){
         for (let j=0; j<4; j++){
-            deck.push(new Card(i, j));
+            deck.push(new Card(i, j, id));
+            id+=1;
         } 
     }
     return deck;

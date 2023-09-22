@@ -106,9 +106,9 @@ function getPlayerCardTransform(player: number, index: number, length: number){
     return `translate(${(playerPos[player].x + (index - (length-1) / 2)*5)}px, ${playerPos[player].y}px) rotate(${(index - (length-1) / 2)*Math.min((120/length), 15)}deg) translateY(${-20}px) scale(0.3)`
 }
 
-function CardViewTr({ value, type,  selected }: {value: number, type: number, selected: boolean}) {
+function CardViewTr({ value, type,  selected, zindex }: {value: number, type: number, selected: boolean, zindex: number}) {
     return (
-        <div className='card' style={{ '--c-phase': selected?100:0}}>
+        <div className='card' style={{'z-index': zindex, '--c-phase': selected?100:0}}>
             <div className='card_base card_a card_img' style={{ '--value': value + 1, '--type': type }} >
                 {value}
             </div>
@@ -120,7 +120,7 @@ function CardViewTr({ value, type,  selected }: {value: number, type: number, se
 
 export function Views(){
     const [cardsPos, setCardsPos] = useState<Array<any>>(new Array(36).fill(null).map(it=>{
-        return {transform: '', card: new Card(0,0,0), open: false}
+        return {transform: '', card: new Card(0,0,0), open: false, zindex:0}
     }));
     
     const [game, setGame] = useState<Cards>(null);
@@ -133,6 +133,8 @@ export function Views(){
         })
         setGame(_game);
         const players = [
+            _game.addPlayer(),
+            _game.addPlayer(),
             _game.addPlayer(),
             _game.addPlayer()
         ];
@@ -149,30 +151,29 @@ export function Views(){
             setCardsPos(last=>{
                 const next = [...last];
                 game.deck.forEach((card, cardIndex)=>{
-                    next[card.id] = {transform: deckPositions[cardIndex], card: card, open: cardIndex==0?true: false}
+                    next[card.id] = {transform: deckPositions[cardIndex], card: card, open: cardIndex==0?true: false, zindex: cardIndex}
                 })
                 game.players.forEach((player, playerIndex)=>{
                     player.cards.forEach((card, cardIndex, cards) => {
-                        next[card.id] = {transform: getPlayerCardTransform(playerIndex, cardIndex, cards.length), card: card, open: false}
+                        next[card.id] = {transform: getPlayerCardTransform(playerIndex, cardIndex, cards.length), card: card, open: false, zindex: cardIndex + 72}
                     })
                 })
                 game.currentPairs.forEach((pair, pairIndex)=>{
-                    next[pair.attack.id] = {transform: attackPos[pairIndex], card: pair.attack, open: true}
+                    next[pair.attack.id] = {transform: attackPos[pairIndex], card: pair.attack, open: true, zindex: pairIndex + 36}
                     if (pair.defend){
-                        next[pair.defend.id] = {transform: defendPos[pairIndex], card: pair.defend, open: true}
+                        next[pair.defend.id] = {transform: defendPos[pairIndex], card: pair.defend, open: true, zindex: pairIndex + 6 + 36}
                     }
                 });
                 game.history.flat().forEach((pair, pairIndex)=>{
-                    next[pair.attack.id] = {transform: turnPos[pairIndex*2], card: pair.attack, open: false}
+                    next[pair.attack.id] = {transform: turnPos[pairIndex*2], card: pair.attack, open: false, zindex: pairIndex*2}
                     if (pair.defend){
-                        next[pair.defend.id] = {transform: turnPos[pairIndex*2+1], card: pair.attack, open: false}
+                        next[pair.defend.id] = {transform: turnPos[pairIndex*2+1], card: pair.attack, open: false, zindex: pairIndex*2+1}
                     }
                 })
                 return next;
             })
         }
     }, [tick]);
-
     return <div className="v_wrapper">
         <div className="v_player" style={{left: '0px', top: '0px'}}>
         </div>
@@ -187,7 +188,7 @@ export function Views(){
 
         <div>
             test
-            {game && cardsPos.map(it=> <div className="views_card" style={{transition: '400ms', transform: it.transform}}><CardViewTr value={it.card.value} type={it.card.type} selected={!it.open}></CardViewTr></div>)}   
+            {game && cardsPos.map(it=> <div className="views_card" style={{ transition: '400ms', transform: it.transform, 'z-index':it.zindex.toString()}}><CardViewTr value={it.card.value} type={it.card.type} selected={!it.open} zindex={it.zindex}></CardViewTr></div>)}   
         </div>
     </div>
 }

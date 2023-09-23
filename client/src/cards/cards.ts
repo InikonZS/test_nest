@@ -104,6 +104,9 @@ export class BotPlayer1 {
             }
 
             else if (game.getDefender() == player.index){
+                if (game.isFoldRequested){
+                    return;
+                }
                 const opened = game.currentPairs.filter(it=>!it.defend).map(it=> it.attack);
                 const actual = opened[0];
                 if (actual){ 
@@ -113,7 +116,8 @@ export class BotPlayer1 {
                     if (defendOne){
                         player.defend(defendOne, actual);
                     } else {
-                        player.fold();
+                        //player.fold();
+                        player.requestFold();
                     }
                 }
                 //player.attack(player.cards[Math.floor(Math.random()*player.cards.length)]);
@@ -180,6 +184,9 @@ export class BotPlayer {
             }
 
             else if (game.getDefender() == player.index){
+                if (game.isFoldRequested){
+                    return;
+                }
                 const opened = game.currentPairs.filter(it=>!it.defend).map(it=> it.attack);
                 const actual = opened[0];
                 if (actual){ 
@@ -189,7 +196,8 @@ export class BotPlayer {
                     if (defendOne){
                         player.defend(defendOne, actual);
                     } else {
-                        player.fold();
+                        //player.fold();
+                        player.requestFold();
                     }
                 }
                 //player.attack(player.cards[Math.floor(Math.random()*player.cards.length)]);
@@ -240,6 +248,10 @@ export class Player{
 
     turn(){
         this.game.turn(this);
+    }
+
+    requestFold(){
+        this.game.requestFold(this);
     }
 
     fold(){
@@ -335,6 +347,7 @@ export class Cards{
     isFinished: boolean;
 
     _onGameState: Array<()=>void> = [];
+    isFoldRequested: boolean = false;
 
     constructor(){
       this.players = [];
@@ -347,6 +360,7 @@ export class Cards{
 
     start(){
         this.isFinished = false;
+        this.isFoldRequested = false;
         log('start');
         this.currentPlayerIndex = 0;
         this.history = [];
@@ -418,12 +432,28 @@ export class Cards{
         }
     }
 
-    fold(player: Player){
+    requestFold(player: Player){
         const defenderIndex = this.getDefender();
         if (player.index != defenderIndex){
             log('Wrong player fold')
             return false;
         }
+        this.isFoldRequested = true;
+        this.onGameState();
+    }
+
+    fold(player: Player){
+        const defenderIndex = this.getDefender();
+        //if (player.index != defenderIndex){
+        if (player.index != this.currentPlayerIndex){
+            log('Wrong player fold')
+            return false;
+        }
+
+        if (this.isFoldRequested != true){
+            return false;
+        }
+        this.isFoldRequested = false;
 
         log('fold');
         const defender = this.players[defenderIndex];
@@ -458,6 +488,7 @@ export class Cards{
             return false;
         }
         if (this.currentPairs.find(pair => !pair.defend) != null){
+            this.fold(player);
             return false;
         }
         log('turn');

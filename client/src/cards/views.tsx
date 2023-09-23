@@ -139,15 +139,15 @@ export function Views(){
         setGame(_game);
         const players = [
             _game.addPlayer(),
-           // _game.addPlayer(),
+            _game.addPlayer(),
           //  _game.addPlayer(),
           //  _game.addPlayer()
         ];
         new BotPlayer(players[0]);
-        //new BotPlayer1(players[1]);
+        new BotPlayer1(players[1]);
         //players.map(it=> new BotPlayer(it));
         const _myPlayer = _game.addPlayer();
-        _myPlayer.onGameState = ()=>{
+       _myPlayer.onGameState = ()=>{
 
         }
         setMyPlayer(_myPlayer);
@@ -194,26 +194,31 @@ export function Views(){
         {game && <>
         <div className="v_player" style={{left: '0px', top: '0px'}}>
             0
+            {game.getDefender() == 0 && game.isFoldRequested && 'fold'}
             {game.currentPlayerIndex == 0 && 'A'}
             {game.getDefender() == 0 && 'D'}
         </div>
         <div className="v_player" style={{left: '325px', top: '0px'}}>
             1
+            {game.getDefender() == 1 && game.isFoldRequested && 'fold'}
             {game.currentPlayerIndex == 1 && 'A'}
             {game.getDefender() == 1 && 'D'}
         </div>
         <div className="v_player" style={{left: '650px', top: '0px'}}>
             2
+            {game.getDefender() == 2 && game.isFoldRequested && 'fold'}
             {game.currentPlayerIndex == 2 && 'A'}
             {game.getDefender() == 2 && 'D'}
         </div>
         <div className="v_player" style={{left: '0px', top: '250px'}}>
             3
+            {game.getDefender() == 3 && game.isFoldRequested && 'fold'}
             {game.currentPlayerIndex == 3 && 'A'}
             {game.getDefender() == 3 && 'D'}
         </div>
         <div className="v_player" style={{left: '650px', top: '250px'}}>
             4
+            {game.getDefender() == 4 && game.isFoldRequested && 'fold'}
             {game.currentPlayerIndex == 4 && 'A'}
             {game.getDefender() == 4 && 'D'}
         </div>
@@ -231,7 +236,7 @@ export function Views(){
                 game.start();
             }}>restart</button>}
             <button style={{position: 'relative', 'z-index': 100}} onClick={()=>{
-                myPlayer.fold();
+                myPlayer.requestFold();
             }}>забрать</button>
             <button style={{position: 'relative', 'z-index': 100}} onClick={()=>{
                 myPlayer.turn();

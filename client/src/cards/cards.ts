@@ -20,10 +20,11 @@ export class BotPlayer {
         let out: any = null;
         player.onGameState = async ()=>{
             const game = player.game;
-            const defender = player.game.players[player.game.getDefender()];
             if (game.isFinished == true ){
                 return;
             }
+            
+            const defender = player.game.players[player.game.getDefender()];
             await new Promise((res)=>{
                     clearTimeout(out);
                     out = setTimeout(()=>res(null), 500)
@@ -229,7 +230,14 @@ export class Cards{
         this.isFinished = false;
         log('start');
         this.currentPlayerIndex = 0;
+        this.history = [];
+        this.currentPairs = [];
+        this.players.forEach(player=>{
+            player.isWin = false;
+            player.cards = [];
+        })
         this.deck = mixDeck(createDeck());
+        
         log(JSON.stringify(this.deck))
         this.trump = this.deck[0].type;
         console.log('trump ', this.trump)
@@ -311,11 +319,13 @@ export class Cards{
         if (this.players.filter(it=>!it.isWin).length == 1){
             log('fold win');
             this.isFinished = true;
+            this.onGameState();
             return;
         }
         if (this.players.filter(it=>!it.isWin).length == 0){
             log('unknown win');
             this.isFinished = true;
+            this.onGameState();
             return;
         }
         this.currentPlayerIndex = defenderIndex;
@@ -343,6 +353,7 @@ export class Cards{
             //this.onGameState();
             log('win');
             this.isFinished = true;
+            this.onGameState();
         } else {
             this.nextPlayer();
             this.onGameState();

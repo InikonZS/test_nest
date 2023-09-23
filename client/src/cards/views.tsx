@@ -144,11 +144,11 @@ export function Views(){
             _game.addPlayer()
         ];
         players.map(it=> new BotPlayer(it));
-        const _myPlayer = _game.addPlayer();
+        /*const _myPlayer = _game.addPlayer();
         _myPlayer.onGameState = ()=>{
 
         }
-        setMyPlayer(_myPlayer);
+        setMyPlayer(_myPlayer);*/
         _game.start();
     }, []);
 
@@ -190,7 +190,6 @@ export function Views(){
     }, [tick]);
     return <div className="v_wrapper">
         {game && <>
-        <div> def cards: {game.players[game.getDefender()].cards.length}</div>
         <div className="v_player" style={{left: '0px', top: '0px'}}>
             0
             {game.currentPlayerIndex == 0 && 'A'}
@@ -216,16 +215,19 @@ export function Views(){
             {game.currentPlayerIndex == 4 && 'A'}
             {game.getDefender() == 4 && 'D'}
         </div>
-        <div className="v_my_player" style={{left: '250px', top: '400px'}}>
+        {myPlayer && <div className="v_my_player" style={{left: '250px', top: '400px'}}>
             {myPlayer.index}
             {game.currentPlayerIndex == myPlayer.index && 'A'}
             {game.getDefender() == myPlayer.index && 'D'}
-        </div>
+        </div>}
         <div className="v_table" style={{left: '150px', top: '150px'}}></div>
         </>
         }
         <div>
             test
+            {game?.isFinished && <button style={{position: 'relative', 'z-index': 100}} onClick={()=>{
+                game.start();
+            }}>restart</button>}
             <button style={{position: 'relative', 'z-index': 100}} onClick={()=>{
                 myPlayer.fold();
             }}>забрать</button>

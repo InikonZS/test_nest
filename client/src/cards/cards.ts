@@ -14,7 +14,47 @@ function log(text: string){
     console.log(text);
 }
 
-export class BotPlayer {
+function sortCards(input: Card[], trump: number){
+    const cards = [...input].sort((a, b)=>{
+        if (a.type == trump && b.type != trump){
+            return 1
+        } else if (a.type != trump && b.type == trump){
+            return -1;
+        } else {
+            return a.value - b.value
+        }
+    });
+    return cards;
+}
+
+function maxMove(handCards: Card[], enemyCards:Card[], trump: number, noTrumpMode: boolean = true){
+    let cards = sortCards(handCards, trump);
+    if (noTrumpMode){
+        const noTrump = cards.filter(it=> it.type != trump);
+        if (noTrump.length){
+            cards = noTrump;
+        }
+    }
+    const testMove = (attackCard: Card, tableCards: Card[]):number=>{
+        const defendOne = enemyCards.find(card=>isBeats(card, attackCard, trump) && tableCards.find(it=> it==card) == null);
+        if ( defendOne && enemyCards.filter(card=>tableCards.find(it=> it==card) == null).length == 1){
+            console.log('shit');
+            return -1;
+        };
+        if (defendOne){
+            const nextTable = [...tableCards, defendOne, attackCard];
+            const addCards = cards.filter(it=> canAdd(it, nextTable));
+            return testMove(addCards[0], nextTable);
+        } else {
+            return tableCards.length;
+        }
+    }
+    const lengths = cards.map((card, i)=>({length: testMove(card, []), index: i})).sort((a, b)=> b.length-a.length);
+    console.log(lengths);
+    return lengths[0].index;
+}
+
+export class BotPlayer1 {
     constructor(player: Player){
         
         let out: any = null;
@@ -37,6 +77,8 @@ export class BotPlayer {
                     player.turn();
                 }else
                 if (game.currentPairs.length == 0){
+                    const cards = sortCards(player.cards, game.trump);
+                    //player.attack(cards[0]);
                     player.attack(player.cards[Math.floor(Math.random()*player.cards.length)]);
                 } else {
                     const allCards: Array<Card> = [];
@@ -66,7 +108,84 @@ export class BotPlayer {
                 const actual = opened[0];
                 if (actual){ 
                     log('try defend')
+                    //const cards = sortCards(player.cards, game.trump);
                     const defendOne = player.cards.filter(it=> isBeats(it, actual, game.trump))[0];
+                    if (defendOne){
+                        player.defend(defendOne, actual);
+                    } else {
+                        player.fold();
+                    }
+                }
+                //player.attack(player.cards[Math.floor(Math.random()*player.cards.length)]);
+            }
+        }
+    }
+}
+
+export class BotPlayer {
+    constructor(player: Player){
+        
+        let out: any = null;
+        player.onGameState = async ()=>{
+            const game = player.game;
+            if (game.isFinished == true ){
+                return;
+            }
+            
+            const defender = player.game.players[player.game.getDefender()];
+            await new Promise((res)=>{
+                    clearTimeout(out);
+                    out = setTimeout(()=>res(null), 500)
+            })
+            log('player: ' + player.index + ' - ' + game.currentPlayerIndex + ' - ' + game.getDefender() + ' deck: ' + game.deck.length + JSON.stringify(player.cards))
+            if (game.currentPlayerIndex == player.index){
+                
+                if (defender.cards.length == 0){
+                    log('no defender cards')
+                    player.turn();
+                }else
+                if (game.currentPairs.length == 0){
+                    const cards = sortCards(player.cards, game.trump);
+                    const maxMoveIndex = maxMove(cards, defender.cards, game.trump, game.deck.length != 0);
+                    player.attack(cards[maxMoveIndex]);
+                    //player.attack(player.cards[Math.floor(Math.random()*player.cards.length)]);
+                } else {
+                    const allCards: Array<Card> = [];
+                    game.currentPairs.forEach(it=>{
+                        allCards.push(it.attack);
+                        if (it.defend){
+                            allCards.push(it.defend);
+                        }
+                    })
+                    const addList = player.cards.filter(it=> canAdd(it, allCards));
+                    if (addList.length){
+                        const undefendedCount = game.currentPairs.filter(pair=> !pair.defend).length;
+                        if (defender.cards.length > undefendedCount){
+                            console.log('add attack')
+                            const sortedAddList = sortCards(addList, game.trump);
+                            //player.attack(addList[Math.floor(Math.random()*addList.length)]);
+                            if (!game.deck.length || sortedAddList[0].type != game.trump ){
+                                player.attack(sortedAddList[0]);
+                            } else {
+                                console.log('no trump with deck')
+                                player.turn(); 
+                            }
+                        } else {
+                            console.log('cannot add')
+                        }
+                    } else {
+                        player.turn();
+                    }
+                }
+            }
+
+            else if (game.getDefender() == player.index){
+                const opened = game.currentPairs.filter(it=>!it.defend).map(it=> it.attack);
+                const actual = opened[0];
+                if (actual){ 
+                    log('try defend')
+                    const cards = sortCards(player.cards, game.trump);
+                    const defendOne = cards.filter(it=> isBeats(it, actual, game.trump))[0];
                     if (defendOne){
                         player.defend(defendOne, actual);
                     } else {
@@ -391,7 +510,7 @@ export class Cards{
             initialDefender = (initialDefender + 1) % this.players.length;
         }
         if (initialDefender == this.currentPlayerIndex){
-            throw new Error('Wrong player defender.')
+            //throw new Error('Wrong player defender.')
         }
         return initialDefender;
     }

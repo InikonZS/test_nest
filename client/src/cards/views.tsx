@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./views.css";
 import "./views1.css";
 import "./components/card/card.css"
-import { BotPlayer, Card, Cards, Player } from "./cards";
+import { BotPlayer, BotPlayer1, Card, Cards, Player } from "./cards";
 
 /*const testMoves = [
     {
@@ -139,16 +139,18 @@ export function Views(){
         setGame(_game);
         const players = [
             _game.addPlayer(),
-            _game.addPlayer(),
-            _game.addPlayer(),
-            _game.addPlayer()
+           // _game.addPlayer(),
+          //  _game.addPlayer(),
+          //  _game.addPlayer()
         ];
-        players.map(it=> new BotPlayer(it));
-        /*const _myPlayer = _game.addPlayer();
+        new BotPlayer(players[0]);
+        //new BotPlayer1(players[1]);
+        //players.map(it=> new BotPlayer(it));
+        const _myPlayer = _game.addPlayer();
         _myPlayer.onGameState = ()=>{
 
         }
-        setMyPlayer(_myPlayer);*/
+        setMyPlayer(_myPlayer);
         _game.start();
     }, []);
 

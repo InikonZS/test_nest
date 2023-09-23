@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./views.css";
 import "./views1.css";
 import "./components/card/card.css"
-import { BotPlayer, Card, Cards } from "./cards";
+import { BotPlayer, Card, Cards, Player } from "./cards";
 
 /*const testMoves = [
     {
@@ -106,6 +106,10 @@ function getPlayerCardTransform(player: number, index: number, length: number){
     return `translate(${(playerPos[player].x + (index - (length-1) / 2)*5)}px, ${playerPos[player].y}px) rotate(${(index - (length-1) / 2)*Math.min((120/length), 15)}deg) translateY(${-20}px) scale(0.3)`
 }
 
+function getMyCardTransform(index: number, length: number){
+    return `translate(${(300 + (index - (length-1) / 2)*15)}px, ${400}px) rotate(${(index - (length-1) / 2)*Math.min((120/length), 15)}deg) translateY(${-20}px) scale(0.5)`
+}
+
 function CardViewTr({ value, type,  selected, zindex }: {value: number, type: number, selected: boolean, zindex: number}) {
     return (
         <div className='card' style={{'z-index': zindex, '--c-phase': selected?100:0}}>
@@ -119,12 +123,13 @@ function CardViewTr({ value, type,  selected, zindex }: {value: number, type: nu
 }
 
 export function Views(){
-    const [cardsPos, setCardsPos] = useState<Array<any>>(new Array(36).fill(null).map(it=>{
+    const [cardsPos, setCardsPos] = useState<Array<{transform: string, card: Card, open: boolean, zindex: number}>>(new Array(36).fill(null).map(it=>{
         return {transform: '', card: new Card(0,0,0), open: false, zindex:0}
     }));
     
     const [game, setGame] = useState<Cards>(null);
     const [tick, setTick] = useState(0);
+    const [myPlayer, setMyPlayer] = useState<Player>(null);
 
     useEffect(()=>{
         const _game = new Cards();
@@ -139,6 +144,11 @@ export function Views(){
             _game.addPlayer()
         ];
         players.map(it=> new BotPlayer(it));
+        const _myPlayer = _game.addPlayer();
+        _myPlayer.onGameState = ()=>{
+
+        }
+        setMyPlayer(_myPlayer);
         _game.start();
     }, []);
 
@@ -155,7 +165,11 @@ export function Views(){
                 })
                 game.players.forEach((player, playerIndex)=>{
                     player.cards.forEach((card, cardIndex, cards) => {
-                        next[card.id] = {transform: getPlayerCardTransform(playerIndex, cardIndex, cards.length), card: card, open: false, zindex: cardIndex + 72}
+                        if (playerIndex == myPlayer?.index){
+                            next[card.id] = {transform: getMyCardTransform(cardIndex, cards.length), card: card, open: true, zindex: cardIndex + 72}
+                        } else {
+                            next[card.id] = {transform: getPlayerCardTransform(playerIndex, cardIndex, cards.length), card: card, open: false, zindex: cardIndex + 72}
+                        }
                     })
                 })
                 game.currentPairs.forEach((pair, pairIndex)=>{
@@ -175,20 +189,62 @@ export function Views(){
         }
     }, [tick]);
     return <div className="v_wrapper">
+        {game && <>
+        <div> def cards: {game.players[game.getDefender()].cards.length}</div>
         <div className="v_player" style={{left: '0px', top: '0px'}}>
+            0
+            {game.currentPlayerIndex == 0 && 'A'}
+            {game.getDefender() == 0 && 'D'}
         </div>
         <div className="v_player" style={{left: '325px', top: '0px'}}>
+            1
+            {game.currentPlayerIndex == 1 && 'A'}
+            {game.getDefender() == 1 && 'D'}
         </div>
         <div className="v_player" style={{left: '650px', top: '0px'}}>
+            2
+            {game.currentPlayerIndex == 2 && 'A'}
+            {game.getDefender() == 2 && 'D'}
         </div>
-        <div className="v_player" style={{left: '0px', top: '250px'}}></div>
-        <div className="v_player" style={{left: '650px', top: '250px'}}></div>
-        <div className="v_my_player" style={{left: '250px', top: '400px'}}></div>
+        <div className="v_player" style={{left: '0px', top: '250px'}}>
+            3
+            {game.currentPlayerIndex == 3 && 'A'}
+            {game.getDefender() == 3 && 'D'}
+        </div>
+        <div className="v_player" style={{left: '650px', top: '250px'}}>
+            4
+            {game.currentPlayerIndex == 4 && 'A'}
+            {game.getDefender() == 4 && 'D'}
+        </div>
+        <div className="v_my_player" style={{left: '250px', top: '400px'}}>
+            {myPlayer.index}
+            {game.currentPlayerIndex == myPlayer.index && 'A'}
+            {game.getDefender() == myPlayer.index && 'D'}
+        </div>
         <div className="v_table" style={{left: '150px', top: '150px'}}></div>
-
+        </>
+        }
         <div>
             test
-            {game && cardsPos.map(it=> <div className="views_card" style={{ transition: '400ms', transform: it.transform, 'z-index':it.zindex.toString()}}><CardViewTr value={it.card.value} type={it.card.type} selected={!it.open} zindex={it.zindex}></CardViewTr></div>)}   
+            <button style={{position: 'relative', 'z-index': 100}} onClick={()=>{
+                myPlayer.fold();
+            }}>забрать</button>
+            <button style={{position: 'relative', 'z-index': 100}} onClick={()=>{
+                myPlayer.turn();
+            }}>отбить</button>
+            {game && cardsPos.map(it=> <div className="views_card" style={{ transition: '400ms', transform: it.transform, 'z-index':it.zindex.toString()}}
+            onClick={()=>{
+                if (myPlayer.cards.find(card=>{
+                    return it.card.id == card.id
+                })){
+                    if (myPlayer.game.getDefender() == myPlayer.index){
+                        myPlayer.defend(it.card, myPlayer.game.currentPairs.find(pair=> pair.defend == null).attack);
+                    }
+                    if (myPlayer.game.currentPlayerIndex == myPlayer.index){
+                        myPlayer.attack(it.card);
+                    }
+                }
+            }}><CardViewTr value={it.card.value} type={it.card.type} selected={!it.open} zindex={it.zindex}></CardViewTr></div>)}   
         </div>
     </div>
 }

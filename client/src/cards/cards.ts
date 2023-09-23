@@ -16,10 +16,11 @@ function log(text: string){
 
 export class BotPlayer {
     constructor(player: Player){
-        const game = player.game;
-        const defender = player.game.players[player.game.getDefender()];
+        
         let out: any = null;
         player.onGameState = async ()=>{
+            const game = player.game;
+            const defender = player.game.players[player.game.getDefender()];
             if (game.isFinished == true ){
                 return;
             }
@@ -46,8 +47,13 @@ export class BotPlayer {
                     })
                     const addList = player.cards.filter(it=> canAdd(it, allCards));
                     if (addList.length){
-                        console.log('add attack')
-                        player.attack(addList[Math.floor(Math.random()*addList.length)]);
+                        const undefendedCount = game.currentPairs.filter(pair=> !pair.defend).length;
+                        if (defender.cards.length > undefendedCount){
+                            console.log('add attack')
+                            player.attack(addList[Math.floor(Math.random()*addList.length)]);
+                        } else {
+                            console.log('cannot add')
+                        }
                     } else {
                         player.turn();
                     }
@@ -96,7 +102,7 @@ export class Player{
         if (cardIndex == -1){
             throw new Error('Wrong card')
         }
-        this.cards.splice(cardIndex, 1);
+        //this.cards.splice(cardIndex, 1);
         this.game.attack(this, card);
     }
 
@@ -108,7 +114,7 @@ export class Player{
         if (cardIndex == -1){
             throw new Error('Wrong card')
         }
-        this.cards.splice(cardIndex, 1);
+        //this.cards.splice(cardIndex, 1);
         this.game.defend(this, card, attackCard);
     }
 
@@ -253,6 +259,8 @@ export class Cards{
             }
         })
         if (!allCards.length || canAdd(card, allCards)){
+            const cardIndex = player.cards.findIndex(it=> sameCard(it, card)); 
+            player.cards.splice(cardIndex, 1);
             this.currentPairs.push({
                 attack: card,
                 defend: null
@@ -273,6 +281,8 @@ export class Cards{
         if (isBeats(defendCard, attackCard, this.trump)){
             const pair = this.currentPairs.find(it=> sameCard(it.attack, attackCard));
             if (pair){
+                const cardIndex = player.cards.findIndex(it=> sameCard(it, defendCard)); 
+                player.cards.splice(cardIndex, 1);
                 pair.defend = defendCard;
                 this.onGameState();
             } else {

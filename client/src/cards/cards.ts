@@ -70,7 +70,7 @@ export class BotPlayer1 {
                     out = setTimeout(()=>res(null), 500)
             })
             log('player: ' + player.index + ' - ' + game.currentPlayerIndex + ' - ' + game.getDefender() + ' deck: ' + game.deck.length + JSON.stringify(player.cards))
-            if (game.currentPlayerIndex == player.index){
+            if (/*game.currentPlayerIndex == player.index*/ game.getDefender() != player.index){
                 
                 if (defender.cards.length == 0){
                     log('no defender cards')
@@ -142,7 +142,7 @@ export class BotPlayer {
                     out = setTimeout(()=>res(null), 500)
             })
             log('player: ' + player.index + ' - ' + game.currentPlayerIndex + ' - ' + game.getDefender() + ' deck: ' + game.deck.length + JSON.stringify(player.cards))
-            if (game.currentPlayerIndex == player.index){
+            if (/*game.currentPlayerIndex == player.index*/ game.getDefender() != player.index){
                 
                 if (defender.cards.length == 0){
                     log('no defender cards')
@@ -387,7 +387,9 @@ export class Cards{
     }
 
     attack(player: Player, card: Card){
-        if (player.index != this.currentPlayerIndex){
+        //if (player.index != this.currentPlayerIndex){
+        if ((player.index == this.currentPlayerIndex) || (player.index != this.getDefender() && this.currentPairs.length > 0)){  
+        } else {
             log('Wrong player attack')
             return false;
         }

@@ -4,9 +4,16 @@ import { CardsView } from "./cards/cardsView";
 import { Views } from "./cards/views";
 import { App as Three } from "./three/app";
 
+
+
 export function App() {
+    const [currentGame, setCurrentGame] = useState('cards');
     const [loginInput, setLoginInput] = useState({ login: '', password: '' });
     const [isLogined, setLogined] = useState(false);
+    const games = {
+        'cards': Views,
+        'three': Three
+    }
     useEffect(()=>{
         const socket = new WebSocket('ws://localhost:3000');
         socket.onopen = ()=>{
@@ -78,7 +85,11 @@ export function App() {
         }}>for authorized</button>
     */}
         {/*<CardsView></CardsView>*/}
+        {<div>
+            {Object.keys(games).map((it)=> <button style={{'background-color': currentGame == it? '#f00': ''}} onClick={()=> setCurrentGame(it)}>{it}</button>)}
+        </div>}
         {/*<Views></Views>*/}
-        {<Three></Three>}
+        {/*<Three></Three>*/}
+        {React.createElement(games[currentGame as keyof typeof games])}
     </div>
 }

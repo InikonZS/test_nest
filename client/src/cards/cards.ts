@@ -96,6 +96,7 @@ export class BotPlayer1 {
                             player.attack(addList[Math.floor(Math.random()*addList.length)]);
                         } else {
                             console.log('cannot add')
+                            player.turn();
                         }
                     } else {
                         player.turn();
@@ -176,6 +177,7 @@ export class BotPlayer {
                             }
                         } else {
                             console.log('cannot add')
+                            player.turn(); 
                         }
                     } else {
                         player.turn();
@@ -499,7 +501,12 @@ export class Cards{
         this.history.push(this.currentPairs);
         this.currentPairs = [];
         this.moveCards();
-        
+        if (this.players.filter(it=>!it.isWin).length == 0){
+            log('unknown win');
+            this.isFinished = true;
+            this.onGameState();
+            return;
+        } else
         if (this.players.filter(it=>!it.isWin).length == 1){
             //emit winners
             //this.onGameState();
@@ -532,6 +539,9 @@ export class Cards{
     }
 
     nextPlayer(){
+        if (this.players.find(it=> it.isWin == false) == null){
+            return 0;
+        }
        do {
             this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
         } while (this.players[this.currentPlayerIndex].isWin != false); 
@@ -539,6 +549,9 @@ export class Cards{
 
     getDefender(){
         let initialDefender = (this.currentPlayerIndex + 1) % this.players.length;
+        if (this.players.find(it=> it.isWin == false) == null){
+            return 0;
+        }
         while (this.players[initialDefender].isWin != false){
             initialDefender = (initialDefender + 1) % this.players.length;
         }

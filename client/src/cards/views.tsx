@@ -139,12 +139,12 @@ export function Views(){
         setGame(_game);
         const players = [
             _game.addPlayer(),
-            _game.addPlayer(),
+           // _game.addPlayer(),
           //  _game.addPlayer(),
           //  _game.addPlayer()
         ];
         new BotPlayer(players[0]);
-        new BotPlayer1(players[1]);
+       // new BotPlayer1(players[1]);
         //players.map(it=> new BotPlayer(it));
         const _myPlayer = _game.addPlayer();
        _myPlayer.onGameState = ()=>{

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { getData, login, register } from "./api";
 import { CardsView } from "./cards/cardsView";
 import { Views } from "./cards/views";
+import { App as Three } from "./three/app";
 
 export function App() {
     const [loginInput, setLoginInput] = useState({ login: '', password: '' });
@@ -77,6 +78,7 @@ export function App() {
         }}>for authorized</button>
     */}
         {/*<CardsView></CardsView>*/}
-        <Views></Views>
+        {/*<Views></Views>*/}
+        {<Three></Three>}
     </div>
 }

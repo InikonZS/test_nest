@@ -3,12 +3,13 @@ export interface IVector {
   y: number
 }
 
-type IField = Array<Array<number | Cell>>;
+type IField = Array<Array<Cell>>;
 
 export class Cell{
   colorIndex: number;
   position: IVector;
   id: number;
+  removed: boolean = false;
   static lastId: number = 0;
   static getNextId(){
     Cell.lastId++;
@@ -41,7 +42,7 @@ class RocketCell extends Cell{
 
   handleClick(pos: IVector, field: IField){
     field[pos.y].forEach((it, i, row)=>{
-      row[i] = 0;
+      row[i].removed = true;
     })
   }
 }
@@ -94,7 +95,13 @@ export class Game {
       this.removeCells(threeList);
       this.onGameState();
       setTimeout(() => {
-        this.check();
+        this.fallCells();
+        this.addCells();
+        this.onGameState();
+        setTimeout(() => {
+          this.check();
+        }, 500)
+        
       }, 500)
     }    
   }
@@ -112,7 +119,7 @@ export class Game {
           three = [];
         } /*else {
           console.log(cell);*/
-          if(cell != 0) {
+          if(!cell.removed) {
             three.push({ x, y });
           }          
        /* }*/
@@ -131,16 +138,16 @@ export class Game {
       if (three.length == 4 && cellIndex == 0){
         this.field[cell.y][cell.x] = new RocketCell({x: cell.x, y: cell.y});
       } else {
-        this.field[cell.y][cell.x] = 0;
+        this.field[cell.y][cell.x].removed = true;// = 0;
       }
     }))
-    this.fallCells();
-    this.addCells();
+    //this.fallCells();
+    //this.addCells();
   }
 
   fallCells(){
     const cols = this.byCols();
-    const sorted = cols.map(col => [...col].sort((a,b)=> a==0 ? - 1 : 1));
+    const sorted = cols.map(col => [...col].sort((a,b)=> a.removed ? - 1 : 1));
     sorted.forEach((col, x) => col.forEach((cell, y) => {
       this.field[y][x] = cell;
       if (cell instanceof Cell){
@@ -153,7 +160,7 @@ export class Game {
     let added = false;
     this.field.forEach((row, y) => {
       row.forEach((cell, x) => {
-        if (cell == 0){
+        if (cell.removed){
           added = true;
           this.field[y][x] = new Cell(this.randomColor(), {x, y});
         }

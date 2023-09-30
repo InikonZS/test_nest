@@ -59,7 +59,7 @@ export function App() {
     </div>
     asdfg
     <div className="field2">
-      {game && game.field.flat().filter(cell=> cell !=0).sort((a:any, b: any)=> b.id - a.id).map((cell:any ) => {
+      {game && game.field.flat()./*filter(cell=> !cell.removed).*/sort((a:any, b: any)=> b.id - a.id).map((cell:any ) => {
         //return <div className="row">
           //return row.map((cell: any, x) => {
             return <CellView key={cell.id} cell={cell} setDragStart={setDragStart}></CellView>
@@ -81,8 +81,10 @@ function CellView({setDragStart, cell}: {setDragStart: (e: { cell: IVector, posi
       cancelAnimationFrame(id);
     }
   }, []);
-
-  return <div className="cell2" style={{'backgroundColor': ['#fff', '#f00', '#00f', '#0f0', '#ff0', '#f0f'][Number(cell)], '--posx': cell.position.x, '--posy': isNew? -1: cell.position.y}} onMouseDown={(e) => {
+  if (cell.removed){
+    console.log('removed');
+  }
+  return <div className="cell2" style={{'backgroundColor': ['#fff', '#f00', '#00f', '#0f0', '#ff0', '#f0f'][Number(cell)], '--posx': cell.position.x, '--posy': isNew? -1: cell.position.y, transform: cell.removed?'scale(0)':''}} onMouseDown={(e) => {
     setDragStart({
       position: {
         x: e.clientX,

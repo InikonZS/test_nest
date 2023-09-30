@@ -28,6 +28,6 @@
   cursor: pointer;
   top: calc(30px * var(--posy));
   left: calc(30px * var(--posx));
-  transition-property: 'top, left';
+  transition-property: 'top, left, transform';
   transition-duration: 500ms;
 }

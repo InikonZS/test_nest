@@ -3,18 +3,70 @@ export interface IVector {
   y: number
 }
 
+type IField = Array<Array<number | Cell>>;
+
+class Cell{
+  colorIndex: number;
+  position: IVector;
+  id: number;
+  static lastId: number = 0;
+  static getNextId(){
+    Cell.lastId++;
+    return Cell.lastId;
+  }
+  
+  constructor(colorIndex: number, position: IVector){
+    this.colorIndex = colorIndex;
+    this.position = position
+    this.id = Cell.getNextId();
+  }
+
+  valueOf(){
+    return this.colorIndex;
+  }
+
+  toString(){
+    return this.colorIndex;
+  }
+
+  handleClick(pos: IVector, field: IField){
+
+  }
+}
+
+class RocketCell extends Cell{
+  constructor(position: IVector){
+    super(5, position);
+  }
+
+  handleClick(pos: IVector, field: IField){
+    field[pos.y].forEach((it, i, row)=>{
+      row[i] = 0;
+    })
+  }
+}
+
 export class Game {
-  field: Array<Array<number>>;
+  field: IField;
   onGameState: () => void;
 
   constructor() {
-    this.field = new Array(10).fill(null).map(it => new Array(10).fill(0).map(it => Math.floor(Math.random() * 4) + 1));
+    this.field = new Array(10).fill(null).map((it, y) => new Array(10).fill(0).map((it, x) => new Cell(this.randomColor(), {x, y}) ));
+  }
+
+  randomColor(){
+    return Math.floor(Math.random() * 4) + 1
   }
 
   move(position: IVector, direction: IVector) {
     const cell = this.field[position.y][position.x];
     this.field[position.y][position.x] = this.field[position.y + direction.y][position.x + direction.x];
     this.field[position.y + direction.y][position.x + direction.x] = cell;
+    if (cell instanceof Cell){
+      cell.handleClick({x:position.x + direction.x, y:position.y + direction.y}, this.field);
+      this.fallCells();
+      this.addCells();
+    }
     this.check();
   }
 
@@ -36,13 +88,13 @@ export class Game {
     }    
   }
 
-  _check(field: Array<Array<number>>) {
+  _check(field: IField) {
     const threeList: Array<Array<IVector>> = [];
     field.forEach((row, y) => {
       let three: Array<IVector> = [];
-      let lastColor = -1;
+      let lastColor: number | Cell = -1;
       row.forEach((cell, x) => {
-        if (lastColor != cell) {
+        if (Number(lastColor) != Number(cell)) {
           if (three.length >= 3) {           
             threeList.push(three);
           }
@@ -64,9 +116,18 @@ export class Game {
   }
 
   removeCells(threeList: Array<Array<IVector>>) {
-    threeList.map(three => three.map(cell => {
-      this.field[cell.y][cell.x] = 0;
+    threeList.map(three => three.map((cell, cellIndex) => {
+      if (three.length == 4 && cellIndex == 0){
+        this.field[cell.y][cell.x] = new RocketCell({x: cell.x, y: cell.y});
+      } else {
+        this.field[cell.y][cell.x] = 0;
+      }
     }))
+    this.fallCells();
+    this.addCells();
+  }
+
+  fallCells(){
     const cols = this.byCols();
     const sorted = cols.map(col => [...col].sort((a,b)=> a==0 ? - 1 : 1));
     sorted.forEach((col, x) => col.forEach((cell, y) => {
@@ -74,8 +135,18 @@ export class Game {
     }))
   }
 
+  addCells(){
+    this.field.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        if (cell == 0){
+          this.field[y][x] = new Cell(this.randomColor(), {x, y});
+        }
+      })
+    })
+  }
+
   byCols() {
-    const result: Array<Array<number>> = new Array(this.field[0].length).fill(null).map(it => []);
+    const result: IField = new Array(this.field[0].length).fill(null).map(it => []);
     this.field.forEach((row, y) => {
       row.forEach((cell, x) => {
         result[x][y] = cell;

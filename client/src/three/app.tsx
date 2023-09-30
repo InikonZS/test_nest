@@ -41,7 +41,7 @@ export function App() {
       {game && game.field.map((row, y) => {
         return <div className="row">
           {row.map((cell, x) => {
-            return <div className="cell" style={{'backgroundColor': ['#fff', '#f00', '#00f', '#0f0', '#ff0'][cell]}} onMouseDown={(e) => {
+            return <div className="cell" style={{'backgroundColor': ['#fff', '#f00', '#00f', '#0f0', '#ff0', '#f0f'][Number(cell)]}} onMouseDown={(e) => {
               setDragStart({
                 position: {
                   x: e.clientX,
@@ -51,7 +51,7 @@ export function App() {
                   x, y
                 }
               })
-            }}>{cell}</div>
+            }}>{cell.toString()}</div>
           })}
         </div>
       })}

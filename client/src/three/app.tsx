@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Game, IVector } from './game';
+import { Cell, Game, IVector } from './game';
 import './app.css';
 
 export function App() {
@@ -37,10 +37,11 @@ export function App() {
   }, [dragStart]);
 
   return (
+    <div>
     <div className="field">
       {game && game.field.map((row, y) => {
         return <div className="row">
-          {row.map((cell, x) => {
+          {row.map((cell: Cell, x) => {
             return <div className="cell" style={{'backgroundColor': ['#fff', '#f00', '#00f', '#0f0', '#ff0', '#f0f'][Number(cell)]}} onMouseDown={(e) => {
               setDragStart({
                 position: {
@@ -56,5 +57,40 @@ export function App() {
         </div>
       })}
     </div>
+    asdfg
+    <div className="field2">
+      {game && game.field.flat().filter(cell=> cell !=0).sort((a:any, b: any)=> b.id - a.id).map((cell:any ) => {
+        //return <div className="row">
+          //return row.map((cell: any, x) => {
+            return <CellView key={cell.id} cell={cell} setDragStart={setDragStart}></CellView>
+        //  })
+        //</div>
+      })}
+    </div>
+    </div>
   )
+}
+
+function CellView({setDragStart, cell}: {setDragStart: (e: { cell: IVector, position: IVector })=>void, cell: Cell}){
+  const [isNew, setNew] = useState(true);
+  useEffect(()=>{
+    const id = requestAnimationFrame(()=>{
+      setNew(false);
+    })
+    return ()=>{
+      cancelAnimationFrame(id);
+    }
+  }, []);
+
+  return <div className="cell2" style={{'backgroundColor': ['#fff', '#f00', '#00f', '#0f0', '#ff0', '#f0f'][Number(cell)], '--posx': cell.position.x, '--posy': isNew? -1: cell.position.y}} onMouseDown={(e) => {
+    setDragStart({
+      position: {
+        x: e.clientX,
+        y: e.clientY
+      },
+      cell: {
+        x: cell.position.x, y: cell.position.y
+      }
+    })
+  }}>{(cell as any).id}</div>
 }

@@ -5,7 +5,7 @@ export interface IVector {
 
 type IField = Array<Array<number | Cell>>;
 
-class Cell{
+export class Cell{
   colorIndex: number;
   position: IVector;
   id: number;
@@ -62,12 +62,23 @@ export class Game {
     const cell = this.field[position.y][position.x];
     this.field[position.y][position.x] = this.field[position.y + direction.y][position.x + direction.x];
     this.field[position.y + direction.y][position.x + direction.x] = cell;
+    const cell2 = this.field[position.y][position.x]
     if (cell instanceof Cell){
-      cell.handleClick({x:position.x + direction.x, y:position.y + direction.y}, this.field);
-      this.fallCells();
-      this.addCells();
+      cell.position = {x: position.x + direction.x, y: position.y + direction.y};
     }
-    this.check();
+    if (cell2 instanceof Cell){
+      cell2.position = {x: position.x, y: position.y};
+    }
+    this.onGameState();
+    setTimeout(()=>{
+      if (cell instanceof Cell){
+        cell.handleClick({x:position.x + direction.x, y:position.y + direction.y}, this.field);
+        this.fallCells();
+        this.addCells();
+        this.check();
+        this.onGameState();
+      }
+    }, 500);  
   }
 
   check() {
@@ -132,17 +143,23 @@ export class Game {
     const sorted = cols.map(col => [...col].sort((a,b)=> a==0 ? - 1 : 1));
     sorted.forEach((col, x) => col.forEach((cell, y) => {
       this.field[y][x] = cell;
+      if (cell instanceof Cell){
+        cell.position = {x, y};
+      }
     }))
   }
 
   addCells(){
+    let added = false;
     this.field.forEach((row, y) => {
       row.forEach((cell, x) => {
         if (cell == 0){
+          added = true;
           this.field[y][x] = new Cell(this.randomColor(), {x, y});
         }
       })
     })
+    return added;
   }
 
   byCols() {

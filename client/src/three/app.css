@@ -9,3 +9,25 @@
   user-select: none;
   cursor: pointer;
 }
+
+.field2 {
+  position: relative;
+  overflow: hidden;
+  width: 300px;
+  height: 300px;
+}
+
+.cell2 {
+  --posy:0;
+  --posx:0;
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 1px solid;
+  user-select: none;
+  cursor: pointer;
+  top: calc(30px * var(--posy));
+  left: calc(30px * var(--posx));
+  transition-property: 'top, left';
+  transition-duration: 500ms;
+}

@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { Cell, Game, IVector } from './game';
+import { Game as Game2 } from './game2';
 import './app.css';
 
 export function App() {
-  const [game, setGame] = useState<Game>(null);
+  const [game, setGame] = useState<Game2>(null);
   const [tick, setTick] = useState(0);
   const [dragStart, setDragStart] = useState<{ cell: IVector, position: IVector }>(null);
 
   useEffect(() => {
-    const _game = new Game();
+    const _game = new Game2();
     _game.onGameState = () => {
       setTick(last => last + 1);
     }
-    _game.check();
+    //_game.check();
     setGame(_game);
   }, []);
 
@@ -39,7 +40,7 @@ export function App() {
   return (
     <div>
     <div className="field">
-      {game && game.field.map((row, y) => {
+      {/*game && game.field.map((row, y) => {
         return <div className="row">
           {row.map((cell: Cell, x) => {
             return <div className="cell" style={{'backgroundColor': ['#fff', '#f00', '#00f', '#0f0', '#ff0', '#f0f'][Number(cell)]}} onMouseDown={(e) => {
@@ -55,11 +56,11 @@ export function App() {
             }}>{cell.toString()}</div>
           })}
         </div>
-      })}
+      })*/}
     </div>
     asdfg
     <div className="field2">
-      {game && game.field.flat()./*filter(cell=> !cell.removed).*/sort((a:any, b: any)=> b.id - a.id).map((cell:any ) => {
+      {/*game && game.field.flat()*/game && game.objects./*filter(cell=> !cell.removed).*/sort((a:any, b: any)=> b.id - a.id).map((cell:any ) => {
         //return <div className="row">
           //return row.map((cell: any, x) => {
             return <CellView key={cell.id} cell={cell} setDragStart={setDragStart}></CellView>
@@ -82,9 +83,9 @@ function CellView({setDragStart, cell}: {setDragStart: (e: { cell: IVector, posi
     }
   }, []);
   if (cell.removed){
-    console.log('removed');
+   // console.log('removed');
   }
-  return <div className="cell2" style={{'backgroundColor': ['#fff', '#f00', '#00f', '#0f0', '#ff0', '#f0f'][Number(cell)], '--posx': cell.position.x, '--posy': isNew? -1: cell.position.y, transform: cell.removed?'scale(0)':''}} onMouseDown={(e) => {
+  return <div className="cell2" style={{'backgroundColor': ['#fff', '#f00', '#00f', '#0f0', '#ff0', '#f0f', '#999'][Number(cell)], '--posx': cell.position.x, '--posy': isNew? -1: cell.position.y, transform: cell.removed?'scale(0)':''}} onMouseDown={(e) => {
     setDragStart({
       position: {
         x: e.clientX,

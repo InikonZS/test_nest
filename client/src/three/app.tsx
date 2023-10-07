@@ -2,6 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Cell, Game, IVector } from './game';
 import { Game as Game2 } from './game2';
 import './app.css';
+import cell1 from './imgs/cell1.svg';
+import cell2 from './imgs/cell2.svg';
+import cell3 from './imgs/cell3.svg';
+import cell4 from './imgs/cell4.svg';
+console.log(cell1)
 
 export function App() {
   const [game, setGame] = useState<Game2>(null);
@@ -85,7 +90,7 @@ function CellView({setDragStart, cell}: {setDragStart: (e: { cell: IVector, posi
   if (cell.removed){
    // console.log('removed');
   }
-  return <div className="cell2" style={{'backgroundColor': ['#fff', '#f00', '#00f', '#0f0', '#ff0', '#f0f', '#999', '#f90'][Number(cell)], '--posx': cell.position.x, '--posy': isNew? -1: cell.position.y, transform: cell.removed?'scale(0)':''}} onMouseDown={(e) => {
+  return <div className="cell2" style={{'backgroundColor': ['#fff', '#f000', '#00f0', '#0f00', '#ff00', '#f0f', '#999', '#f90'][Number(cell)], '--posx': cell.position.x, '--posy': isNew? -1: cell.position.y, transform: cell.removed?'scale(0)':''}} onMouseDown={(e) => {
     setDragStart({
       position: {
         x: e.clientX,
@@ -95,5 +100,8 @@ function CellView({setDragStart, cell}: {setDragStart: (e: { cell: IVector, posi
         x: cell.position.x, y: cell.position.y
       }
     })
-  }}>{(cell as any).id}</div>
+  }}>
+    {false && (cell as any).id}
+    {<div className="cell-img" style={{'backgroundImage': 'url('+[null, cell1, cell2, cell3, cell4][Number(cell)]+')'}}></div>}
+  </div>
 }

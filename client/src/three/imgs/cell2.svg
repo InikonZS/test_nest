@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="82" height="78" viewBox="0 0 82 78">
+    <clipPath id="b">
+        <path fill="#ACFA49"
+            d="m41 0 9.68 29.8H82L56.66 48.2 66.34 78 41 59.59 15.66 78l9.68-29.8L0 29.8h31.32L41 0" />
+    </clipPath>
+    <path fill="#ACFA49"
+        d="m41 0 9.68 29.8H82L56.66 48.2 66.34 78 41 59.59 15.66 78l9.68-29.8L0 29.8h31.32L41 0"
+        clip-path="url(#b)" />
+</svg>

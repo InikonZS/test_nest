@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="76"
+    viewBox="0 0 80 76">
+    <clipPath id="d">
+        <path fill="#FFBD59" d="m40 0 40 29.03L64.72 76H15.28L0 29.03 40 0" />
+    </clipPath>
+    <path fill="#FFBD59" d="m40 0 40 29.03L64.72 76H15.28L0 29.03 40 0" clip-path="url(#d)" />
+</svg>

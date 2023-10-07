@@ -116,6 +116,36 @@ class RocketCell extends GameObject{
     }
 }
 
+class DiscoCell extends GameObject{
+    actionType = 'ds';
+
+    constructor(position: IVector){
+        super(position);
+    }
+
+    move(directed: GameObject): void {
+        this.activated = true;
+        const lastDirectedPos = directed.position;
+        if (directed.reverseMove(this)){
+            this.position = {...lastDirectedPos};
+        }
+    }
+
+    reverseMove(origin: GameObject): boolean {
+        this.position = origin.position;
+        return true;
+    }
+
+    valueOf(){
+        return 9;
+    }
+
+    fall(): boolean {
+        this.position.y +=1;
+        return true;
+    }
+}
+
 class BombCell extends GameObject{
 
     actionType: string = 'bm';
@@ -286,6 +316,15 @@ export class Game{
                     }
                 })
             }
+            if (three.type == 'ds'){
+                three.cells[0].removed = true;
+                const color = Number(this.objects.find(it=>!it.removed && it.moving)) || Math.floor(Math.random() * 4) + 1;
+                this.objects.forEach(it=>{
+                    if (Number(it) == color){
+                        it.removed = true;
+                    }
+                })
+            }
             const damageList: Array<IVector> = [];
             three.cells.map((cell, cellIndex) => {
                 closest.forEach(vc=>{
@@ -311,6 +350,11 @@ export class Game{
                 console.log('rocket');
                 const initiator = three.cells.find(it=> it.moving) || three.cells[0];
                 this.objects.push(new RocketCell({...initiator.position}));
+            }
+            if (three.type == 'disco'){
+                console.log('disco');
+                const initiator = three.cells.find(it=> it.moving) || three.cells[0];
+                this.objects.push(new DiscoCell({...initiator.position}));
             }
             if (three.type == 'bomb'){
                 console.log('bomb');
@@ -392,7 +436,7 @@ export class Game{
 
             const squares = this._checkSquare(field);
             const activated = this.objects.filter(it=>it.activated && !it.removed).map(it=>({type: it.actionType, cells: [it]}));
-            const threeList = [...threeListH.map(it=> ({type: it.length == 4 ? 'rocket' : '', cells: it})), ...threeListV.map(it=> ({type: it.length == 4 ? 'rocket' : '', cells: it})), ...squares.map(it=> ({type: 'square', cells: it})), ...activated, ...bombs];
+            const threeList = [...threeListH.map(it=> ({type: ['', '', '', '', 'rocket', 'disco', 'disco', 'disco'][it.length], cells: it})), ...threeListV.map(it=> ({type: ['', '', '', '', 'rocket', 'disco', 'disco', 'disco'][it.length], cells: it})), ...squares.map(it=> ({type: 'square', cells: it})), ...activated, ...bombs];
             if (this.removeCells(threeList)){
                 setTimeout(()=>{
                     this.check();

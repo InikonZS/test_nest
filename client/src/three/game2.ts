@@ -5,6 +5,8 @@ export class GameObject{
     zIndex: number;
     id: number;
     removed: boolean = false;
+    moving: boolean = false;
+    activated: boolean = false;
 
     static lastId: number = 0;
 
@@ -71,20 +73,44 @@ class BreakableCell extends GameObject{
     }
 
     move(directed: GameObject): void {
-        /*const lastDirectedPos = directed.position;
-        if (directed.reverseMove(this)){
-            this.position = {...lastDirectedPos};
-        }*/
         this.removed = true;
     }
 
     reverseMove(origin: GameObject): boolean {
-        //this.position = origin.position;
         return false;
     }
 
     valueOf(){
         return 6;
+    }
+}
+
+class RocketCell extends GameObject{
+
+    constructor(position: IVector){
+        super(position);
+    }
+
+    move(directed: GameObject): void {
+        this.activated = true;
+        const lastDirectedPos = directed.position;
+        if (directed.reverseMove(this)){
+            this.position = {...lastDirectedPos};
+        }
+    }
+
+    reverseMove(origin: GameObject): boolean {
+        this.position = origin.position;
+        return true;
+    }
+
+    valueOf(){
+        return 7;
+    }
+
+    fall(): boolean {
+        this.position.y +=1;
+        return true;
     }
 }
 
@@ -183,31 +209,68 @@ export class Game{
         })
         return threeList;
       }
+
+      _checkSquare(field: Array<Array<Cell>>){
+        const threeList: Array<Array<Cell>> = [];
+        field.forEach((row, y) => {
+          row.forEach((cell, x) => {
+            if (cell && field[y+1]?.[x]?.color == cell.color &&
+                field[y]?.[x+1]?.color == cell.color &&
+                field[y+1]?.[x+1]?.color == cell.color
+            ){
+                threeList.push([cell, field[y+1][x], field[y][x+1], field[y+1][x+1]])
+            }
+          })
+        })
+        return threeList;
+      }
     
-      removeCells(threeList: Array<Array<Cell>>) {
+      removeCells(threeList: Array<{type: string, cells: Array<GameObject>}>) {
         let removed = false;
         threeList.map(three => {
+            if (three.type == 'dm'){
+                three.cells[0].removed = true;
+                const dir = Math.random()>0.5;
+                if (dir) {
+                    this.objects.forEach(it=>{
+                        if (it.position.x == three.cells[0].position.x){
+                            it.removed = true;
+                        }
+                    })
+                } else {
+                    this.objects.forEach(it=>{
+                        if (it.position.y == three.cells[0].position.y){
+                            it.removed = true;
+                        }
+                    })
+                }
+            }
             const damageList: Array<IVector> = [];
-            three.map((cell, cellIndex) => {
+            three.cells.map((cell, cellIndex) => {
                 closest.forEach(vc=>{
                    if (damageList.find(it=> it.x == vc.x + cell.position.x && it.y == vc.y + cell.position.y) == null){
                     damageList.push({x:vc.x + cell.position.x ,y: vc.y + cell.position.y});
                    } 
                 })
-                
-            //if (three.length == 4 && cellIndex == 0){
-            //  this.field[cell.y][cell.x] = new RocketCell({x: cell.x, y: cell.y});
-            //} else {
-                cell.removed = true;// = 0;
+                cell.removed = true;
                 removed = true;
-            //}
             });
+            
             damageList.forEach(it=>{
                 const dm = this.objects.find(jt=> jt.position.x == it.x && jt.position.y == it.y && !jt.removed)
                 if (dm){
                     dm.damage();
                 }
             });
+            if (three.type == 'square'){
+                const initiator = three.cells.find(it=> it.moving) || three.cells[0];
+                this.objects.push(new BreakableCell({...initiator.position}));
+            }
+            if (three.type == 'rocket'){
+                console.log('rocket');
+                const initiator = three.cells.find(it=> it.moving) || three.cells[0];
+                this.objects.push(new RocketCell({...initiator.position}));
+            }
         })
         return removed;
         //this.fallCells();
@@ -217,11 +280,14 @@ export class Game{
     move(position: IVector, direction: IVector){
         const clicked = this.objects.find(it=> it.position.x == position.x && it.position.y == position.y && !it.removed);
         const directed = this.objects.find(it=> it.position.x == position.x + direction.x && it.position.y == position.y + direction.y && !it.removed);
+
         console.log(clicked.id, directed?.id)
         if (clicked && directed){
-           clicked.move(directed); 
-           this.onGameState();
-           this.check();
+            clicked.moving = true;
+            directed.moving = true;
+            clicked.move(directed); 
+            this.onGameState();
+            this.check();
         }
     }
 
@@ -237,6 +303,7 @@ export class Game{
 
     check(){
         if(this._fall()){
+            this.objects.forEach(it=> it.moving = false);
             setTimeout(()=>{
                 this.check();
             }, 50)   
@@ -244,8 +311,9 @@ export class Game{
             const field = this.getCurrentFieldMask()
             const threeListH = this._check(field);
             const threeListV = this._check(this.byCols(field))
-        
-            const threeList = [...threeListH, ...threeListV];
+            const squares = this._checkSquare(field);
+            const activated = this.objects.filter(it=>it.activated && !it.removed).map(it=>({type: 'dm', cells: [it]}));
+            const threeList = [...threeListH.map(it=> ({type: it.length == 4 ? 'rocket' : '', cells: it})), ...threeListV.map(it=> ({type: it.length == 4 ? 'rocket' : '', cells: it})), ...squares.map(it=> ({type: 'square', cells: it})), ...activated];
             if (this.removeCells(threeList)){
                 setTimeout(()=>{
                     this.check();
@@ -263,6 +331,7 @@ export class Game{
             });
             if (!under && it.position.y<9){
                 if (it.fall()){
+                    it.moving = true;
                     console.log('fall')
                     falling = true;
                 };

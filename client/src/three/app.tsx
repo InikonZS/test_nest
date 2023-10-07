@@ -85,7 +85,7 @@ function CellView({setDragStart, cell}: {setDragStart: (e: { cell: IVector, posi
   if (cell.removed){
    // console.log('removed');
   }
-  return <div className="cell2" style={{'backgroundColor': ['#fff', '#f00', '#00f', '#0f0', '#ff0', '#f0f', '#999'][Number(cell)], '--posx': cell.position.x, '--posy': isNew? -1: cell.position.y, transform: cell.removed?'scale(0)':''}} onMouseDown={(e) => {
+  return <div className="cell2" style={{'backgroundColor': ['#fff', '#f00', '#00f', '#0f0', '#ff0', '#f0f', '#999', '#f90'][Number(cell)], '--posx': cell.position.x, '--posy': isNew? -1: cell.position.y, transform: cell.removed?'scale(0)':''}} onMouseDown={(e) => {
     setDragStart({
       position: {
         x: e.clientX,

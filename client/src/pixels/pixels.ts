@@ -21,6 +21,10 @@ class Pixel{
     react(objects: Array<Pixel>, map: Array<Array<Pixel>>){
     
     }
+
+    maxConnections(){
+        return 0;
+    }
 }
 
 function averageAcceleration(myPoint: IVector, points: Array<IVector>, dist:number){
@@ -78,18 +82,31 @@ function findClosest(myPoint: Pixel, points: Array<Pixel>){
     return obj;
 }
 
-class PixelA extends Pixel{
+class PixelA_ extends Pixel{
     position: IVector;
+    connectingDist: number = 30;
+    disconnectingDist: number = 40;
+    springDist: number = 3;
     
     constructor(position: IVector){
         super(position);
         this.type = '#f00';
     }
 
-    react(objects: Array<Pixel>, map: Array<Array<Pixel>>){
-        const closest = findClosest(this, objects.filter(it=>(it instanceof PixelA) && !this.connections.includes(it) && !it.connections.includes(this)));
-        const cnt = 3;
-        if (closest.original.connections.length <=cnt && this.connections.length<=cnt && closest.dist<30){
+    closestNotConnected(objects: Array<Pixel>){
+        const closestFiltered = objects.filter(it=>(it instanceof PixelA_) && !this.connections.includes(it) && !it.connections.includes(this));
+        const result = findClosest(this, closestFiltered);
+        return result;
+    }
+
+    maxConnections(){
+        return 3;
+    }
+
+    connectClosest(objects: Array<Pixel>){
+        const closest = this.closestNotConnected(objects);
+        const cnt = this.maxConnections();
+        if (closest.original.connections.length <=closest.original.maxConnections() && this.connections.length<=cnt && closest.dist<this.connectingDist){
             if (!closest.original.connections.includes(this)){
                 closest.original.connections.push(this);
             }
@@ -97,29 +114,47 @@ class PixelA extends Pixel{
                 this.connections.push(closest.original);
             }
         }
+    }
 
+    breakConnections(){
         this.connections = this.connections.filter(it=> {
             const dist = ((it.position.x - this.position.x) ** 2 + (it.position.y - this.position.y) ** 2);
-            if (dist>40){
+            if (dist>this.disconnectingDist){
                 it.connections = it.connections.filter(jt=> jt!=it);
                 return false;
             }
             return true;
         })
-        
-        const acc3 = springAcceleration(this.position, objects.filter(it=>it!=this && this.connections.includes(it)).map(it=>it.position), 3);
-        this.position.x += acc3.x*6;
-        this.position.y += acc3.y*6;
+    }
 
-if (this.connections.length>=cnt){
-        const acc = averageAcceleration(this.position, objects.filter(it=>it!=this && it instanceof PixelA && !this.connections.includes(it)).map(it=>it.position), 90);
-        this.position.x += acc.x*3;
-        this.position.y += acc.y*3;
-} else {
-    const acc = averageAcceleration(this.position, objects.filter(it=>it!=this && it instanceof PixelA && !this.connections.includes(it)).map(it=>it.position), 10);
-        this.position.x += acc.x*3;
-        this.position.y += acc.y*3;
-}
+    limitBorder(){
+        if (this.position.x<0){ this.position.x = 0}
+        if (this.position.x>=200){ this.position.x = 199}
+        if (this.position.y<0){ this.position.y = 0}
+        if (this.position.y>=200){ this.position.y = 199}
+    }
+
+    reactConnected(){
+        const acc = springAcceleration(this.position, this.connections.map(it=>it.position), this.springDist);
+        this.position.x += acc.x*6;
+        this.position.y += acc.y*6;
+    }
+
+    react(objects: Array<Pixel>, map: Array<Array<Pixel>>){
+        this.connectClosest(objects);
+        this.breakConnections();
+        this.reactConnected();
+        const cnt = this.maxConnections();
+
+        if (this.connections.length>=cnt){
+            const acc = averageAcceleration(this.position, objects.filter(it=>it!=this && it instanceof PixelA && !this.connections.includes(it)).map(it=>it.position), 90);
+            this.position.x += acc.x*3;
+            this.position.y += acc.y*3;
+        } else {
+            const acc = averageAcceleration(this.position, objects.filter(it=>it!=this && it instanceof PixelA && !this.connections.includes(it)).map(it=>it.position), 10);
+            this.position.x += acc.x*3;
+            this.position.y += acc.y*3;
+        }
 
         const acc1 = averageAcceleration(this.position, objects.filter(it=>it!=this && it instanceof PixelB).map(it=>it.position), 30);
         this.position.x += acc1.x* 2;
@@ -129,10 +164,22 @@ if (this.connections.length>=cnt){
         this.position.x += acc2.x*10;
         this.position.y += acc2.y*10;
        
-        if (this.position.x<0){ this.position.x = 0}
-        if (this.position.x>=200){ this.position.x = 199}
-        if (this.position.y<0){ this.position.y = 0}
-        if (this.position.y>=200){ this.position.y = 199}
+        this.limitBorder();
+    }
+}
+
+class PixelA extends PixelA_{
+
+}
+
+class PixelE extends PixelA_ {
+    type: string = '#f90';
+    connectingDist: number = 30;
+    disconnectingDist: number = 150;
+    springDist: number = 18;
+
+    maxConnections(): number {
+        return 2;
     }
 }
 
@@ -294,7 +341,7 @@ export class Pixels{
     objectMap: Array<Array<Pixel>>;
     onGameState: ()=>void;
     constructor(){
-        this.objects = new Array(200).fill(null).map((it, i)=> new [PixelA, PixelB, PixelB, PixelD][Math.floor(Math.random() * 4)]({x: Math.floor(Math.random() * 200  /*(i<100? 20: 150)*/), y: Math.floor(Math.random() *  200 )}));
+        this.objects = new Array(200).fill(null).map((it, i)=> new [PixelA, PixelE, PixelB, PixelD][Math.floor(Math.random() * 4)]({x: Math.floor(Math.random() * 200  /*(i<100? 20: 150)*/), y: Math.floor(Math.random() *  200 )}));
         this.objects = this.objects.filter(it=>{
             return this.objects.find(jt=> it.position.x == jt.position.x && it.position.y == jt.position.y) != null;
         })

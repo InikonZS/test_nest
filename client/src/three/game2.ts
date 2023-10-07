@@ -22,7 +22,8 @@ export class GameObject{
         this.id = GameObject.getNextId();
     }
 
-    move(directed: GameObject){
+    move(directed: GameObject): boolean{
+        return false
     }
 
     reverseMove(origin: GameObject): boolean{
@@ -50,11 +51,13 @@ class Cell extends GameObject{
         this.color = color;
     }
 
-    move(directed: GameObject): void {
+    move(directed: GameObject): boolean {
         const lastDirectedPos = directed.position;
-        if (directed.reverseMove(this)){
+        if (directed.reverseMove(this) && directed !== this){
             this.position = {...lastDirectedPos};
+            return true;
         }
+        return false;
     }
 
     reverseMove(origin: GameObject): boolean {
@@ -78,8 +81,9 @@ class BreakableCell extends GameObject{
         super(position);
     }
 
-    move(directed: GameObject): void {
+    move(directed: GameObject): boolean {
         this.removed = true;
+        return true;
     }
 
     reverseMove(origin: GameObject): boolean {
@@ -98,12 +102,13 @@ class RocketCell extends GameObject{
         super(position);
     }
 
-    move(directed: GameObject): void {
+    move(directed: GameObject): boolean {
         this.activated = true;
         const lastDirectedPos = directed.position;
         if (directed.reverseMove(this)){
             this.position = {...lastDirectedPos};
         }
+        return true;
     }
 
     reverseMove(origin: GameObject): boolean {
@@ -150,12 +155,13 @@ class DiscoCell extends GameObject{
         super(position);
     }
 
-    move(directed: GameObject): void {
+    move(directed: GameObject): boolean {
         this.activated = true;
         const lastDirectedPos = directed.position;
         if (directed.reverseMove(this)){
             this.position = {...lastDirectedPos};
         }
+        return true;
     }
 
     reverseMove(origin: GameObject): boolean {
@@ -191,12 +197,13 @@ class BombCell extends GameObject{
         super(position);
     }
 
-    move(directed: GameObject): void {
+    move(directed: GameObject): boolean {
         this.activated = true;
         const lastDirectedPos = directed.position;
         if (directed.reverseMove(this)){
             this.position = {...lastDirectedPos};
         }
+        return true;
     }
 
     reverseMove(origin: GameObject): boolean {
@@ -231,8 +238,9 @@ class BoxCell extends GameObject{
         super(position);
     }
 
-    move(directed: GameObject): void {
+    move(directed: GameObject): boolean{
         //this.removed = true;
+        return false;
     }
 
     reverseMove(origin: GameObject): boolean {
@@ -280,6 +288,7 @@ const closest: Array<IVector> = [
 export class Game{
     objects: GameObject[] = [];
     onGameState: () => void;
+    moveCount: number = 0;
 
     constructor(){
         this.objects = generateLevel();
@@ -357,30 +366,28 @@ export class Game{
                     dm.damage();
                 }
             });
-            if (three.type == 'square'){
-                const initiator = three.cells.find(it=> it.moving) || three.cells[0];
-                this.objects.push(new BreakableCell({...initiator.position}));
-            }
-            if (three.type == 'rocket'){
-                console.log('rocket');
-                const initiator = three.cells.find(it=> it.moving) || three.cells[0];
-                this.objects.push(new RocketCell({...initiator.position}));
-            }
-            if (three.type == 'disco'){
-                console.log('disco');
-                const initiator = three.cells.find(it=> it.moving) || three.cells[0];
-                this.objects.push(new DiscoCell({...initiator.position}));
-            }
-            if (three.type == 'bomb'){
-                console.log('bomb');
-                const initiator = three.cells.find(it=> it.moving) || three.cells[0];
-                this.objects.push(new BombCell({...initiator.position}));
-            }
+            this.createBonusCell(three);
         })
         return removed;
         //this.fallCells();
         //this.addCells();
-      }
+    }
+
+    createBonusCell(three: {type: string, cells: Array<GameObject>}){
+        const initiator = three.cells.find(it=> it.moving) || three.cells[0];
+        if (three.type == 'square'){
+            this.objects.push(new BreakableCell({...initiator.position}));
+        } else
+        if (three.type == 'rocket'){
+            this.objects.push(new RocketCell({...initiator.position}));
+        } else
+        if (three.type == 'disco'){
+            this.objects.push(new DiscoCell({...initiator.position}));
+        } else
+        if (three.type == 'bomb'){
+            this.objects.push(new BombCell({...initiator.position}));
+        }
+    }
 
     move(position: IVector, direction: IVector){
         const clicked = this.objects.find(it=> it.position.x == position.x && it.position.y == position.y && !it.removed);
@@ -390,7 +397,10 @@ export class Game{
         if (clicked && directed){
             clicked.moving = true;
             directed.moving = true;
-            clicked.move(directed); 
+            const moved = clicked.move(directed); 
+            if (moved){
+                this.moveCount ++;
+            }
             this.onGameState();
             this.check();
         }

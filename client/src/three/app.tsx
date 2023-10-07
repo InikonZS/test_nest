@@ -65,6 +65,7 @@ export function App() {
     </div>
     asdfg
     <div className="field2">
+      {game && game.moveCount}
       {/*game && game.field.flat()*/game && game.objects./*filter(cell=> !cell.removed).*/sort((a:any, b: any)=> b.id - a.id).map((cell:any ) => {
         //return <div className="row">
           //return row.map((cell: any, x) => {

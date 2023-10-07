@@ -8,6 +8,7 @@ export class GameObject{
     moving: boolean = false;
     activated: boolean = false;
     actionType: string = '';
+    
 
     static lastId: number = 0;
 
@@ -33,6 +34,10 @@ export class GameObject{
     }
 
     damage(){
+
+    }
+    
+    execute (objects: Array<GameObject>){
 
     }
 }
@@ -114,6 +119,28 @@ class RocketCell extends GameObject{
         this.position.y +=1;
         return true;
     }
+
+    execute (objects: GameObject[]) {
+        this.removed = true;
+        const dir = Math.random()>0.5;
+        if (dir) {
+            objects.forEach(it=>{
+                if (it.position.x == this.position.x){
+                   
+                    !it.removed && it.execute(objects); 
+                    it.removed = true;
+                }
+            })
+        } else {
+            objects.forEach(it=>{
+                if (it.position.y == this.position.y){
+                    
+                    !it.removed && it.execute(objects);
+                    it.removed = true;
+                }
+            })
+        }
+    };
 }
 
 class DiscoCell extends GameObject{
@@ -143,6 +170,16 @@ class DiscoCell extends GameObject{
     fall(): boolean {
         this.position.y +=1;
         return true;
+    }
+
+    execute(objects: GameObject[]): void {
+        this.removed = true;
+        const color = Number(objects.find(it=>!it.removed && it.moving)) || Math.floor(Math.random() * 4) + 1;
+        objects.forEach(it=>{
+            if (Number(it) == color){
+                it.removed = true;
+            }
+        })
     }
 }
 
@@ -174,6 +211,18 @@ class BombCell extends GameObject{
     fall(): boolean {
         this.position.y +=1;
         return true;
+    }
+
+    execute(objects: GameObject[]): void {
+        this.removed = true;
+        objects.forEach(it=>{
+            if (Math.abs(it.position.y - this.position.y) <=2 && Math.abs(it.position.x - this.position.x) <=2){
+                !it.removed && it.execute(objects);
+                it.removed = true;
+                
+            }
+        })
+    
     }
 }
 
@@ -291,40 +340,6 @@ export class Game{
       removeCells(threeList: Array<{type: string, cells: Array<GameObject>}>) {
         let removed = false;
         threeList.map(three => {
-            if (three.type == 'dm'){
-                three.cells[0].removed = true;
-                const dir = Math.random()>0.5;
-                if (dir) {
-                    this.objects.forEach(it=>{
-                        if (it.position.x == three.cells[0].position.x){
-                            it.removed = true;
-                        }
-                    })
-                } else {
-                    this.objects.forEach(it=>{
-                        if (it.position.y == three.cells[0].position.y){
-                            it.removed = true;
-                        }
-                    })
-                }
-            }
-            if (three.type == 'bm'){
-                three.cells[0].removed = true;
-                this.objects.forEach(it=>{
-                    if (Math.abs(it.position.y - three.cells[0].position.y) <=2 && Math.abs(it.position.x - three.cells[0].position.x) <=2){
-                        it.removed = true;
-                    }
-                })
-            }
-            if (three.type == 'ds'){
-                three.cells[0].removed = true;
-                const color = Number(this.objects.find(it=>!it.removed && it.moving)) || Math.floor(Math.random() * 4) + 1;
-                this.objects.forEach(it=>{
-                    if (Number(it) == color){
-                        it.removed = true;
-                    }
-                })
-            }
             const damageList: Array<IVector> = [];
             three.cells.map((cell, cellIndex) => {
                 closest.forEach(vc=>{
@@ -435,9 +450,17 @@ export class Game{
             threeListV = threeListV.filter(it=> !forRemove.includes(it));
 
             const squares = this._checkSquare(field);
+            
+            const threeList = [...threeListH.map(it=> ({type: ['', '', '', '', 'rocket', 'disco', 'disco', 'disco'][it.length], cells: it})), ...threeListV.map(it=> ({type: ['', '', '', '', 'rocket', 'disco', 'disco', 'disco'][it.length], cells: it})), ...squares.map(it=> ({type: 'square', cells: it})), ...bombs];
+            const removeCellsResult = this.removeCells(threeList);
+
             const activated = this.objects.filter(it=>it.activated && !it.removed).map(it=>({type: it.actionType, cells: [it]}));
-            const threeList = [...threeListH.map(it=> ({type: ['', '', '', '', 'rocket', 'disco', 'disco', 'disco'][it.length], cells: it})), ...threeListV.map(it=> ({type: ['', '', '', '', 'rocket', 'disco', 'disco', 'disco'][it.length], cells: it})), ...squares.map(it=> ({type: 'square', cells: it})), ...activated, ...bombs];
-            if (this.removeCells(threeList)){
+            
+            activated.forEach(it=>{
+                it.cells[0].execute(this.objects);
+            })
+
+            if (removeCellsResult || activated.length){
                 setTimeout(()=>{
                     this.check();
                 }, 500) 

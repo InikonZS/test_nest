@@ -3,8 +3,7 @@ import { getData, login, register } from "./api";
 import { CardsView } from "./cards/cardsView";
 import { Views } from "./cards/views";
 import { App as Three } from "./three/app";
-
-
+import { App as Pixels } from "./pixels/app";
 
 export function App() {
     const [currentGame, setCurrentGame] = useState('cards');
@@ -12,7 +11,8 @@ export function App() {
     const [isLogined, setLogined] = useState(false);
     const games = {
         'cards': Views,
-        'three': Three
+        'three': Three,
+        'pixels': Pixels
     }
     useEffect(()=>{
         const socket = new WebSocket('ws://localhost:3000');

@@ -31,4 +31,10 @@ export class Cell extends GameObject{
     valueOf(){
         return this.color;
     }
+
+    damage(type: string = ''): void {
+        if (type == 'a'){
+            this.removed = true;
+        }
+    }
 }

@@ -21,7 +21,8 @@ export class GrassCell extends GameObject{
         return this.health == 2 ? 10 : 11;
     }
 
-    damage(): void {
+    damage(type: string = ''): void {
+        if (type != 'a'){ return;}
         this.health -=1;
         console.log('damaged grass', this.health)
         if (this.health == 0){

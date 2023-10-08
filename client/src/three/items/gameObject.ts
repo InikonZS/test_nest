@@ -35,7 +35,7 @@ export class GameObject{
         return false;
     }
 
-    damage(){
+    damage(type: string = ''){
 
     }
     

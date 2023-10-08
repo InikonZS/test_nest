@@ -7,6 +7,7 @@ import { RocketCell } from './items/rocket';
 import { BombCell } from './items/bomb';
 import { BreakableCell } from './items/breakable';
 import { GrassCell } from './items/grass';
+import { HeliCell } from './items/heli';
 import { closest } from './common/closest';
 
 const generateLevel = ()=>{
@@ -92,7 +93,7 @@ export class Game{
         threeList.map(three => {
             const damageList: Array<IVector> = [];
             three.cells.map((cell, cellIndex) => {
-                damageList.push({x:cell.position.x, y:cell.position.y});
+                //damageList.push({x:cell.position.x, y:cell.position.y});
                 closest.forEach(vc=>{
                    if (damageList.find(it=> it.x == vc.x + cell.position.x && it.y == vc.y + cell.position.y) == null){
                     damageList.push({x:vc.x + cell.position.x ,y: vc.y + cell.position.y});
@@ -112,6 +113,12 @@ export class Game{
                 //    dm.damage();
                 //}
             });
+            three.cells.forEach(it=>{
+                const dm = this.objects.filter(jt=> jt.position.x == it.position.x && jt.position.y == it.position.y && !jt.removed);
+                dm.forEach(it=>{
+                    it.damage('a');
+                })
+            });
             this.createBonusCell(three);
         })
         return removed;
@@ -122,7 +129,7 @@ export class Game{
     createBonusCell(three: {type: string, cells: Array<GameObject>}){
         const initiator = three.cells.find(it=> it.moving) || three.cells[0];
         if (three.type == 'square'){
-            this.objects.push(new BreakableCell({...initiator.position}));
+            this.objects.push(new HeliCell({...initiator.position}));
         } else
         if (three.type == 'rocket'){
             this.objects.push(new RocketCell({...initiator.position}));

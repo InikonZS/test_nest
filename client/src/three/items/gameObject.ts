@@ -8,6 +8,7 @@ export class GameObject{
     moving: boolean = false;
     activated: boolean = false;
     actionType: string = '';
+    background: boolean = false;
     
 
     static lastId: number = 0;

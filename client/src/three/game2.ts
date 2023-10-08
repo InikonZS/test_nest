@@ -6,6 +6,7 @@ import { DiscoCell } from './items/disco';
 import { RocketCell } from './items/rocket';
 import { BombCell } from './items/bomb';
 import { BreakableCell } from './items/breakable';
+import { GrassCell } from './items/grass';
 import { closest } from './common/closest';
 
 const generateLevel = ()=>{
@@ -15,7 +16,7 @@ const generateLevel = ()=>{
             const cell = new BreakableCell({x, y});
             objects.push(cell);
         } else if (Math.random()<0.2){
-            const cell = new BoxCell({x, y});
+            const cell = new GrassCell({x, y});
             objects.push(cell);
         } else {
             const cell = new Cell({x, y}, Math.floor(Math.random() * 4) + 1);
@@ -91,6 +92,7 @@ export class Game{
         threeList.map(three => {
             const damageList: Array<IVector> = [];
             three.cells.map((cell, cellIndex) => {
+                damageList.push({x:cell.position.x, y:cell.position.y});
                 closest.forEach(vc=>{
                    if (damageList.find(it=> it.x == vc.x + cell.position.x && it.y == vc.y + cell.position.y) == null){
                     damageList.push({x:vc.x + cell.position.x ,y: vc.y + cell.position.y});
@@ -101,10 +103,14 @@ export class Game{
             });
             
             damageList.forEach(it=>{
-                const dm = this.objects.find(jt=> jt.position.x == it.x && jt.position.y == it.y && !jt.removed)
-                if (dm){
-                    dm.damage();
-                }
+                //const dm = this.objects.find(jt=> jt.position.x == it.x && jt.position.y == it.y && !jt.removed)
+                const dm = this.objects.filter(jt=> jt.position.x == it.x && jt.position.y == it.y && !jt.removed);
+                dm.forEach(it=>{
+                    it.damage();
+                })
+                //if (dm){
+                //    dm.damage();
+                //}
             });
             this.createBonusCell(three);
         })
@@ -129,9 +135,13 @@ export class Game{
         }
     }
 
+    findByPosNotBack(position: IVector){
+        return this.objects.find(it=> it.position.x == position.x && it.position.y == position.y && !it.removed && !it.background)
+    }
+
     move(position: IVector, direction: IVector){
-        const clicked = this.objects.find(it=> it.position.x == position.x && it.position.y == position.y && !it.removed);
-        const directed = this.objects.find(it=> it.position.x == position.x + direction.x && it.position.y == position.y + direction.y && !it.removed);
+        const clicked = this.findByPosNotBack(position);
+        const directed = this.findByPosNotBack({x: position.x + direction.x, y: position.y + direction.y});
 
         console.log(clicked.id, directed?.id)
         if (clicked && directed){
@@ -224,7 +234,7 @@ export class Game{
         let falling = false;
         this.objects.forEach(it=>{
             const under = this.objects.find(jt=>{
-                return jt.position.x == it.position.x && jt.position.y == (it.position.y+1) && !jt.removed;
+                return jt.position.x == it.position.x && jt.position.y == (it.position.y+1) && !jt.removed && !jt.background;
             });
             if (!under && it.position.y<9){
                 if (it.fall()){
@@ -249,7 +259,7 @@ export class Game{
         let added = false;
         new Array(10).fill(0).forEach((it, x)=>{
             const under = this.objects.find(jt=>{
-                return jt.position.x == x && jt.position.y == 0 && !jt.removed;
+                return jt.position.x == x && jt.position.y == 0 && !jt.removed && !jt.background;
             }); 
             if (!under){
                 const cell = new Cell({x, y:-1}, Math.floor(Math.random() * 4) + 1);

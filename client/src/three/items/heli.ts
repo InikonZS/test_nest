@@ -37,12 +37,12 @@ export class HeliCell extends GameObject{
         objects.forEach(it=>{
             closest.forEach(jt=>{
                 if (jt.x + this.position.x == it.position.x && jt.y + this.position.y == it.position.y){
-                    !it.removed && it.execute(objects); 
+                    !it.removed && !it.activated && it.execute(objects); 
                     it.removed = true;
                 }
             });
         })
-        const notRemoved = objects.filter(it=> !it.removed);
+        const notRemoved = objects.filter(it=> !it.removed && !it.activated && it !== this);
         const target = notRemoved[Math.floor(Math.random() * notRemoved.length)];
         //const targetList = objects.filter(it=> it.position.x == target.position.x && it.position.y ==)
         if (target){

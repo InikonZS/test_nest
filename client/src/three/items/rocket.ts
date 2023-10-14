@@ -39,7 +39,8 @@ export class RocketCell extends GameObject{
                 if (it.position.x == this.position.x){
                    
                     !it.removed && it.execute(objects); 
-                    it.removed = true;
+                    !it.removed && it.damage('a');
+                    //it.removed = true;
                 }
             })
         } else {
@@ -47,7 +48,8 @@ export class RocketCell extends GameObject{
                 if (it.position.y == this.position.y){
                     
                     !it.removed && it.execute(objects);
-                    it.removed = true;
+                    !it.removed && it.damage('a');
+                    //it.removed = true;
                 }
             })
         }

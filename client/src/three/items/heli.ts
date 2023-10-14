@@ -38,7 +38,8 @@ export class HeliCell extends GameObject{
             closest.forEach(jt=>{
                 if (jt.x + this.position.x == it.position.x && jt.y + this.position.y == it.position.y){
                     !it.removed && !it.activated && it.execute(objects); 
-                    it.removed = true;
+                    !it.removed && it.damage('a');
+                    //it.removed = true;
                 }
             });
         })

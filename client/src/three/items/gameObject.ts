@@ -9,6 +9,7 @@ export class GameObject{
     activated: boolean = false;
     actionType: string = '';
     background: boolean = false;
+    health?: number;
     
 
     static lastId: number = 0;

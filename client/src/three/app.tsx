@@ -110,6 +110,7 @@ export function CellView({setDragStart, cell}: {setDragStart: (e: { cell: IVecto
     })
   }}>
     {false && (cell as any).id}
+    {true && ((cell as any).health || '')}
     {<div className="cell-img" style={{'backgroundImage': 'url('+[null, cell1, cell2, cell3, cell4][Number(cell)]+')'}}></div>}
   </div>
 }

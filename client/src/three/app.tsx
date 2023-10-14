@@ -6,6 +6,7 @@ import cell1 from './imgs/cell1.svg';
 import cell2 from './imgs/cell2.svg';
 import cell3 from './imgs/cell3.svg';
 import cell4 from './imgs/cell4.svg';
+import { Field } from './field';
 console.log(cell1)
 
 export function App() {
@@ -64,15 +65,19 @@ export function App() {
       })*/}
     </div>
     asdfg
-    <div className="field2">
-      {game && game.moveCount}
-      {/*game && game.field.flat()*/game && game.objects./*filter(cell=> !cell.removed).*/sort((a:any, b: any)=> b.id - a.id).map((cell:any ) => {
-        //return <div className="row">
-          //return row.map((cell: any, x) => {
-            return <CellView key={cell.id} cell={cell} setDragStart={setDragStart}></CellView>
-        //  })
-        //</div>
-      })}
+    <div className="game_wrapper">
+      <Field></Field>
+      <div className="field2">
+        {game && game.moveCount}
+        {/*game && game.field.flat()*/game && game.objects./*filter(cell=> !cell.removed).*/sort((a:any, b: any)=> b.id - a.id).map((cell:any ) => {
+          //return <div className="row">
+            //return row.map((cell: any, x) => {
+              return <CellView key={cell.id} cell={cell} setDragStart={setDragStart}></CellView>
+          //  })
+          //</div>
+        })}
+      </div>
+      
     </div>
     </div>
   )

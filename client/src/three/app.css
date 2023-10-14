@@ -10,11 +10,17 @@
   cursor: pointer;
 }
 
-.field2 {
+.game_wrapper{
   position: relative;
+}
+
+.field2 {
+  position: absolute;
   /*overflow: hidden;*/
   width: 300px;
   height: 300px;
+  top:0;
+  left:0;
 }
 
 .cell2 {

@@ -245,7 +245,7 @@ export class Game{
 
     _fall(){
         let falling = false;
-        this.objects.forEach(it=>{
+        [...this.objects].sort((a, b)=> b.position.y - a.position.y).forEach(it=>{
             const under = this.objects.find(jt=>{
                 return jt.position.x == it.position.x && jt.position.y == (it.position.y+1) && !jt.removed && !jt.background;
             });

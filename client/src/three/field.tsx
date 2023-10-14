@@ -1,21 +1,15 @@
 import React, { useEffect, useState } from "react";
 import './field.css';
+import { IVector } from "./game";
 
-export function Field() {
-    const field = [
-        '-------',
-        '-++++--',
-        '-+-+++-',
-        '-+++++-',
-        '---+++-',
-        '----+--',
-    ]
+export function Field({data, onCellClick}: {data: Array<Array<string>>, onCellClick?: (position:IVector)=>void}) {
+    const field = data;
     return <div className="field_wrapper">
         {
             field.map((it, y)=>{
                 return <div className="field_row">
                     {
-                        it.split('').map((jt, x)=>{
+                        it.map((jt, x)=>{
                             const baseClassName = jt == '-' ? 'field_cell_base field_cell_empty' : 'field_cell_base field_cell';
                             const borders: Array<string> = [];
                             if (jt=='+'){
@@ -45,7 +39,7 @@ export function Field() {
                                 borderRounds.push('lb');
                             }
                             const className = [baseClassName, ...borders.map(it=> baseClassName+'_'+it),  ...borderRounds.map(it=> baseClassName+'_'+it)].join(' ');
-                            return <div className={className}></div>
+                            return <div className={className} onClick={()=>onCellClick?.({x,y})}></div>
                         })
                     }
                 </div>

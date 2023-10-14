@@ -9,6 +9,7 @@ import { BreakableCell } from './items/breakable';
 import { GrassCell } from './items/grass';
 import { HeliCell } from './items/heli';
 import { closest } from './common/closest';
+import {level} from './levels/level1';
 
 const generateLevel = (fieldSize: IVector)=>{
     const objects: Array<GameObject> = [];
@@ -27,14 +28,36 @@ const generateLevel = (fieldSize: IVector)=>{
     return objects;
 }
 
+function generateLevel1(){
+    const objects: Array<GameObject> = [];
+    level.objects.forEach(it=>{
+        if (it.type == 5){
+            const obj = new BoxCell(it.position);
+            objects.push(obj);
+        }
+    });
+    level.field.forEach((row, y)=>{
+        row.forEach((cell, x)=>{
+            if (cell == '+' && level.objects.find(it=>it.position.x == x && it.position.y == y) == undefined){
+                const cell = new Cell({x, y}, Math.floor(Math.random() * 4) + 1);
+                objects.push(cell); 
+            }
+        });
+    });
+    return objects
+}
+
 export class Game{
     objects: GameObject[] = [];
     onGameState: () => void;
     moveCount: number = 0;
     fieldSize = {x:10, y:10};
+    field: Array<Array<string>>;
 
     constructor(){
-        this.objects = generateLevel(this.fieldSize);
+        //this.objects = generateLevel(this.fieldSize);
+        this.objects = generateLevel1();
+        this.field = level.field;
     }
 
     getCurrentFieldMask(){
@@ -243,12 +266,36 @@ export class Game{
         this.onGameState();
     }
 
+    getUnder(it: IVector){
+        let underPosition = it.y + 1;
+        while (this.field[underPosition]?.[it.x]!='+'){
+            if (underPosition>=this.fieldSize.y){
+                return true;
+            }
+            const under = this.objects.find(jt=>{
+                return jt.position.x == it.x && jt.position.y == (underPosition) && !jt.removed && !jt.background;
+            });
+            if (under){
+            return under;}
+            underPosition++;
+            
+        }
+        const under = this.objects.find(jt=>{
+            return jt.position.x == it.x && jt.position.y == (underPosition) && !jt.removed && !jt.background;
+        });
+        return under;
+    }
+
     _fall(){
         let falling = false;
         [...this.objects].sort((a, b)=> b.position.y - a.position.y).forEach(it=>{
-            const under = this.objects.find(jt=>{
+            const under = this.getUnder(it.position);
+            /*const under  /*this.getUnder({x: x, y: -1});= this.objects.find(jt=>{
                 return jt.position.x == it.position.x && jt.position.y == (it.position.y+1) && !jt.removed && !jt.background;
-            });
+            }); */
+            /*if (it.position.y == -1 && under){
+                console.log('err');
+            }*/
             if (!under && it.position.y<this.fieldSize.y -1){
                 if (it.fall()){
                     it.moving = true;
@@ -271,12 +318,19 @@ export class Game{
     addCells(){
         let added = false;
         new Array(this.fieldSize.x).fill(0).forEach((it, x)=>{
-            const under = this.objects.find(jt=>{
-                return jt.position.x == x && jt.position.y == 0 && !jt.removed && !jt.background;
-            }); 
-            if (!under){
+            const under = this.getUnder({x: x, y: -1});//*= this.objects.find(jt=>{
+              /*  return jt.position.x == x && jt.position.y == 0 && !jt.removed && !jt.background;
+            }); */
+            const t = this.objects.find(jt=>{
+                return jt.position.x == x && jt.position.y == -1 && !jt.removed && !jt.background;
+            });
+            if (!under && !t){
                 const cell = new Cell({x, y:-1}, Math.floor(Math.random() * 4) + 1);
                 this.objects.push(cell);
+                /*const under1 = this.getUnder({x: x, y: -1});
+                if (under1){
+                    throw new Error();
+                }*/
                 added = true
             }
         })

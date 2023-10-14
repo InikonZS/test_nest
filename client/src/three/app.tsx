@@ -7,6 +7,7 @@ import cell2 from './imgs/cell2.svg';
 import cell3 from './imgs/cell3.svg';
 import cell4 from './imgs/cell4.svg';
 import { Field } from './field';
+import { Editor } from './editor';
 console.log(cell1)
 
 export function App() {
@@ -66,7 +67,7 @@ export function App() {
     </div>
     asdfg
     <div className="game_wrapper">
-      <Field></Field>
+      {game && game.field && <Field data={game.field}></Field>}
       <div className="field2">
         {game && game.moveCount}
         {/*game && game.field.flat()*/game && game.objects./*filter(cell=> !cell.removed).*/sort((a:any, b: any)=> b.id - a.id).map((cell:any ) => {
@@ -79,11 +80,12 @@ export function App() {
       </div>
       
     </div>
+    <Editor></Editor>
     </div>
   )
 }
 
-function CellView({setDragStart, cell}: {setDragStart: (e: { cell: IVector, position: IVector })=>void, cell: Cell}){
+export function CellView({setDragStart, cell}: {setDragStart: (e: { cell: IVector, position: IVector })=>void, cell: Cell}){
   const [isNew, setNew] = useState(true);
   useEffect(()=>{
     const id = requestAnimationFrame(()=>{

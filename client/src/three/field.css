@@ -1,5 +1,5 @@
 .field_wrapper {
-    position: absolute;
+    /*position: absolute;*/
     top:0;
     left: 0;
 }
@@ -11,6 +11,7 @@
 .field_cell{
     background-color: rgb(0, 0, 0);
     border: 1px solid #400;
+    --border-color: #0f0;
 }
 
 .field_cell_base{
@@ -19,37 +20,38 @@
 }
 
 .field_cell_top{
-    border-top: 2px solid #f00;
+    border-top: 2px solid var(--border-color);
 }
 
 .field_cell_left{
-    border-left: 2px solid #f00;
+    border-left: 2px solid var(--border-color);
 }
 
 .field_cell_right{
-    border-right: 2px solid #f00;
+    border-right: 2px solid var(--border-color);
 }
 
 .field_cell_bottom{
-    border-bottom: 2px solid #f00;
+    border-bottom: 2px solid var(--border-color);
 }
 
 .field_cell_rt{
-    border-top-right-radius: 15px;
+    border-top-right-radius: 5px;
 }
 
 .field_cell_rb{
-    border-bottom-right-radius: 15px;
+    border-bottom-right-radius: 5px;
 }
 
 .field_cell_lt{
-    border-top-left-radius: 15px;
+    border-top-left-radius: 5px;
 }
 
 .field_cell_lb{
-    border-bottom-left-radius: 15px;
+    border-bottom-left-radius: 5px;
 }
 
 .field_cell_empty{
-
+    background-color: #ddd;
+    border: 1px solid #fcc;
 }

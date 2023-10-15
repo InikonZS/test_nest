@@ -12,6 +12,7 @@ import { SubtiledCell } from './items/subtiled';
 import { closest } from './common/closest';
 import {level} from './levels/level1';
 import { createGameObject } from './objectFactory';
+import {getTransformedPatterns, patterns} from './helpPattern';
 
 const generateLevel = (game: Game, fieldSize: IVector)=>{
     const objects: Array<GameObject> = [];
@@ -58,6 +59,11 @@ export class Game{
     fieldSize = {x:10, y:10};
     field: Array<Array<string>>;
     colorsCount: Array<number> = [0, 0, 0, 0];
+    hint: {
+        moveFrom: GameObject,
+        moveTo: GameObject
+    } = null;
+    hintTimer: ReturnType<typeof setTimeout> = null;
 
     constructor(){
         //this.objects = generateLevel(this.fieldSize);
@@ -183,7 +189,21 @@ export class Game{
         this.objects = this.objects.filter(it=>!it.removed);
     }
 
+    updateHintTimer(){
+        if (this.hintTimer){
+            this.hint = null;
+            clearTimeout(this.hintTimer);
+            this.hintTimer = null
+        }
+        this.hintTimer = setTimeout(()=>{
+            const move = this.findMove();
+            this.hint = move;
+            this.onGameState();
+        }, 5000)
+    }
+
     move(position: IVector, direction: IVector){
+        this.updateHintTimer();
         this.cleanRemoved();
         const clicked = this.findByPosNotBack(position);
         const directed = this.findByPosNotBack({x: position.x + direction.x, y: position.y + direction.y});
@@ -350,5 +370,108 @@ export class Game{
             }
         })
         return added;
+    }
+
+    findMove(){
+        const priorityPatterns = [patterns.disco, patterns.bomb, patterns.rocket, patterns.heli, patterns.rowThree];
+        let foundMove: {
+            moveFrom: GameObject,
+            moveTo: GameObject
+        } = null;
+        const foundPattern = priorityPatterns.find(currentPatternList=>{
+            const res = this._findMoveByBasePatterns(currentPatternList);
+            foundMove = res;
+            return res;
+        });
+        console.log('found pattern list', foundPattern)
+        return foundMove;
+    }
+
+    _findMoveByBasePatterns(basePatterns: Array<Array<string>>){
+        const transformedPatterns = basePatterns.map(pattern => getTransformedPatterns(pattern)).flat(1);
+        console.log(transformedPatterns);
+        let foundMove: {
+            moveFrom: GameObject,
+            moveTo: GameObject
+        } = null;
+        const foundPattern = transformedPatterns.find(currentPattern=>{
+            const res = this._findMoveByPattern(currentPattern);
+            foundMove = res;
+            return res;
+        });
+        console.log('found pattern', foundPattern)
+        return foundMove;
+    }
+
+    _findMoveByPattern(currentPattern: Array<string>){
+        let foundMove: {
+            moveFrom: GameObject,
+            moveTo: GameObject
+        } = null;
+        const foundColor = [1,2,3,4].find(color=>{
+            const res = this._findMoveByColorAndPattern(color, currentPattern);
+            foundMove = res;
+            return res;
+        });
+        return foundMove;
+    }
+
+    _findMoveByColorAndPattern(color:number, currentPattern: Array<string>){
+        console.log('find move');
+        const mask = this.getCurrentFieldMask();
+        console.log(mask, currentPattern, color);
+        //const color = 1;
+        //const currentPattern = patterns.heli[0];
+
+        let moveFrom: GameObject = null;
+        let moveTo: GameObject = null;
+        let isFound = false;
+
+        const isFoundMove = mask.find((maskRow, maskY)=>{
+            return maskRow.find((maskCell, maskX)=>{
+
+                //moveFrom = null;
+                //moveTo = null;
+                const isFailedCompare = currentPattern.find((ptRow, ptY)=>{
+                    return ptRow.split('').find((ptCell, ptX)=>{
+                        //console.log(ptCell)
+                        if (ptCell == 'F'){
+                            moveFrom = mask[maskY+ptY][maskX+ptX];
+                            if (!moveFrom){
+                                console.log('rmf')
+                                return true;
+                            }
+                        }
+                        if (ptCell == 'T'){
+                            moveTo = mask[maskY+ptY][maskX+ptX];
+                            if (!moveTo){
+                                console.log('rmt')
+                                return true;
+                            }
+                        }
+                        if (ptCell == '+' || ptCell == 'F'){
+                            return Number(mask[maskY+ptY][maskX+ptX]) != color
+                        }
+                    });
+                }) != undefined;
+                if (!isFailedCompare){
+                    console.log('success move found', moveFrom, moveTo);
+                    isFound = true;
+                    return true;
+                }
+                return false;
+            }) !== undefined;
+        }) !== undefined; //bug, use isFound;
+        
+        if (isFound){
+            const foundMove = {
+                moveFrom,
+                moveTo
+            }
+            console.log('found move', foundMove);
+            return foundMove;
+        }
+        console.log('not found move');
+        return null;
     }
 }

@@ -83,7 +83,7 @@ export function App() {
         {/*game && game.field.flat()*/game && game.objects./*filter(cell=> !cell.removed).*/sort((a:any, b: any)=> b.id - a.id).map((cell:any ) => {
           //return <div className="row">
             //return row.map((cell: any, x) => {
-              return <CellView key={cell.id} cell={cell} setDragStart={setDragStart}></CellView>
+              return <CellView key={cell.id} cell={cell} setDragStart={setDragStart} isTo={cell == game.hint?.moveTo} isFrom={cell == game.hint?.moveFrom}></CellView>
           //  })
           //</div>
         })}
@@ -95,7 +95,7 @@ export function App() {
   )
 }
 
-export function CellView({setDragStart, cell}: {setDragStart: (e: { cell: IVector, position: IVector })=>void, cell: Cell}){
+export function CellView({setDragStart, cell, isTo, isFrom}: {setDragStart: (e: { cell: IVector, position: IVector })=>void, cell: Cell, isTo?: boolean, isFrom?: boolean}){
   const [isNew, setNew] = useState(true);
   useEffect(()=>{
     const id = requestAnimationFrame(()=>{
@@ -108,7 +108,7 @@ export function CellView({setDragStart, cell}: {setDragStart: (e: { cell: IVecto
   if (cell.removed){
    // console.log('removed');
   }
-  return <div className="cell2" style={{'backgroundColor': ['#fff', '#f000', '#00f0', '#0f00', '#ff00', '#f0f', '#999', '#f90', '#444', '#0ff', '#4949', '#9f99', '#2999', '#0000'][Number(cell)], '--posx': cell.position.x, '--posy': isNew? -1: cell.position.y, transform: cell.removed?'scale(0)':'', border: Number(cell) == 13 ? '0':''}} onMouseDown={(e) => {
+  return <div className={`cell2 ${isFrom?'cell2_from':''} ${isTo?'cell2_to':''}`} style={{'backgroundColor': ['#fff', '#f000', '#00f0', '#0f00', '#ff00', '#f0f', '#999', '#f90', '#444', '#0ff', '#4949', '#9f99', '#2999', '#0000'][Number(cell)], '--posx': cell.position.x, '--posy': isNew? -1: cell.position.y, transform: cell.removed?'scale(0)':'', border: Number(cell) == 13 ? '0':''}} onMouseDown={(e) => {
     setDragStart({
       position: {
         x: e.clientX,
@@ -126,7 +126,6 @@ export function CellView({setDragStart, cell}: {setDragStart: (e: { cell: IVecto
       if (cl.subtiles){
         return cl.subtiles.map((srow, sy)=>{
           return srow.map((scell, sx) =>{
-              console.log(scell);
             return scell != '-' ? <div className="cell2" style={{'backgroundColor': ['#fff', '#f000', '#00f0', '#0f00', '#ff00', '#f0f', '#999', '#f90', '#444', '#0ff', '#4949', '#9f99', '#2999', '#606'][Number(cell)], '--posx': sx , '--posy': sy, transform: cell.removed?'scale(0)':''}}>{cl.health}</div> : '';
           })
           

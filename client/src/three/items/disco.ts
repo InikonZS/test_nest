@@ -1,11 +1,12 @@
 import {IVector} from '../common/IVector';
+import { Game } from '../game2';
 import { GameObject } from './gameObject';
 
 export class DiscoCell extends GameObject{
     actionType = 'ds';
 
-    constructor(position: IVector){
-        super(position);
+    constructor(game: Game, position: IVector){
+        super(game, position);
     }
 
     move(directed: GameObject): boolean {

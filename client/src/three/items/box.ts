@@ -4,10 +4,6 @@ import { GameObject } from './gameObject';
 export class BoxCell extends GameObject{
     health: number = 3;
 
-    constructor(position: IVector){
-        super(position);
-    }
-
     move(directed: GameObject): boolean{
         //this.removed = true;
         return false;

@@ -4,10 +4,6 @@ import { GameObject } from './gameObject';
 export class RocketCell extends GameObject{
     actionType = 'dm';
 
-    constructor(position: IVector){
-        super(position);
-    }
-
     move(directed: GameObject): boolean {
         this.activated = true;
         const lastDirectedPos = directed.position;

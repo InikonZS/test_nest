@@ -47,12 +47,12 @@ export function Editor() {
                 }
                 if (tool == 'box'){
                     setObjects((last)=>{
-                        return [...last, new BoxCell(cellPosition)];
+                        return [...last, new BoxCell(null, cellPosition)];
                     })
                 }
                 if (tool == 'grass'){
                     setObjects((last)=>{
-                        return [...last, new GrassCell(cellPosition)];
+                        return [...last, new GrassCell(null, cellPosition)];
                     })
                 }
             }}></Field>

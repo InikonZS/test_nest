@@ -9,10 +9,6 @@ export class SubtiledCell extends GameObject{
         ['+', '+', '-'],
     ];
 
-    constructor(position: IVector){
-        super(position);
-    }
-
     move(directed: GameObject): boolean{
         //this.removed = true;
         return false;

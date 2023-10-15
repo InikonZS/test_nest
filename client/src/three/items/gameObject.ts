@@ -1,4 +1,5 @@
 import {IVector} from '../common/IVector';
+import { Game } from '../game2';
 
 export class GameObject{
     position: IVector;
@@ -11,7 +12,7 @@ export class GameObject{
     background: boolean = false;
     health?: number;
     subtiles?: Array<Array<string>>;
-    
+    game: Game;
 
     static lastId: number = 0;
 
@@ -20,7 +21,8 @@ export class GameObject{
       return GameObject.lastId;
     }
 
-    constructor(position: IVector){
+    constructor(game: Game, position: IVector){
+        this.game = game;
         this.position = position;
         this.id = GameObject.getNextId();
     }
@@ -57,5 +59,9 @@ export class GameObject{
 
     checkDamagePos(pos: IVector){
         return this.position.x == pos.x && this.position.y == pos.y && !this.removed
+    }
+
+    remove(){
+        this.removed = true;
     }
 }

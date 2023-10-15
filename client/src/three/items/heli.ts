@@ -5,10 +5,6 @@ import {closest} from '../common/closest';
 export class HeliCell extends GameObject{
     actionType = 'hc';
 
-    constructor(position: IVector){
-        super(position);
-    }
-
     move(directed: GameObject): boolean {
         this.activated = true;
         const lastDirectedPos = directed.position;
@@ -51,7 +47,8 @@ export class HeliCell extends GameObject{
             this.position = {...target.position}
             setTimeout(()=>{
                 target.damagePos(this.position, 'a');
-                this.removed = true;
+                this.remove();
+                //this.removed = true;
             }, 500);
         }
     }

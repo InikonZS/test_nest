@@ -1,11 +1,12 @@
 import {IVector} from '../common/IVector';
+import { Game } from '../game2';
 import { GameObject } from './gameObject';
 
 export class Cell extends GameObject{
     color: number;
 
-    constructor(position: IVector, color: number){
-        super(position);
+    constructor(game: Game, position: IVector, color: number){
+        super(game, position);
         this.color = color;
     }
 
@@ -34,7 +35,15 @@ export class Cell extends GameObject{
 
     damage(type: string = ''): void {
         if (type == 'a'){
-            this.removed = true;
+            //this.removed = true;
+            this.remove();
         }
+    }
+
+    remove(): void {
+        if (!this.removed){
+            this.game.colorsCount[this.color - 1]++;
+        }
+        super.remove();
     }
 }

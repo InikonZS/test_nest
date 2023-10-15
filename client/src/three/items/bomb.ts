@@ -5,10 +5,6 @@ export class BombCell extends GameObject{
 
     actionType: string = 'bm';
 
-    constructor(position: IVector){
-        super(position);
-    }
-
     move(directed: GameObject): boolean {
         this.activated = true;
         const lastDirectedPos = directed.position;

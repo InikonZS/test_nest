@@ -1,4 +1,5 @@
 import { IVector } from "./game";
+import { Game } from "./game2";
 import { BoxCell } from "./items/box";
 import { GrassCell } from "./items/grass";
 import { SubtiledCell } from "./items/subtiled";
@@ -9,7 +10,7 @@ const objectCtors = {
     10: GrassCell
 }
 
-export function createGameObject(type: number, pos: IVector){
+export function createGameObject(game: Game, type: number, pos: IVector){
     const Ctor = objectCtors[type as keyof typeof objectCtors];
-    return new Ctor(pos);
+    return new Ctor(game, pos);
 }

@@ -13,28 +13,28 @@ import { closest } from './common/closest';
 import {level} from './levels/level1';
 import { createGameObject } from './objectFactory';
 
-const generateLevel = (fieldSize: IVector)=>{
+const generateLevel = (game: Game, fieldSize: IVector)=>{
     const objects: Array<GameObject> = [];
     new Array(fieldSize.y).fill(null).map((it, y) => new Array(fieldSize.x).fill(0).map((it, x) => {
         if (Math.random()<0.1){
-            const cell = new BreakableCell({x, y});
+            const cell = new BreakableCell(game, {x, y});
             objects.push(cell);
         } else if (Math.random()<0.2){
-            const cell = new GrassCell({x, y});
+            const cell = new GrassCell(game, {x, y});
             objects.push(cell);
         } else {
-            const cell = new Cell({x, y}, Math.floor(Math.random() * 4) + 1);
+            const cell = new Cell(game, {x, y}, Math.floor(Math.random() * 4) + 1);
             objects.push(cell);
         }
     }));
     return objects;
 }
 
-function generateLevel1(){
+function generateLevel1(game: Game){
     const objects: Array<GameObject> = [];
     level.objects.forEach(it=>{
         try {
-            const obj = createGameObject(it.type, it.position);
+            const obj = createGameObject(game, it.type, it.position);
             objects.push(obj);
         } catch (e){
             console.log('Wrong obj type');
@@ -43,7 +43,7 @@ function generateLevel1(){
     level.field.forEach((row, y)=>{
         row.forEach((cell, x)=>{
             if (cell == '+' && objects.find(it=>it.checkPos({x, y})) == undefined){
-                const cell = new Cell({x, y}, Math.floor(Math.random() * 4) + 1);
+                const cell = new Cell(game, {x, y}, Math.floor(Math.random() * 4) + 1);
                 objects.push(cell); 
             }
         });
@@ -57,10 +57,11 @@ export class Game{
     moveCount: number = 0;
     fieldSize = {x:10, y:10};
     field: Array<Array<string>>;
+    colorsCount: Array<number> = [0, 0, 0, 0];
 
     constructor(){
         //this.objects = generateLevel(this.fieldSize);
-        this.objects = generateLevel1();
+        this.objects = generateLevel1(this);
         this.field = level.field;
     }
 
@@ -119,6 +120,7 @@ export class Game{
       removeCells(threeList: Array<{type: string, cells: Array<GameObject>}>) {
         let removed = false;
         threeList.map(three => {
+            //this.colorsCount[Number(three.cells[0])-1]+=three.cells.length;
             const damageList: Array<IVector> = [];
             three.cells.map((cell, cellIndex) => {
                 //damageList.push({x:cell.position.x, y:cell.position.y});
@@ -127,7 +129,8 @@ export class Game{
                     damageList.push({x:vc.x + cell.position.x ,y: vc.y + cell.position.y});
                    } 
                 })
-                cell.removed = true;
+                //cell.removed = true;
+                cell.remove();
                 removed = true;
             });
             
@@ -158,16 +161,16 @@ export class Game{
     createBonusCell(three: {type: string, cells: Array<GameObject>}){
         const initiator = three.cells.find(it=> it.moving) || three.cells[0];
         if (three.type == 'square'){
-            this.objects.push(new HeliCell({...initiator.position}));
+            this.objects.push(new HeliCell(this, {...initiator.position}));
         } else
         if (three.type == 'rocket'){
-            this.objects.push(new RocketCell({...initiator.position}));
+            this.objects.push(new RocketCell(this, {...initiator.position}));
         } else
         if (three.type == 'disco'){
-            this.objects.push(new DiscoCell({...initiator.position}));
+            this.objects.push(new DiscoCell(this, {...initiator.position}));
         } else
         if (three.type == 'bomb'){
-            this.objects.push(new BombCell({...initiator.position}));
+            this.objects.push(new BombCell(this, {...initiator.position}));
         }
     }
 
@@ -337,7 +340,7 @@ export class Game{
                 return jt.position.x == x && jt.position.y == -1 && !jt.removed && !jt.background;
             });
             if (!under /*&& !t*/){
-                const cell = new Cell({x, y:-1}, Math.floor(Math.random() * 4) + 1);
+                const cell = new Cell(this, {x, y:-1}, Math.floor(Math.random() * 4) + 1);
                 this.objects.push(cell);
                 /*const under1 = this.getUnder({x: x, y: -1});
                 if (under1){

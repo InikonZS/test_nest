@@ -67,10 +67,19 @@ export function App() {
       })*/}
     </div>
     asdfg
+    <div>
+      {'moves' + (game && game.moveCount)}
+    </div>
+    <div>
+      {game && (game.colorsCount.map((it, ind)=><div style={{width: '30px',
+    height: '30px', position: 'relative'}}><div className="cell-img" style={{'backgroundImage': 'url('+[cell1, cell2, cell3, cell4][ind]+')'}}>{it}</div></div>))}
+    </div>
+    
     <div className="game_wrapper">
       {game && game.field && <Field data={game.field}></Field>}
+      
       <div className="field2">
-        {game && game.moveCount}
+        
         {/*game && game.field.flat()*/game && game.objects./*filter(cell=> !cell.removed).*/sort((a:any, b: any)=> b.id - a.id).map((cell:any ) => {
           //return <div className="row">
             //return row.map((cell: any, x) => {

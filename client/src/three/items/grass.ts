@@ -5,10 +5,6 @@ export class GrassCell extends GameObject{
     background = true;
     health: number = 2;
 
-    constructor(position: IVector){
-        super(position);
-    }
-
     move(directed: GameObject): boolean {
         return false;
     }

@@ -10,6 +10,7 @@ export class GameObject{
     actionType: string = '';
     background: boolean = false;
     health?: number;
+    subtiles?: Array<Array<string>>;
     
 
     static lastId: number = 0;
@@ -39,8 +40,22 @@ export class GameObject{
     damage(type: string = ''){
 
     }
+
+    damagePos(pos: IVector, type: string = ''){
+        if (this.checkPos(pos)){
+            this.damage(type);
+        }
+    }
     
     execute (objects: Array<GameObject>){
 
+    }
+
+    checkPos(pos: IVector){
+        return this.position.x == pos.x && this.position.y == pos.y && !this.removed && !this.background
+    }
+
+    checkDamagePos(pos: IVector){
+        return this.position.x == pos.x && this.position.y == pos.y && !this.removed
     }
 }

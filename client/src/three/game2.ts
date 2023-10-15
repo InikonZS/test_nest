@@ -8,6 +8,7 @@ import { BombCell } from './items/bomb';
 import { BreakableCell } from './items/breakable';
 import { GrassCell } from './items/grass';
 import { HeliCell } from './items/heli';
+import { SubtiledCell } from './items/subtiled';
 import { closest } from './common/closest';
 import {level} from './levels/level1';
 
@@ -35,10 +36,14 @@ function generateLevel1(){
             const obj = new BoxCell(it.position);
             objects.push(obj);
         }
+        if (it.type == 13){
+            const obj = new SubtiledCell(it.position);
+            objects.push(obj);
+        }
     });
     level.field.forEach((row, y)=>{
         row.forEach((cell, x)=>{
-            if (cell == '+' && level.objects.find(it=>it.position.x == x && it.position.y == y) == undefined){
+            if (cell == '+' && objects.find(it=>it.checkPos({x, y})) == undefined){
                 const cell = new Cell({x, y}, Math.floor(Math.random() * 4) + 1);
                 objects.push(cell); 
             }
@@ -127,20 +132,21 @@ export class Game{
                 removed = true;
             });
             
-            damageList.forEach(it=>{
+            damageList.forEach(pos=>{
                 //const dm = this.objects.find(jt=> jt.position.x == it.x && jt.position.y == it.y && !jt.removed)
-                const dm = this.objects.filter(jt=> jt.position.x == it.x && jt.position.y == it.y && !jt.removed);
+                const dm = this.objects.filter(jt=> /*jt.position.x == it.x && jt.position.y == it.y &&*/ !jt.removed);
                 dm.forEach(it=>{
-                    it.damage();
+                    //it.damage();
+                    it.damagePos(pos);
                 })
                 //if (dm){
                 //    dm.damage();
                 //}
             });
-            three.cells.forEach(it=>{
-                const dm = this.objects.filter(jt=> jt.position.x == it.position.x && jt.position.y == it.position.y && !jt.removed);
+            three.cells.forEach(cellObj=>{
+                const dm = this.objects.filter(jt=> /*jt.position.x == it.position.x && jt.position.y == it.position.y &&*/ !jt.removed);
                 dm.forEach(it=>{
-                    it.damage('a');
+                    it.damagePos(cellObj.position, 'a');
                 })
             });
             this.createBonusCell(three);
@@ -167,7 +173,8 @@ export class Game{
     }
 
     findByPosNotBack(position: IVector){
-        return this.objects.find(it=> it.position.x == position.x && it.position.y == position.y && !it.removed && !it.background)
+        //return this.objects.find(it=> it.position.x == position.x && it.position.y == position.y && !it.removed && !it.background)
+        return this.objects.find(it=> it.checkPos(position))
     }
 
     cleanRemoved(){
@@ -266,6 +273,12 @@ export class Game{
         this.onGameState();
     }
 
+    checkPos(pos:IVector){
+        return this.objects.find(jt=>{
+            return jt.checkPos(pos);
+        });
+    }
+
     getUnder(it: IVector){
         let underPosition = it.y + 1;
         while (this.field[underPosition]?.[it.x]!='+'){
@@ -273,7 +286,7 @@ export class Game{
                 return true;
             }
             const under = this.objects.find(jt=>{
-                return jt.position.x == it.x && jt.position.y == (underPosition) && !jt.removed && !jt.background;
+                return jt.checkPos({x: it.x, y: underPosition});//jt.position.x == it.x && jt.position.y == (underPosition) && !jt.removed && !jt.background;
             });
             if (under){
             return under;}
@@ -281,7 +294,7 @@ export class Game{
             
         }
         const under = this.objects.find(jt=>{
-            return jt.position.x == it.x && jt.position.y == (underPosition) && !jt.removed && !jt.background;
+            return jt.checkPos({x: it.x, y: underPosition});//jt.position.x == it.x && jt.position.y == (underPosition) && !jt.removed && !jt.background;
         });
         return under;
     }
@@ -324,7 +337,7 @@ export class Game{
             const t = this.objects.find(jt=>{
                 return jt.position.x == x && jt.position.y == -1 && !jt.removed && !jt.background;
             });
-            if (!under && !t){
+            if (!under /*&& !t*/){
                 const cell = new Cell({x, y:-1}, Math.floor(Math.random() * 4) + 1);
                 this.objects.push(cell);
                 /*const under1 = this.getUnder({x: x, y: -1});

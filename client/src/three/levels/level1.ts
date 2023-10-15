@@ -290,6 +290,13 @@ export const level =
                 "y": 7
             },
             "type": 5
+        },
+        {
+            "position": {
+                "x": 1,
+                "y": 4
+            },
+            "type": 13
         }
     ]
 }

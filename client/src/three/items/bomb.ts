@@ -37,7 +37,7 @@ export class BombCell extends GameObject{
         objects.forEach(it=>{
             if (Math.abs(it.position.y - this.position.y) <=2 && Math.abs(it.position.x - this.position.x) <=2){
                 !it.removed && it.execute(objects);
-                !it.removed && it.damage('a');
+                !it.removed && it.damagePos(it.position, 'a');
                 //it.removed = true; 
             }
         })

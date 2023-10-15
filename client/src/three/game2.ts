@@ -11,6 +11,7 @@ import { HeliCell } from './items/heli';
 import { SubtiledCell } from './items/subtiled';
 import { closest } from './common/closest';
 import {level} from './levels/level1';
+import { createGameObject } from './objectFactory';
 
 const generateLevel = (fieldSize: IVector)=>{
     const objects: Array<GameObject> = [];
@@ -32,13 +33,11 @@ const generateLevel = (fieldSize: IVector)=>{
 function generateLevel1(){
     const objects: Array<GameObject> = [];
     level.objects.forEach(it=>{
-        if (it.type == 5){
-            const obj = new BoxCell(it.position);
+        try {
+            const obj = createGameObject(it.type, it.position);
             objects.push(obj);
-        }
-        if (it.type == 13){
-            const obj = new SubtiledCell(it.position);
-            objects.push(obj);
+        } catch (e){
+            console.log('Wrong obj type');
         }
     });
     level.field.forEach((row, y)=>{

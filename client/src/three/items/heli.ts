@@ -36,9 +36,10 @@ export class HeliCell extends GameObject{
         this.activated = true; 
         objects.forEach(it=>{
             closest.forEach(jt=>{
-                if (jt.x + this.position.x == it.position.x && jt.y + this.position.y == it.position.y){
+                const closePos = {x: jt.x + this.position.x, y: jt.y + this.position.y}
+                if ( closePos.x == it.position.x && closePos.y == it.position.y){
                     !it.removed && !it.activated && it.execute(objects); 
-                    !it.removed && it.damagePos(jt, 'a');
+                    !it.removed && it.damagePos(closePos, 'a');
                     //it.removed = true;
                 }
             });

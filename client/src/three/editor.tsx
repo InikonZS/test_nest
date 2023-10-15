@@ -5,6 +5,7 @@ import { CellView } from "./app";
 import { IVector } from "./game";
 import { GameObject } from "./items/gameObject";
 import { BoxCell } from "./items/box";
+import { GrassCell } from "./items/grass";
 
 const test = [
     '-------',
@@ -29,7 +30,10 @@ export function Editor() {
             <button className={`tool ${tool == 'box' ? 'tool_selected': ''}`} onClick={()=>{
                 setTool('box');
             }}>box</button>
-            <button className={`tool ${tool == 'box' ? 'tool_selected': ''}`} onClick={()=>{
+            <button className={`tool ${tool == 'grass' ? 'tool_selected': ''}`} onClick={()=>{
+                setTool('grass');
+            }}>grass</button>
+            <button className={`tool`} onClick={()=>{
                 console.log(field, objects.map(it=> ({position: {...it.position}, type: Number(it)})));
             }}>save</button>
         </div>
@@ -46,16 +50,17 @@ export function Editor() {
                         return [...last, new BoxCell(cellPosition)];
                     })
                 }
+                if (tool == 'grass'){
+                    setObjects((last)=>{
+                        return [...last, new GrassCell(cellPosition)];
+                    })
+                }
             }}></Field>
             <div className="editor_objects">
-            {/*game && game.field.flat()*/objects./*filter(cell=> !cell.removed).*/sort((a:any, b: any)=> b.id - a.id).map((cell:any ) => {
-            //return <div className="row">
-                //return row.map((cell: any, x) => {
-                return <CellView key={cell.id} cell={cell} setDragStart={()=>{}}></CellView>
-            //  })
-            //</div>
-            })}
-        </div>
+                {objects.sort((a: any, b: any) => b.id - a.id).map((cell: any) => {
+                    return <CellView key={cell.id} cell={cell} setDragStart={() => { }}></CellView>
+                })}
+            </div>
         </div>
     </div>
 }

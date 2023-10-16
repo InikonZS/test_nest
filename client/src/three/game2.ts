@@ -69,6 +69,8 @@ export class Game{
         //this.objects = generateLevel(this.fieldSize);
         this.objects = generateLevel1(this, levelData);
         this.field = levelData.field;//level.field;
+        this.checkStart();
+        this.colorsCount = [0, 0, 0, 0];
     }
 
     getCurrentFieldMask(){
@@ -230,6 +232,33 @@ export class Game{
         })
         return result;
       }
+
+    removeCellsStart(threeList: Array<{type: string, cells: Array<GameObject>}>){
+        let removed = false;
+        threeList.map(three => {
+            three.cells.map((cell, cellIndex) => {
+                cell.remove();
+                removed = true;
+            });
+        });
+        return removed;
+    }
+    
+    checkStart(){
+        if(this._fall()){
+            this.checkStart();
+        } else {
+            const field = this.getCurrentFieldMask()
+            let threeListH = this._check(field);
+            let threeListV = this._check(this.byCols(field));
+            const squares = this._checkSquare(field);
+            const threeList = [...threeListH.map(it=> ({type: '', cells: it})), ...threeListV.map(it=> ({type: '', cells: it})), ...squares.map(it=> ({type: '', cells: it}))];
+            const removeCellsResult = this.removeCellsStart(threeList);
+            if (removeCellsResult){
+                this.checkStart();
+            };
+        }
+    }
 
     check(){
         if(this._fall()){

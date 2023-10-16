@@ -31,13 +31,16 @@
   position: absolute;
   width: 30px;
   height: 30px;
-  border: 1px solid;
+  /*border: 1px solid;*/
   user-select: none;
   cursor: pointer;
   top: calc(30px * var(--posy));
   left: calc(30px * var(--posx));
-  transition-property: 'top, left, transform';
+  transition-property: top, left, transform;
   transition-duration: 500ms;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .cell2_from{
@@ -60,11 +63,24 @@
 
 
 .cell-img{
-  width: 100%;
-    height: 100%;
+    width: 80%;
+    height: 80%;
     position: absolute;
     background-size: contain;
-    top: 0;
-    left: 0;
+    /*top: 0;
+    left: 0;*/
     background-repeat: no-repeat;
+}
+
+.game-top-wrapper{
+  display: flex;
+}
+
+.game-top-moves{
+  padding: 10px;
+}
+
+.game-top-counters{
+  display: flex;
+  padding: 10px;
 }

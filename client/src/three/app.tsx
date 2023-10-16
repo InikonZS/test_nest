@@ -12,11 +12,55 @@ import { GameObject } from "./items/gameObject";
 import { level } from "./levels/level1";
 console.log(cell1)
 
+interface IDragData { 
+  cell: IVector, 
+  position: IVector 
+}
+
+function game1Field({game, setDragStart}: {game:Game, setDragStart: (data: IDragData)=>void}){
+  <div className="field">
+      {game && game.field.map((row, y) => {
+        return <div className="row">
+          {row.map((cell: Cell, x) => {
+            return <div className="cell" style={{'backgroundColor': ['#fff', '#f00', '#00f', '#0f0', '#ff0', '#f0f'][Number(cell)]}} onMouseDown={(e) => {
+              setDragStart({
+                position: {
+                  x: e.clientX,
+                  y: e.clientY
+                },
+                cell: {
+                  x, y
+                }
+              })
+            }}>{cell.toString()}</div>
+          })}
+        </div>
+      })}
+    </div>
+}
+
+function TopPanel({game}: {game:Game2}) {
+  return (
+    <div className="game-top-wrapper">
+      <div className="game-top-moves">
+        {'moves ' + (game && game.moveCount)}
+      </div>
+      <div className="game-top-counters">
+        {game && (game.colorsCount.map((it, ind) => <div style={{
+          width: '30px',
+          height: '30px', position: 'relative'
+        }}><div className="cell-img" style={{ 'backgroundImage': 'url(' + [cell1, cell2, cell3, cell4][ind] + ')' }}>{it}</div></div>))}
+      </div>
+    </div>
+  )
+}
+
 export function App() {
   const [levelData, setLevelData] = useState(level);
   const [game, setGame] = useState<Game2>(null);
   const [tick, setTick] = useState(0);
-  const [dragStart, setDragStart] = useState<{ cell: IVector, position: IVector }>(null);
+  const [dragStart, setDragStart] = useState<IDragData>(null);
+  const [isShowEditor, setShowEditor] = useState(false);
 
   useEffect(() => {
     const _game = new Game2(levelData);
@@ -49,52 +93,30 @@ export function App() {
 
   return (
     <div>
-    <div className="field">
-      {/*game && game.field.map((row, y) => {
-        return <div className="row">
-          {row.map((cell: Cell, x) => {
-            return <div className="cell" style={{'backgroundColor': ['#fff', '#f00', '#00f', '#0f0', '#ff0', '#f0f'][Number(cell)]}} onMouseDown={(e) => {
-              setDragStart({
-                position: {
-                  x: e.clientX,
-                  y: e.clientY
-                },
-                cell: {
-                  x, y
-                }
-              })
-            }}>{cell.toString()}</div>
-          })}
-        </div>
-      })*/}
-    </div>
-    asdfg
-    <div>
-      {'moves' + (game && game.moveCount)}
-    </div>
-    <div>
-      {game && (game.colorsCount.map((it, ind)=><div style={{width: '30px',
-    height: '30px', position: 'relative'}}><div className="cell-img" style={{'backgroundImage': 'url('+[cell1, cell2, cell3, cell4][ind]+')'}}>{it}</div></div>))}
-    </div>
-    
+    <button onClick={()=>{
+      setShowEditor((last)=> !last)
+    }}>{isShowEditor ? 'hide editor' : 'show editor'}</button>
+
+    <TopPanel game={game}></TopPanel>
     <div className="game_wrapper">
       {game && game.field && <Field data={game.field}></Field>}
       
       <div className="field2">
-        
-        {/*game && game.field.flat()*/game && game.objects./*filter(cell=> !cell.removed).*/sort((a:any, b: any)=> b.id - a.id).map((cell:any ) => {
-          //return <div className="row">
-            //return row.map((cell: any, x) => {
-              return <CellView key={cell.id} cell={cell} setDragStart={setDragStart} isTo={cell == game.hint?.moveTo} isFrom={cell == game.hint?.moveFrom}></CellView>
-          //  })
-          //</div>
+        {game && game.objects.sort((a:any, b: any)=> b.id - a.id).map((cell:any ) => {
+          return <CellView 
+            key={cell.id} 
+            cell={cell}
+            setDragStart={setDragStart} 
+            isTo={cell == game.hint?.moveTo} 
+            isFrom={cell == game.hint?.moveFrom}
+          ></CellView>
         })}
       </div>
       
     </div>
-    <Editor onTest={(level)=>{
+    {isShowEditor && <Editor onTest={(level)=>{
       setLevelData(level);
-    }}></Editor>
+    }}></Editor>}
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import './editor.css';
 import { Field } from "./field";
-import { CellView } from "./app";
+import { CellView } from "./cellView";
 import { IVector } from "./game";
 import { GameObject } from "./items/gameObject";
 import { BoxCell } from "./items/box";

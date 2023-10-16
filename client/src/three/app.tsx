@@ -8,9 +8,8 @@ import cell3 from './imgs/cell3.svg';
 import cell4 from './imgs/cell4.svg';
 import { Field } from './field';
 import { Editor } from './editor';
-import { GameObject } from "./items/gameObject";
 import { level } from "./levels/level1";
-console.log(cell1)
+import { CellView } from "./cellView";
 
 interface IDragData { 
   cell: IVector, 
@@ -119,45 +118,4 @@ export function App() {
     }}></Editor>}
     </div>
   )
-}
-
-export function CellView({setDragStart, cell, isTo, isFrom}: {setDragStart: (e: { cell: IVector, position: IVector })=>void, cell: Cell, isTo?: boolean, isFrom?: boolean}){
-  const [isNew, setNew] = useState(true);
-  useEffect(()=>{
-    const id = requestAnimationFrame(()=>{
-      setNew(false);
-    })
-    return ()=>{
-      cancelAnimationFrame(id);
-    }
-  }, []);
-  if (cell.removed){
-   // console.log('removed');
-  }
-  return <div className={`cell2 ${isFrom?'cell2_from':''} ${isTo?'cell2_to':''}`} style={{'backgroundColor': ['#fff', '#f000', '#00f0', '#0f00', '#ff00', '#f0f', '#999', '#f90', '#444', '#0ff', '#4949', '#9f99', '#2999', '#0000'][Number(cell)], '--posx': cell.position.x, '--posy': isNew? -1: cell.position.y, transform: cell.removed?'scale(0)':'', border: Number(cell) == 13 ? '0':''}} onMouseDown={(e) => {
-    setDragStart({
-      position: {
-        x: e.clientX,
-        y: e.clientY
-      },
-      cell: {
-        x: cell.position.x, y: cell.position.y
-      }
-    })
-  }}>
-    {false && (cell as any).id}
-    {true && ((cell as any).health || '')}
-    {<div> {(()=>{
-      const cl = (cell as any as GameObject);
-      if (cl.subtiles){
-        return cl.subtiles.map((srow, sy)=>{
-          return srow.map((scell, sx) =>{
-            return scell != '-' ? <div className="cell2" style={{'backgroundColor': ['#fff', '#f000', '#00f0', '#0f00', '#ff00', '#f0f', '#999', '#f90', '#444', '#0ff', '#4949', '#9f99', '#2999', '#606'][Number(cell)], '--posx': sx , '--posy': sy, transform: cell.removed?'scale(0)':''}}>{cl.health}</div> : '';
-          })
-          
-        })
-      }
-    })()}</div>}
-    {<div className="cell-img" style={{'backgroundImage': 'url('+[null, cell1, cell2, cell3, cell4][Number(cell)]+')'}}></div>}
-  </div>
 }

@@ -305,7 +305,19 @@ export class Game{
 
             const squares = this._checkSquare(field);
             
-            const threeList = [...threeListH.map(it=> ({type: ['', '', '', '', 'rocket', 'disco', 'disco', 'disco'][it.length], cells: it})), ...threeListV.map(it=> ({type: ['', '', '', '', 'rocket', 'disco', 'disco', 'disco'][it.length], cells: it})), ...squares.map(it=> ({type: 'square', cells: it})), ...bombs];
+            const toTypeList = (list: Array<Array<Cell>>)=>{
+                return list.map(it=> ({
+                    type: ['', '', '', '', 'rocket', 'disco', 'disco', 'disco'][it.length], 
+                    cells: it
+                }));
+            }
+
+            const threeList = [
+                ...toTypeList(threeListH),
+                ...toTypeList(threeListV),
+                ...squares.map(it=> ({type: 'square', cells: it})), 
+                ...bombs
+            ];
             const removeCellsResult = this.removeCells(threeList);
 
             const activated = this.objects.filter(it=>it.activated && !it.removed).map(it=>({type: it.actionType, cells: [it]}));

@@ -44,7 +44,7 @@ export class GameObject{
     }
 
     damagePos(pos: IVector, type: string = ''){
-        if (this.checkPos(pos)){
+        if (this.checkDamagePos(pos)){
             this.damage(type);
         }
     }

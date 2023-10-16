@@ -9,21 +9,23 @@ import cell4 from './imgs/cell4.svg';
 import { Field } from './field';
 import { Editor } from './editor';
 import { GameObject } from "./items/gameObject";
+import { level } from "./levels/level1";
 console.log(cell1)
 
 export function App() {
+  const [levelData, setLevelData] = useState(level);
   const [game, setGame] = useState<Game2>(null);
   const [tick, setTick] = useState(0);
   const [dragStart, setDragStart] = useState<{ cell: IVector, position: IVector }>(null);
 
   useEffect(() => {
-    const _game = new Game2();
+    const _game = new Game2(levelData);
     _game.onGameState = () => {
       setTick(last => last + 1);
     }
     //_game.check();
     setGame(_game);
-  }, []);
+  }, [levelData]);
 
   useEffect(() => {
     if (!dragStart) return;
@@ -90,7 +92,9 @@ export function App() {
       </div>
       
     </div>
-    <Editor></Editor>
+    <Editor onTest={(level)=>{
+      setLevelData(level);
+    }}></Editor>
     </div>
   )
 }

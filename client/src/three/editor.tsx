@@ -18,7 +18,7 @@ const test = [
 
 const initial = new Array(10).fill(null).map(it=> new Array(10).fill('+'));
 
-export function Editor() {
+export function Editor({onTest}: {onTest: (level: {field: Array<Array<string>>, objects: Array<{position:IVector, type: number}>})=>void}) {
     const [field, setField] = useState(initial);
     const [tool, setTool] = useState('back');
     const [objects, setObjects] = useState<Array<GameObject>>([]);
@@ -36,6 +36,12 @@ export function Editor() {
             <button className={`tool`} onClick={()=>{
                 console.log(field, objects.map(it=> ({position: {...it.position}, type: Number(it)})));
             }}>save</button>
+            <button className={`tool`} onClick={()=>{
+                onTest({
+                    field, 
+                    objects: objects.map(it=> ({position: {...it.position}, type: Number(it)}))
+                });
+            }}>test</button>
         </div>
         <div className="editor_field">
             <Field data={field} onCellClick = {(cellPosition)=>{

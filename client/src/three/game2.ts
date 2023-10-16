@@ -31,7 +31,7 @@ const generateLevel = (game: Game, fieldSize: IVector)=>{
     return objects;
 }
 
-function generateLevel1(game: Game){
+function generateLevel1(game: Game, level: {field: Array<Array<string>>, objects: Array<any>}){
     const objects: Array<GameObject> = [];
     level.objects.forEach(it=>{
         try {
@@ -65,16 +65,16 @@ export class Game{
     } = null;
     hintTimer: ReturnType<typeof setTimeout> = null;
 
-    constructor(){
+    constructor(levelData: any){
         //this.objects = generateLevel(this.fieldSize);
-        this.objects = generateLevel1(this);
-        this.field = level.field;
+        this.objects = generateLevel1(this, levelData);
+        this.field = levelData.field;//level.field;
     }
 
     getCurrentFieldMask(){
         const fieldMask: Array<Array<Cell>> = new Array(this.fieldSize.y).fill(null).map(it=>new Array(this.fieldSize.x).fill(null));
         this.objects.forEach(it=>{
-            if (it instanceof Cell && !it.removed){
+            if (it instanceof Cell && !it.removed && it.position.y > -1){
                 fieldMask[it.position.y][it.position.x] = it;
             }
         });
@@ -436,21 +436,21 @@ export class Game{
                     return ptRow.split('').find((ptCell, ptX)=>{
                         //console.log(ptCell)
                         if (ptCell == 'F'){
-                            moveFrom = mask[maskY+ptY][maskX+ptX];
+                            moveFrom = mask[maskY+ptY]?.[maskX+ptX];
                             if (!moveFrom){
                                 console.log('rmf')
                                 return true;
                             }
                         }
                         if (ptCell == 'T'){
-                            moveTo = mask[maskY+ptY][maskX+ptX];
+                            moveTo = mask[maskY+ptY]?.[maskX+ptX];
                             if (!moveTo){
                                 console.log('rmt')
                                 return true;
                             }
                         }
                         if (ptCell == '+' || ptCell == 'F'){
-                            return Number(mask[maskY+ptY][maskX+ptX]) != color
+                            return Number(mask[maskY+ptY]?.[maskX+ptX]) != color
                         }
                     });
                 }) != undefined;
@@ -473,5 +473,12 @@ export class Game{
         }
         console.log('not found move');
         return null;
+    }
+
+    destroy(){
+        if (this.hintTimer){
+            clearTimeout(this.hintTimer);
+            this.hintTimer = null;
+        }
     }
 }

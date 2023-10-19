@@ -10,6 +10,7 @@ import { Field } from './field';
 import { Editor } from './editor';
 import { level } from "./levels/level1";
 import { CellView } from "./cellView";
+import aniImg from './imgs/ani-test.png';
 
 interface IDragData { 
   cell: IVector, 
@@ -96,6 +97,7 @@ export function App() {
       setShowEditor((last)=> !last)
     }}>{isShowEditor ? 'hide editor' : 'show editor'}</button>
 
+    <div className="ani_cell"></div>
     <TopPanel game={game}></TopPanel>
     <div className="game_wrapper">
       {game && game.field && <Field data={game.field}></Field>}

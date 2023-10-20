@@ -1,0 +1,17 @@
+.wf_cell{
+    width: 15px;
+    height: 15px;
+    border: 1px dotted #fff4;
+    font-size: 15px;
+    line-height: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #d76b00;
+    background-color: #000;
+    font-family: monospace;
+}
+
+.canvas{
+    border: 1px dotted #f00;
+}

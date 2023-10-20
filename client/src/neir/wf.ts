@@ -1,6 +1,6 @@
 import { IVector } from '../three/common/IVector';
 
-export const closest: Array<IVector> = [
+export const closest1: Array<IVector> = [
     {x: -1, y: 0},
     {x: 1, y: 0},
     {x: 0, y: -1},
@@ -10,6 +10,18 @@ export const closest: Array<IVector> = [
     {x: 1, y: 1},
     {x: -1, y: 1},
 ]
+
+function genClosest(size:number = 1){
+    const list: Array<IVector> = [];
+    for (let i = -size; i<=size; i++){
+        for (let j = -size; j<=size; j++){
+            list.push({x:i, y:j});
+        }
+    }
+    return list;
+}
+
+const closest = genClosest(1);
 
 const cells2 = [
     {
@@ -113,7 +125,7 @@ const pattern4 = [
     ' |/ /      \\|  |    \\|  '
 ];
 
-const pattern = [
+export const pattern = [
     ' ┏━━━━━━━┓┏━━━┓ ',
     ' ┃       ┃┃   ┃ ',
     ' ┗━━━━━━━┛┗━━━┛ ',
@@ -127,6 +139,41 @@ const pattern = [
     ' ┏━━━━━━━┓┏━━━┓ ',
     ' ┃       ┃┃   ┃ ',
     ' ┗━━━━━━━┛┗━━━┛ ',
+];
+
+const pattern7 = [
+    '                      ',
+    '              (=r=i=) ',
+    '                [-]    ',
+    '    (=r=i=)     [-]    ',
+    '      [-]       [-]    ',  
+    ' (====l=j=======l=j=) ',
+    '                      '
+];
+
+const pattern8 = [
+    '                                             ',
+    '                                             ',
+    '                         o                    ',
+    '                         1                      ',
+    '      (<=-=-=>)      (<=-+-=>)     <=-+-=>)         ',
+    '                         |            |         ',
+    '                         O            0        ',
+    '                                     / L       ',
+    '                                     1 1     ',
+    '                                             ',
+    '                                             ',
+];
+
+const pattern6 = [
+    '                                             ',
+    '                                             ',
+    '                  y                           ',
+    '                 qwe                             ',
+    '               1234568                              ',
+    '                  l                           ',
+    '                                             ',
+    '                                             ',
 ];
 
 const pattern5 = [
@@ -224,9 +271,9 @@ function checkAllowed(field:Array<Array<Array<any>>>, allowed:Array<Array<string
     })*/
 }
 
-export function generate(){
+export function generate(pattern: Array<string>){
     const rules = generateRules(pattern);
-    let field = new Array(30).fill(null).map(it=> new Array(30).fill(null).map(jt=> /*[...cells]*/rules));
+    let field = new Array(20).fill(null).map(it=> new Array(20).fill(null).map(jt=> /*[...cells]*/rules));
 
     for(let i=0; i< 6000; i++){
         let changed = false;
@@ -266,6 +313,7 @@ export function generate(){
         if (!changed){
             if (field[lowest.pos.y][lowest.pos.x].length == 1) {
                 console.log('last el');
+                break;
             } else{
             const random = Math.floor(Math.random()* field[lowest.pos.y][lowest.pos.x].length);
             field[lowest.pos.y][lowest.pos.x] = field[lowest.pos.y][lowest.pos.x].filter((it, i1)=> i1 != random);

@@ -4,6 +4,7 @@ import { CardsView } from "./cards/cardsView";
 import { Views } from "./cards/views";
 import { App as Three } from "./three/app";
 import { App as Pixels } from "./pixels/app";
+import { NeirView } from './neir/app';
 
 export function App() {
     const [currentGame, setCurrentGame] = useState('cards');
@@ -12,7 +13,8 @@ export function App() {
     const games = {
         'cards': Views,
         'three': Three,
-        'pixels': Pixels
+        'pixels': Pixels,
+        'generation': NeirView
     }
     useEffect(()=>{
         const socket = new WebSocket('ws://localhost:3000');

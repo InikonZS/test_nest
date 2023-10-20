@@ -13,9 +13,6 @@ import { closest } from './common/closest';
 import {level} from './levels/level1';
 import { createGameObject } from './objectFactory';
 import {getTransformedPatterns, patterns} from './helpPattern';
-import { generate } from '../neir/wf';
-
-console.log(generate().map(it=> it.map(jt=>jt.map(cl=> cl.val).join('')).join('')));
 
 const generateLevel = (game: Game, fieldSize: IVector)=>{
     const objects: Array<GameObject> = [];

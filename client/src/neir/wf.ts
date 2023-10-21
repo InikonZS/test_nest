@@ -244,7 +244,7 @@ function generateRules(pattern: Array<string>){
         })
         return {
             val: it,
-            allowed: allowed
+            allowed: allowed,
         }
     });
 
@@ -253,7 +253,7 @@ function generateRules(pattern: Array<string>){
 
 }
 
-function checkAllowed(field:Array<Array<Array<any>>>, allowed:Array<Array<string>>, pos: IVector){
+function checkAllowed(field:Array<Array<Array<any>>>, allowed:Array<Array<string>>, pos: IVector, maxLength: number){
     if (closest.every((closePos, closeId)=>{
         const closeCell = field[pos.y+closePos.y]?.[pos.x + closePos.x];
         if (!closeCell) return true;
@@ -271,28 +271,78 @@ function checkAllowed(field:Array<Array<Array<any>>>, allowed:Array<Array<string
     })*/
 }
 
-export function generate(pattern: Array<string>){
-    const rules = generateRules(pattern);
-    let field = new Array(20).fill(null).map(it=> new Array(20).fill(null).map(jt=> /*[...cells]*/rules));
+function fastCheck(field:Array<Array<Array<any>>>, pos: IVector, maxLength: number){
+    if (closest.every((closePos, closeId)=>{
+        const closeCell = field[pos.y+closePos.y]?.[pos.x + closePos.x];
+        if (!closeCell) return true;
+        closeCell.length == maxLength;
+    })) {
+        return true;
+    }
+    return false;
+}
 
-    for(let i=0; i< 6000; i++){
+export function generate(pattern: Array<string>, sizeX: number, sizeY: number){
+    
+    const rules = generateRules(pattern);
+    let field = new Array(sizeY).fill(null).map(it=> new Array(sizeX).fill(null).map(jt=> /*[...cells]*/rules));
+    const historyFields: Array<string> = [];
+    let fieldSc = new Array(sizeY).fill(null).map(it=> new Array(sizeX).fill(false));
+    const maxLength = field[0][0].length;
+    console.log(maxLength);
+    const iterations = 12000;
+    for(let i=0; i< iterations; i++){
+        let breaked = false;
         let changed = false;
         let lowest = {
             length: 999,
             pos: {x:0, y:0}
         };
+        if (i % 20 == 0){
+            console.log('progress', i);
+        }
         field = field.map((row, y)=>{
             return row.map((cell, x)=>{
+                if (breaked == true){
+                    changed = true;
+                    return cell;
+                }
+                if (cell.length == 0){
+                    console.log('breaked', i);
+                    return cell;
+                }
+                if (cell.length == 1){
+                    //return cell;
+                }
+
+                if (fieldSc[y][x] == false){
+                    return cell;
+                }
+
+                if (cell.length == maxLength && fastCheck(field, {x,y}, maxLength)){
+                    return cell;
+                }
+                
                 const rw = cell.filter(cellVariant=>{
-                    const res = checkAllowed(field, cellVariant.allowed, {x, y});
+                    const res = checkAllowed(field, cellVariant.allowed, {x, y}, maxLength);
                     //const res = cellVariant.check(field, {x, y});
                     if (res == false){
                         changed = true;
+                        closest.forEach((closePos, closeId)=>{
+                            const closeCell = fieldSc[y+closePos.y]?.[x + closePos.x];
+                            if (closeCell == undefined) return true;
+                            fieldSc[y+closePos.y][x + closePos.x] = true;
+                        });
                     }
                     return res;
                 });
+                
                 if (rw.length<1){
-                    i=6000;
+                    console.log('break', i);
+                    breaked = true;
+                    //field = JSON.parse(historyFields.pop());
+                    //changed = true;
+                    //i=iterations;
                 }
                 if (rw.length <= lowest.length && rw.length > 1){
                     lowest = {
@@ -310,14 +360,29 @@ export function generate(pattern: Array<string>){
                 return rw
             });
         });
+        if (breaked){
+            field = JSON.parse(historyFields.pop());
+            console.log('history fields', historyFields.length);
+            changed = false;
+        }
         if (!changed){
             if (field[lowest.pos.y][lowest.pos.x].length == 1) {
                 console.log('last el');
                 break;
             } else{
+            if (!breaked){
+            historyFields.push(JSON.stringify(field));
+            if (historyFields.length>10){
+                historyFields.shift();
+            }}
             const random = Math.floor(Math.random()* field[lowest.pos.y][lowest.pos.x].length);
             field[lowest.pos.y][lowest.pos.x] = field[lowest.pos.y][lowest.pos.x].filter((it, i1)=> i1 != random);
             lowest.length = field[lowest.pos.y][lowest.pos.x].length;
+            closest.forEach((closePos, closeId)=>{
+                const closeCell = fieldSc[lowest.pos.y+closePos.y]?.[lowest.pos.x + closePos.x];
+                if (closeCell == undefined) return true;
+                fieldSc[lowest.pos.y+closePos.y][lowest.pos.x + closePos.x] = true;
+            });
             }
         }
     }

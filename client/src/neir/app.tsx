@@ -1,7 +1,25 @@
 import React, { useEffect, useRef, useState } from "react";
 import { generate } from '../neir/wf';
 import './app.css';
-import { pattern as initialPattern } from "../neir/wf";
+import { pattern as initialPattern1 } from "../neir/wf";
+
+const alpha = ' 123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+const testPattern = [
+    "                ",
+    "                ",
+    "       d66c     ",
+    "      8    4    ",
+    "     8      4   ",
+    "    2        b  ",
+    "    1        1  ",
+    "    1        1  ",
+    "    3        9  ",
+    "     4      8   ",
+    "      4    8    ",
+    "       5667     ",
+    "                "
+];
+let initialPattern = testPattern;
 
 export function NeirView(){
     //const field = generate().map(it=> it.map(jt=>jt.map(cl=> cl.val).join('')).join(''));['     ', '     ', '     ', '     ', '     ',].map(it=>it.split(''))
@@ -14,7 +32,7 @@ export function NeirView(){
     const [eraser, setEraser] = useState(false);
     //const field = generate(pattern.map(it=>it.join(''))).map(it=> it.map(jt=>jt.map(cl=> cl.val)));
     useEffect(()=>{
-        const generated = generate(pattern.map(it=>it.join(''))).map(it=> it.map(jt=>jt.map(cl=> cl.val)));
+        const generated = generate(pattern.map(it=>it.join('')), 50, 50).map(it=> it.map(jt=>jt.map(cl=> cl.val)));
         setField(generated);
     }, []);
 
@@ -49,7 +67,7 @@ export function NeirView(){
                 })
             }
         }
-    }, [/*canvasRef.current, */eraser]);
+    }, [/*canvasRef.current, */eraser, tiles]);
     return <div>
         <div>
             <div>
@@ -84,7 +102,7 @@ export function NeirView(){
             -
             <div>
                 <button onClick={()=>{
-                    const generated = generate(pattern.map(it=>it.join(''))).map(it=> it.map(jt=>jt.map(cl=> cl.val)));
+                    const generated = generate(pattern.map(it=>it.join('')), 60, 60).map(it=> it.map(jt=>jt.map(cl=> cl.val)));
                     setField(generated);
                 }}>regenerate</button>
                 <button onClick={()=>{
@@ -94,8 +112,11 @@ export function NeirView(){
                     })
                 }}>clear pattern</button>
                 <button onClick={()=>{
-                    setTiles(last=> [...last, last.length.toString()])
+                    setTiles(last=> [...last, alpha[last.length]])
                 }}>add tile</button>
+                <button onClick={()=>{
+                    console.log(pattern.map(it=>it.join('')));
+                }}>save pattern</button>
             </div>
         </div>
 

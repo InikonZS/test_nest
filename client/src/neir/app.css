@@ -10,6 +10,7 @@
     color: #d76b00;
     background-color: #000;
     font-family: monospace;
+    flex-shrink: 0;
 }
 
 .canvas{

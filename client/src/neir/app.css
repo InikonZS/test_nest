@@ -11,6 +11,14 @@
     background-color: #000;
     font-family: monospace;
     flex-shrink: 0;
+
+    width: 10px;
+    height: 10px;
+    font-size: 12px;
+    line-height: 10px;
+    letter-spacing: -7px;
+    justify-content: left;
+    padding-left: 2px;
 }
 
 .canvas{

@@ -275,14 +275,29 @@ function fastCheck(field:Array<Array<Array<any>>>, pos: IVector, maxLength: numb
     if (closest.every((closePos, closeId)=>{
         const closeCell = field[pos.y+closePos.y]?.[pos.x + closePos.x];
         if (!closeCell) return true;
-        closeCell.length == maxLength;
+        return closeCell.length == maxLength;
     })) {
         return true;
     }
     return false;
 }
 
-export function generate(pattern: Array<string>, sizeX: number, sizeY: number){
+function fastCheckOne(field:Array<Array<Array<any>>>, fieldSc: Array<Array<boolean>>, pos: IVector){
+    if (closest.every((closePos, closeId)=>{
+        const closeCell = field[pos.y+closePos.y]?.[pos.x + closePos.x];
+        if (!closeCell) return true;
+        return closeCell.length == 1;
+    })) {
+        fieldSc[pos.y][pos.x] = false;
+        return true;
+    }
+    return false;
+}
+
+export async function generate(pattern: Array<string>, sizeX: number, sizeY: number, onProgress?:(data: {field: {
+    val: string;
+    allowed: string[][];
+}[][][], fieldSc: Array<Array<boolean>>})=>void, cancellationToken?: {cancel?: ()=>void}){
     
     const rules = generateRules(pattern);
     let field = new Array(sizeY).fill(null).map(it=> new Array(sizeX).fill(null).map(jt=> /*[...cells]*/rules));
@@ -298,8 +313,15 @@ export function generate(pattern: Array<string>, sizeX: number, sizeY: number){
             length: 999,
             pos: {x:0, y:0}
         };
+        if (cancellationToken){
+            cancellationToken.cancel = ()=>{
+                i = iterations;
+            }
+        }
         if (i % 20 == 0){
             console.log('progress', i);
+            await new Promise((res)=>{setTimeout(()=>res(null))});
+            onProgress?.(JSON.parse(JSON.stringify({field, fieldSc})));
         }
         field = field.map((row, y)=>{
             return row.map((cell, x)=>{
@@ -322,6 +344,10 @@ export function generate(pattern: Array<string>, sizeX: number, sizeY: number){
                 if (cell.length == maxLength && fastCheck(field, {x,y}, maxLength)){
                     return cell;
                 }
+
+                if (fastCheckOne(field, fieldSc, {x, y})){
+                    //return cell;
+                };
                 
                 const rw = cell.filter(cellVariant=>{
                     const res = checkAllowed(field, cellVariant.allowed, {x, y}, maxLength);
@@ -361,17 +387,21 @@ export function generate(pattern: Array<string>, sizeX: number, sizeY: number){
             });
         });
         if (breaked){
-            field = JSON.parse(historyFields.pop());
+            let dump = JSON.parse(historyFields.pop());
             console.log('history fields', historyFields.length);
+            lowest = dump.lowest;
+            field = dump.field; 
+            fieldSc = dump.fieldSc;
             changed = false;
         }
         if (!changed){
+            //fieldSc.forEach((it, y)=> it.forEach((jt, x)=> fieldSc[y][x] = false))
             if (field[lowest.pos.y][lowest.pos.x].length == 1) {
                 console.log('last el');
                 break;
             } else{
             if (!breaked){
-            historyFields.push(JSON.stringify(field));
+            historyFields.push(JSON.stringify({field, lowest, fieldSc}));
             if (historyFields.length>10){
                 historyFields.shift();
             }}
@@ -387,5 +417,5 @@ export function generate(pattern: Array<string>, sizeX: number, sizeY: number){
         }
     }
 
-    return field;
+    return {field, fieldSc};
 }

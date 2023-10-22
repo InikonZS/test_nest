@@ -25,15 +25,20 @@ export function NeirView(){
     //const field = generate().map(it=> it.map(jt=>jt.map(cl=> cl.val).join('')).join(''));['     ', '     ', '     ', '     ', '     ',].map(it=>it.split(''))
     const [pattern, setPattern] = useState<Array<Array<string>>>(initialPattern.map(it=>it.split('')));
     const [field, setField] = useState<Array<Array<Array<string>>>>(null);
+    const [fieldSc, setFieldSc] = useState<Array<Array<boolean>>>(null);
     const [tiles, setTiles] = useState<Array<string>>([' ', '1', '2', '3', '4', '5', '6', '7', '8']);
     const [selectedTile, setSelectedTile] = useState<string>(tiles[0]);
     const canvasRef = useRef<HTMLCanvasElement>();
     const [backUrl, setBackUrl] = useState('');
     const [eraser, setEraser] = useState(false);
+    const [cancelRegen, setCancelRegen] = useState<{cancel?: ()=>void}>(null);
     //const field = generate(pattern.map(it=>it.join(''))).map(it=> it.map(jt=>jt.map(cl=> cl.val)));
     useEffect(()=>{
-        const generated = generate(pattern.map(it=>it.join('')), 50, 50).map(it=> it.map(jt=>jt.map(cl=> cl.val)));
-        setField(generated);
+        generate(pattern.map(it=>it.join('')), 20, 20).then(f=>{
+           const generated = f.field.map(it=> it.map(jt=>jt.map(cl=> cl.val))); 
+            setField(generated);
+        })
+       
     }, []);
 
     useEffect(()=>{
@@ -101,10 +106,23 @@ export function NeirView(){
             </div>
             -
             <div>
-                <button onClick={()=>{
-                    const generated = generate(pattern.map(it=>it.join('')), 60, 60).map(it=> it.map(jt=>jt.map(cl=> cl.val)));
+                <button onClick={async ()=>{
+                    if (cancelRegen && cancelRegen.cancel){
+                        cancelRegen.cancel();
+                        console.log('cancelled');
+                        setCancelRegen(null);
+                        return;
+                    }
+                    const cancellationToken = {};
+                    setCancelRegen(cancellationToken);
+                    const generated = (await generate(pattern.map(it=>it.join('')), 50, 50, (f)=>{
+                        setField(f.field.map(it=> it.map(jt=>jt.map(cl=> cl.val))))
+                        setFieldSc(f.fieldSc)
+                    }, cancellationToken)).field.map(it=> it.map(jt=>jt.map(cl=> cl.val)));
                     setField(generated);
-                }}>regenerate</button>
+                    console.log('finished');
+                    setCancelRegen(null);
+                }}>{cancelRegen ? 'cancel' : 'regenerate'}</button>
                 <button onClick={()=>{
                     setPattern(last=>{
                         const newPattern = [...last.map(it=>[...it.map(()=>' ')])];
@@ -125,6 +143,7 @@ export function NeirView(){
                 return <div className="row">
                 {row.map((cell, x) => {
                     return <div className="wf_cell" style={{
+                        color: (fieldSc && fieldSc[y][x]) ? '#f00' : '',
                         backgroundImage: `url(${backUrl})`,
                         backgroundSize: `calc(100% * ${tiles.length}) 100%`,
                         backgroundPositionX: `calc(-100% * ${tiles.findIndex(tile=>tile == cell[0])})`

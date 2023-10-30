@@ -35,9 +35,10 @@ export class HeliCell extends GameObject{
                 const closePos = {x: jt.x + this.position.x, y: jt.y + this.position.y}
                 if ( closePos.x == it.position.x && closePos.y == it.position.y){
                     !it.removed && !it.activated && it.execute(objects); 
-                    !it.removed && it.damagePos(closePos, 'a');
+                    //!it.removed && it.damagePos(closePos, 'a');
                     //it.removed = true;
                 }
+                !it.removed && it.damagePos(closePos, 'a');
             });
         })
         const notRemoved = objects.filter(it=> !it.removed && !it.activated && it !== this);

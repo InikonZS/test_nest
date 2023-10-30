@@ -15,6 +15,7 @@ import rocket from './imgs/rocket.png';
 import rocketV from './imgs/red_crystal.png';
 import heli from './imgs/heli.png';
 import disco from './imgs/disco.png';
+import banana from './imgs/banana.png';
 import { GameObject } from "./items/gameObject";
 
 export function CellView({setDragStart, cell, isTo, isFrom}: {setDragStart: (e: { cell: IVector, position: IVector })=>void, cell: GameObject, isTo?: boolean, isFrom?: boolean}){
@@ -68,12 +69,16 @@ export function CellView({setDragStart, cell, isTo, isFrom}: {setDragStart: (e: 
                   className="cell2"
                   style={{
                     'backgroundColor': backgroundColor,
+                    'backgroundImage': `url(${banana})`,
+                    'backgroundSize': 'cover',
+                    'color': '#fff',
                     '--posx': sx,
                     '--posy': sy,
                     transform: cell.removed ? 'scale(0)' : ''
                   }}
                 >
-                  {cell.health}
+                  {/*cell.health*/}
+                  {(cell as any).healthMap[sy][sx]}
                 </div> : '';
               })
   
@@ -82,6 +87,6 @@ export function CellView({setDragStart, cell, isTo, isFrom}: {setDragStart: (e: 
         })()
       }
       </div>}
-      {<div className="cell-img" style={{'zIndex': [10, 11].includes(Number(cell)) ? 0: 1, 'backgroundImage': 'url('+[null, cell1, cell2, cell3, cell4, [boxh0, boxh1, boxh2, boxh3][cell.health], null, rocket, bomb, disco, grassh1, grassh2, heli][Number(cell)]+')'}}></div>}
+      {<div className="cell-img" style={{'zIndex': [10, 11].includes(Number(cell)) ? 0: 1, 'backgroundImage': 'url('+[null, cell1, cell2, cell3, cell4, [boxh0, boxh1, boxh2, boxh3][cell.health], null, [rocket,rocketV][(cell as any).directionV == true ? 1 : 0], bomb, disco, grassh1, grassh2, heli][Number(cell)]+')'}}></div>}
     </div>
   }

@@ -57,7 +57,13 @@ export class GameObject{
         return this.position.x == pos.x && this.position.y == pos.y && !this.removed && !this.background
     }
 
-    checkDamagePos(pos: IVector){
+    checkDamagePos(pos: IVector, anyX: boolean = false, anyY: boolean = false){
+        if (anyX){
+            return this.position.y == pos.y && !this.removed
+        }
+        if (anyY){
+            return this.position.x == pos.x && !this.removed
+        }
         return this.position.x == pos.x && this.position.y == pos.y && !this.removed
     }
 

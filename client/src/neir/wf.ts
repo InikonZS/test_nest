@@ -257,7 +257,9 @@ function checkAllowed(field:Array<Array<Array<any>>>, allowed:Array<Array<string
     if (closest.every((closePos, closeId)=>{
         const closeCell = field[pos.y+closePos.y]?.[pos.x + closePos.x];
         if (!closeCell) return true;
-        const found = closeCell.find(jt=> allowed[closeId].some((kt)=>jt.val == kt));
+        const allowedClose = allowed[closeId];
+        const some = (val: string)=>allowedClose.some((kt)=>val == kt)
+        const found = closeCell.find(jt=> some(jt.val));
         if (!found){
             return false;
         }
@@ -306,13 +308,14 @@ export async function generate(pattern: Array<string>, sizeX: number, sizeY: num
     const maxLength = field[0][0].length;
     console.log(maxLength);
     const iterations = 12000;
-    for(let i=0; i< iterations; i++){
-        let breaked = false;
-        let changed = false;
-        let lowest = {
+    let lowest = {
             length: 999,
             pos: {x:0, y:0}
         };
+    for(let i=0; i< iterations; i++){
+        let breaked = false;
+        let changed = false;
+        
         if (cancellationToken){
             cancellationToken.cancel = ()=>{
                 i = iterations;
@@ -346,7 +349,7 @@ export async function generate(pattern: Array<string>, sizeX: number, sizeY: num
                 }
 
                 if (fastCheckOne(field, fieldSc, {x, y})){
-                    //return cell;
+                //    return cell;
                 };
                 
                 const rw = cell.filter(cellVariant=>{
@@ -402,7 +405,7 @@ export async function generate(pattern: Array<string>, sizeX: number, sizeY: num
             } else{
             if (!breaked){
             historyFields.push(JSON.stringify({field, lowest, fieldSc}));
-            if (historyFields.length>10){
+            if (historyFields.length>30){
                 historyFields.shift();
             }}
             const random = Math.floor(Math.random()* field[lowest.pos.y][lowest.pos.x].length);

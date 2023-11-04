@@ -27,6 +27,10 @@ export class GameObject{
         this.id = GameObject.getNextId();
     }
 
+    valueOf(){
+        return 0;
+    }
+
     move(directed: GameObject): boolean{
         return false
     }

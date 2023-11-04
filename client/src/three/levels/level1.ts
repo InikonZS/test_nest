@@ -1,5 +1,6 @@
 export const level =
 {
+    moves: 20,
     field: [
         [
             "-",

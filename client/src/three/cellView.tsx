@@ -18,6 +18,10 @@ import disco from './imgs/disco.png';
 import banana from './imgs/banana.png';
 import { GameObject } from "./items/gameObject";
 
+export function getCellBackground(cell: GameObject | {health: number, directionV?: boolean, valueOf: ()=>number}){
+  return [null, cell1, cell2, cell3, cell4, [boxh0, boxh1, boxh2, boxh3][cell.health], null, [rocket,rocketV][(cell as any).directionV == true ? 1 : 0], bomb, disco, grassh1, grassh2, heli][Number(cell)];
+}
+
 export function CellView({setDragStart, cell, isTo, isFrom}: {setDragStart: (e: { cell: IVector, position: IVector })=>void, cell: GameObject, isTo?: boolean, isFrom?: boolean}){
     const [isNew, setNew] = useState(true);
     useEffect(()=>{
@@ -87,6 +91,6 @@ export function CellView({setDragStart, cell, isTo, isFrom}: {setDragStart: (e: 
         })()
       }
       </div>}
-      {<div className="cell-img" style={{'zIndex': [10, 11].includes(Number(cell)) ? 0: 1, 'backgroundImage': 'url('+[null, cell1, cell2, cell3, cell4, [boxh0, boxh1, boxh2, boxh3][cell.health], null, [rocket,rocketV][(cell as any).directionV == true ? 1 : 0], bomb, disco, grassh1, grassh2, heli][Number(cell)]+')'}}></div>}
+      {<div className="cell-img" style={{'zIndex': [10, 11].includes(Number(cell)) ? 0: 1, 'backgroundImage': 'url('+getCellBackground(cell)+')'}}></div>}
     </div>
   }

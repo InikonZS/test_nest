@@ -18,7 +18,7 @@ const test = [
 
 const initial = new Array(10).fill(null).map(it=> new Array(10).fill('+'));
 
-export function Editor({onTest}: {onTest: (level: {field: Array<Array<string>>, objects: Array<{position:IVector, type: number}>})=>void}) {
+export function Editor({onTest}: {onTest: (level: {moves: number, field: Array<Array<string>>, objects: Array<{position:IVector, type: number}>})=>void}) {
     const [field, setField] = useState(initial);
     const [tool, setTool] = useState('back');
     const [objects, setObjects] = useState<Array<GameObject>>([]);
@@ -38,6 +38,7 @@ export function Editor({onTest}: {onTest: (level: {field: Array<Array<string>>, 
             }}>save</button>
             <button className={`tool`} onClick={()=>{
                 onTest({
+                    moves: 35,
                     field, 
                     objects: objects.map(it=> ({position: {...it.position}, type: Number(it)}))
                 });

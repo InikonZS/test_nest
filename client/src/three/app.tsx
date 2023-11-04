@@ -9,7 +9,7 @@ import cell4 from './imgs/berries.png';
 import { Field } from './field';
 import { Editor } from './editor';
 import { level } from "./levels/level1";
-import { CellView } from "./cellView";
+import { CellView, getCellBackground } from "./cellView";
 import aniImg from './imgs/ani-test.png';
 
 interface IDragData { 
@@ -40,16 +40,27 @@ function game1Field({game, setDragStart}: {game:Game, setDragStart: (data: IDrag
 }
 
 function TopPanel({game}: {game:Game2}) {
+  const objCounts = game?.getObjectsCount();
   return (
     <div className="game-top-wrapper">
       <div className="game-top-moves">
-        {'moves ' + (game && game.moveCount)}
+        {'moves ' + (game && game.getMovesLeft())}
       </div>
       <div className="game-top-counters">
         {game && (game.colorsCount.map((it, ind) => <div style={{
           width: '30px',
           height: '30px', position: 'relative'
         }}><div className="cell-img" style={{ 'backgroundImage': 'url(' + [cell1, cell2, cell3, cell4][ind] + ')' }}>{it}</div></div>))}
+      </div>
+      <div className="game-top-counters">
+        {game && (Object.keys(objCounts).map((key, ind) => <div style={{
+          width: '30px',
+          height: '30px', position: 'relative'
+        }}><div className="cell-img" style={{ 'backgroundImage': 'url(' +  getCellBackground({
+          health: 0,
+          valueOf: ()=> Number(key),
+          directionV: false
+        }) + ')' }}>{objCounts[key]}</div></div>))}
       </div>
     </div>
   )
@@ -113,7 +124,18 @@ export function App() {
           ></CellView>
         })}
       </div>
-      
+      {
+        game && game.checkEmptyObjectsCount() && <div>
+          win
+        </div>
+      }
+       {
+        game && game.checkEmptyObjectsCount() == false && game.getMovesLeft() == 0 && <div>
+          <button onClick={()=>{
+            setLevelData({...levelData})
+          }}>try again</button>
+        </div>
+      }
     </div>
     {isShowEditor && <Editor onTest={(level)=>{
       setLevelData(level);

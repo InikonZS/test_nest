@@ -64,13 +64,38 @@ export class Game{
         moveTo: GameObject
     } = null;
     hintTimer: ReturnType<typeof setTimeout> = null;
+    maxMoves: number;
 
     constructor(levelData: any){
         //this.objects = generateLevel(this.fieldSize);
         this.objects = generateLevel1(this, levelData);
         this.field = levelData.field;//level.field;
+        this.maxMoves = levelData.moves || 30;
         this.checkStart();
         this.colorsCount = [0, 0, 0, 0];
+    }
+
+    getObjectsCount(){
+        const count: Record<string, number> = {};
+        this.objects.forEach(obj=>{
+            const type = Number(obj).toString();
+            if (!['0', '1', '2', '3', '4', '7', '8', '9', '12'].includes(type) && !obj.removed){
+                count[type] = count[type] ? count[type] + 1 : 1;
+            }
+        })
+        return count;
+    }
+
+    checkEmptyObjectsCount(){
+        const objects = this.getObjectsCount();
+        if (Object.keys(objects).length == 0){
+            return true;
+        }
+        return false;
+    }
+
+    getMovesLeft(){
+        return this.maxMoves - this.moveCount;
     }
 
     getCurrentFieldMask(){

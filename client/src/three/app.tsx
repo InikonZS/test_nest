@@ -66,7 +66,25 @@ function TopPanel({game}: {game:Game2}) {
   )
 }
 
-export function App() {
+export function App(){
+  return <GameMenu></GameMenu>
+}
+
+function GameMenu(){
+  const [isStarted, setStarted] = useState(false);
+  return <div>
+    {isStarted == false && <div>
+      <button onClick={()=>{
+        setStarted(true);
+      }}>start</button>
+    </div>}
+    {isStarted == true && <GameField onClose={()=>{
+      setStarted(false);
+    }}></GameField>}
+  </div>
+}
+
+export function GameField({onClose} : {onClose:()=>void}) {
   const [levelData, setLevelData] = useState(level);
   const [game, setGame] = useState<Game2>(null);
   const [tick, setTick] = useState(0);
@@ -127,6 +145,9 @@ export function App() {
       {
         game && game.checkEmptyObjectsCount() && <div>
           win
+          <button onClick={()=>{
+            onClose();
+          }}>menu</button>
         </div>
       }
        {
@@ -134,6 +155,9 @@ export function App() {
           <button onClick={()=>{
             setLevelData({...levelData})
           }}>try again</button>
+          <button onClick={()=>{
+            onClose();
+          }}>menu</button>
         </div>
       }
     </div>

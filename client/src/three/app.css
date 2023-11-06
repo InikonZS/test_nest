@@ -13,6 +13,7 @@
 .game_wrapper{
   position: relative;
   height: 300px;
+  --size: 30px;
 }
 
 .field2 {
@@ -29,13 +30,13 @@
   --posx:0;
   transition-timing-function: cubic-bezier(0.66, 0.25, 0.63, 1.26);
   position: absolute;
-  width: 30px;
-  height: 30px;
+  width: var(--size);
+  height: var(--size);
   /*border: 1px solid;*/
   user-select: none;
   cursor: pointer;
-  top: calc(30px * var(--posy));
-  left: calc(30px * var(--posx));
+  top: calc(var(--size) * var(--posy));
+  left: calc(var(--size) * var(--posx));
   transition-property: top, left, transform;
   transition-duration: 500ms;
   display: flex;

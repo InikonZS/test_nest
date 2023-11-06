@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Cell, Game, IVector } from './game';
 import { Game as Game2 } from './game2';
 import './app.css';
+import './screens.css';
 import cell1 from './imgs/tomato.png';//'./imgs/cell1.svg';
 import cell2 from './imgs/cucu.png';
 import cell3 from './imgs/carrot.png';
@@ -12,6 +13,8 @@ import { level } from "./levels/level1";
 import { level as level2 } from "./levels/level2";
 import { CellView, getCellBackground } from "./cellView";
 import aniImg from './imgs/ani-test.png';
+import {WinScreen} from './components/winScreen/winScreen';
+import {FailScreen} from './components/failScreen/failScreen';
 
 const levels = [level, level2];
 
@@ -88,7 +91,7 @@ function GameMenu(){
     }
     return levelList[startedLevel]
   }, [startedLevel, levelList, editorLevel]);
-  return <div>
+  return <div className="base_screen">
 
         <button onClick={()=>{
       setShowEditor((last)=> !last)
@@ -165,11 +168,12 @@ export function GameField({onClose, levelData} : {onClose:()=>void, levelData: a
   }, [dragStart]);
 
   return (
-    <div>
-
-
+    <div className="base_screen">
     <div className="ani_cell"></div>
     <TopPanel game={game}></TopPanel>
+    <button onClick={()=>{
+            onClose();
+          }}>menu</button>
     <div className="game_wrapper">
       {game && game.field && <Field data={game.field}></Field>}
       
@@ -185,23 +189,10 @@ export function GameField({onClose, levelData} : {onClose:()=>void, levelData: a
         })}
       </div>
       {
-        game && game.checkEmptyObjectsCount() && <div>
-          win
-          <button onClick={()=>{
-            onClose();
-          }}>menu</button>
-        </div>
+        game && game.checkEmptyObjectsCount() && <WinScreen onMenu={onClose}></WinScreen>
       }
-       {
-        game && game.checkEmptyObjectsCount() == false && game.getMovesLeft() == 0 && <div>
-          <button onClick={()=>{
-            //setLevelData({...levelData})
-            startLevel();
-          }}>try again</button>
-          <button onClick={()=>{
-            onClose();
-          }}>menu</button>
-        </div>
+      {
+        game && game.checkEmptyObjectsCount() == false && game.getMovesLeft() == 0 && <FailScreen onMenu={onClose} onRestart={startLevel}></FailScreen>
       }
     </div>
     </div>

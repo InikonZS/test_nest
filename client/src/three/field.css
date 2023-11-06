@@ -15,8 +15,8 @@
 }
 
 .field_cell_base{
-    width: 30px;
-    height: 30px;
+    width: var(--size);
+    height: var(--size);
 }
 
 .field_cell_top{

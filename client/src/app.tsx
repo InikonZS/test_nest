@@ -6,6 +6,7 @@ import { App as Three } from "./three/app";
 import { App as Pixels } from "./pixels/app";
 import { App as Ani} from "./ani/app";
 import { NeirView } from './neir/app';
+import  './root.css';
 
 export function App() {
     const [currentGame, setCurrentGame] = useState('cards');
@@ -34,7 +35,7 @@ export function App() {
             socket.close();
         }
     }, []);
-    return <div>
+    return <div className="root_block">
         {/*
             !isLogined ? (
                 <>

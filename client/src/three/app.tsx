@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Cell, Game, IVector } from './game';
 import { Game as Game2 } from './game2';
 import './app.css';
@@ -9,8 +9,11 @@ import cell4 from './imgs/berries.png';
 import { Field } from './field';
 import { Editor } from './editor';
 import { level } from "./levels/level1";
+import { level as level2 } from "./levels/level2";
 import { CellView, getCellBackground } from "./cellView";
 import aniImg from './imgs/ani-test.png';
+
+const levels = [level, level2];
 
 interface IDragData { 
   cell: IVector, 
@@ -71,33 +74,74 @@ export function App(){
 }
 
 function GameMenu(){
-  const [isStarted, setStarted] = useState(false);
+  const [levelList, setLevelList] = useState(levels);
+  const [editorLevel, setEditorLevel] = useState(null);
+  //const [isStarted, setStarted] = useState(false);
+  const [startedLevel, setStartedLevel] = useState<number | null>(null);
+  const [isShowEditor, setShowEditor] = useState(false);
+  const startedLevelData = useMemo(()=>{
+    if (startedLevel === null){
+      return null
+    }
+    if (editorLevel && startedLevel == -1){
+      return editorLevel;
+    }
+    return levelList[startedLevel]
+  }, [startedLevel, levelList, editorLevel]);
   return <div>
-    {isStarted == false && <div>
+
+        <button onClick={()=>{
+      setShowEditor((last)=> !last)
+    }}>{isShowEditor ? 'hide editor' : 'show editor'}</button>
+    { !startedLevelData && <div>
+    {
+      levelList.map((level, index)=>{
+        return <div>
+          <button onClick={()=>{
+            setStartedLevel(index);
+          }
+            
+          }>{index + 1}</button>
+        </div>
+      })
+    }
+    </div>
+  }
+    {/*isStarted == false && <div>
       <button onClick={()=>{
         setStarted(true);
       }}>start</button>
-    </div>}
-    {isStarted == true && <GameField onClose={()=>{
-      setStarted(false);
+    </div>*/}
+    {startedLevelData !== null && <GameField levelData={startedLevelData} onClose={()=>{
+      //setStarted(false);
+      setStartedLevel(null);
     }}></GameField>}
+      {isShowEditor && <Editor onTest={(level)=>{
+      setEditorLevel(level);
+      setStartedLevel(-1);
+    }}></Editor>}
+    
   </div>
 }
 
-export function GameField({onClose} : {onClose:()=>void}) {
-  const [levelData, setLevelData] = useState(level);
+export function GameField({onClose, levelData} : {onClose:()=>void, levelData: any}) {
+  //const [levelData, setLevelData] = useState(level);
   const [game, setGame] = useState<Game2>(null);
   const [tick, setTick] = useState(0);
   const [dragStart, setDragStart] = useState<IDragData>(null);
-  const [isShowEditor, setShowEditor] = useState(false);
 
-  useEffect(() => {
+
+  const startLevel = ()=>{
     const _game = new Game2(levelData);
     _game.onGameState = () => {
       setTick(last => last + 1);
     }
     //_game.check();
     setGame(_game);
+  }
+
+  useEffect(() => {
+    startLevel();
   }, [levelData]);
 
   useEffect(() => {
@@ -122,9 +166,7 @@ export function GameField({onClose} : {onClose:()=>void}) {
 
   return (
     <div>
-    <button onClick={()=>{
-      setShowEditor((last)=> !last)
-    }}>{isShowEditor ? 'hide editor' : 'show editor'}</button>
+
 
     <div className="ani_cell"></div>
     <TopPanel game={game}></TopPanel>
@@ -153,7 +195,8 @@ export function GameField({onClose} : {onClose:()=>void}) {
        {
         game && game.checkEmptyObjectsCount() == false && game.getMovesLeft() == 0 && <div>
           <button onClick={()=>{
-            setLevelData({...levelData})
+            //setLevelData({...levelData})
+            startLevel();
           }}>try again</button>
           <button onClick={()=>{
             onClose();
@@ -161,9 +204,6 @@ export function GameField({onClose} : {onClose:()=>void}) {
         </div>
       }
     </div>
-    {isShowEditor && <Editor onTest={(level)=>{
-      setLevelData(level);
-    }}></Editor>}
     </div>
   )
 }

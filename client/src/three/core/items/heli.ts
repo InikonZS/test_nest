@@ -1,6 +1,6 @@
-import {IVector} from '../common/IVector';
+import {IVector} from '../../common/IVector';
 import { GameObject } from './gameObject';
-import {closest} from '../common/closest';
+import {closest} from '../../common/closest';
 
 export class HeliCell extends GameObject{
     actionType = 'hc';

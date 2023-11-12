@@ -1,4 +1,4 @@
-import { IVector } from "../common/IVector";
+import { IVector } from "../../common/IVector";
 import { GameObject } from "./gameObject";
 
 export class GrassCell extends GameObject{

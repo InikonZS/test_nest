@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import './editor.css';
-import { Field } from "./field";
-import { CellView } from "./cellView";
-import { IVector } from "./game";
-import { GameObject } from "./items/gameObject";
-import { BoxCell } from "./items/box";
-import { GrassCell } from "./items/grass";
+import { Field } from "../gameField/field";
+import { CellView } from "../cellView/cellView";
+import { IVector } from "../../core/game";
+import { GameObject } from "../../core/items/gameObject";
+import { BoxCell } from "../../core/items/box";
+import { GrassCell } from "../../core/items/grass";
 
 const test = [
     '-------',

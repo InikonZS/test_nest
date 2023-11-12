@@ -1,4 +1,4 @@
-import {IVector} from '../common/IVector';
+import {IVector} from '../../common/IVector';
 import { Game } from '../game2';
 
 export class GameObject{

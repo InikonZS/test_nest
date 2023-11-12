@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import './field.css';
-import { IVector } from "./game";
+import { IVector } from "../../core/game";
 
 export function Field({data, onCellClick}: {data: Array<Array<string>>, onCellClick?: (position:IVector)=>void}) {
     const field = data;

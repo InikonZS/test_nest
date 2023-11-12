@@ -1,4 +1,4 @@
-import {IVector} from './common/IVector';
+import {IVector} from '../common/IVector';
 import { GameObject } from './items/gameObject';
 import { Cell } from './items/cell';
 import { BoxCell } from './items/box';
@@ -9,8 +9,8 @@ import { BreakableCell } from './items/breakable';
 import { GrassCell } from './items/grass';
 import { HeliCell } from './items/heli';
 import { SubtiledCell } from './items/subtiled';
-import { closest } from './common/closest';
-import {level} from './levels/level1';
+import { closest } from '../common/closest';
+import {level} from '../levels/level1';
 import { createGameObject } from './objectFactory';
 import {getTransformedPatterns, patterns} from './helpPattern';
 

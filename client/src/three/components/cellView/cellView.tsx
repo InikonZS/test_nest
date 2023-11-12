@@ -17,6 +17,7 @@ import heli from '../../imgs/heli.png';
 import disco from '../../imgs/disco.png';
 import banana from '../../imgs/banana.png';
 import { GameObject } from "../../core/items/gameObject";
+import { cellList } from "./cellList";
 
 export function getCellBackground(cell: GameObject | {health: number, directionV?: boolean, valueOf: ()=>number}){
   return [null, cell1, cell2, cell3, cell4, [boxh0, boxh1, boxh2, boxh3][cell.health], null, [rocket,rocketV][(cell as any).directionV == true ? 1 : 0], bomb, disco, grassh1, grassh2, heli][Number(cell)];
@@ -64,7 +65,7 @@ export function CellView({setDragStart, cell, isTo, isFrom}: {setDragStart: (e: 
     >
       {false && (cell as any).id}
       {true && ((cell as any).health || '')}
-      {<div> {
+      {/*<div> {
         (() => {
           if (cell.subtiles) {
             return cell.subtiles.map((srow, sy) => {
@@ -81,7 +82,7 @@ export function CellView({setDragStart, cell, isTo, isFrom}: {setDragStart: (e: 
                     transform: cell.removed ? 'scale(0)' : ''
                   }}
                 >
-                  {/*cell.health*/}
+                  {/*cell.health*//*}
                   {(cell as any).healthMap[sy][sx]}
                 </div> : '';
               })
@@ -90,7 +91,13 @@ export function CellView({setDragStart, cell, isTo, isFrom}: {setDragStart: (e: 
           }
         })()
       }
-      </div>}
-      {<div className="cell-img" style={{'zIndex': [10, 11].includes(Number(cell)) ? 0: 1, 'backgroundImage': 'url('+getCellBackground(cell)+')'}}></div>}
+    </div>*/}
+      {
+        (()=>{
+          const CellCtor = cellList[Number(cell).toString()];
+          return CellCtor?<CellCtor cell={cell}></CellCtor> : ''
+        })()
+      }
+      {/*<div className="cell-img" style={{'zIndex': [10, 11].includes(Number(cell)) ? 0: 1, 'backgroundImage': 'url('+getCellBackground(cell)+')'}}></div>*/}
     </div>
   }

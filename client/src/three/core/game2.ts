@@ -70,6 +70,7 @@ export class Game{
         //this.objects = generateLevel(this.fieldSize);
         this.objects = generateLevel1(this, levelData);
         this.field = levelData.field;//level.field;
+        this.fieldSize = {x: this.field[0].length, y: this.field.length}
         this.maxMoves = levelData.moves || 30;
         this.checkStart();
         this.colorsCount = [0, 0, 0, 0];

@@ -15,14 +15,16 @@
   height: 100%;
   overflow: hidden;
   --size: 30px;
+  --field-x: 10;
+  --field-y: 10;
   width: 100%;
 }
 
 .field2 {
   position: absolute;
   /*overflow: hidden;*/
-  width: calc(var(--size) * 10);
-  height: calc(var(--size) * 10);
+  width: calc(var(--size) * var(--field-x));
+  height: calc(var(--size) * var(--field-y));
   top: 0;
   left: 0;
   top: 50%;

@@ -1,6 +1,8 @@
 .editor_wrapper{
     position: relative;
     --size: 30px;
+    --field-x: 10;
+    --field-y: 10;
     height: 100%;
     width: 100%;
     display: flex;
@@ -24,8 +26,8 @@
 .editor_objects{
     position: absolute;
     pointer-events: none;
-    width: calc(var(--size) * 10);
-    height: calc(var(--size) * 10);
+    width: calc(var(--size) * var(--field-x));
+    height: calc(var(--size) * var(--field-y));
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);

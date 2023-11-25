@@ -20,8 +20,8 @@ export function GameField({onClose, levelData} : {onClose:()=>void, levelData: a
     useEffect(()=>{
       const handler = ()=>{
         const bounds = gameWrapper.current?.getBoundingClientRect();
-        const minSize = Math.min(bounds.width, bounds.height);
-        setCellSize(minSize / 10 || 30);
+        const minSize = Math.min(bounds.width / levelData.field[0].length, bounds.height / levelData.field.length);
+        setCellSize(minSize || 30);
       }
       window.addEventListener('resize', handler);
       handler();
@@ -78,7 +78,7 @@ export function GameField({onClose, levelData} : {onClose:()=>void, levelData: a
           setSideMenu(false);
         }}
       ></SideMenu>} 
-      <div ref={gameWrapper} className="game_wrapper" style={{'--size': cellSize + 'px'}}>
+      <div ref={gameWrapper} className="game_wrapper" style={{'--size': cellSize + 'px', '--field-x': levelData.field[0].length, '--field-y': levelData.field.length}}>
         {game && game.field && <Field data={game.field}></Field>}
         
         <div className="field2">

@@ -1,5 +1,5 @@
 import React from "react";
-import bomb from '../../../imgs/heli.png';
+import bomb from '../../../imgs/bomb.png';
 import { GameObject } from "../../../core/items/gameObject";
 
 export function BombView({cell}: {cell: GameObject}){

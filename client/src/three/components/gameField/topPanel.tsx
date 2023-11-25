@@ -6,10 +6,13 @@ import cell2 from '../../imgs/cucu.png';
 import cell3 from '../../imgs/carrot.png';
 import cell4 from '../../imgs/berries.png';
 
-export function TopPanel({game}: {game:Game}) {
+export function TopPanel({game, onSideMenu}: {game:Game, onSideMenu:()=>void}) {
     const objCounts = game?.getObjectsCount();
     return (
       <div className="game-top-wrapper">
+        <button onClick={onSideMenu}>
+          menu
+        </button>
         <div className="game-top-moves">
           {'moves ' + (game && game.getMovesLeft())}
         </div>

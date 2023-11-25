@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { CellView } from "../cellView/cellView";
 import { Field } from "./field";
 import { FailScreen } from "../failScreen/failScreen";
@@ -6,12 +6,29 @@ import { WinScreen } from "../winScreen/winScreen";
 import { IDragData } from "../../common/interfaces";
 import { Game } from "../../core/game2";
 import { TopPanel } from "./topPanel";
+import { SideMenu } from "./sideMenu";
 
 export function GameField({onClose, levelData} : {onClose:()=>void, levelData: any}) {
     //const [levelData, setLevelData] = useState(level);
     const [game, setGame] = useState<Game>(null);
     const [tick, setTick] = useState(0);
     const [dragStart, setDragStart] = useState<IDragData>(null);
+    const gameWrapper = useRef<HTMLDivElement>();
+    const [cellSize, setCellSize] = useState(30);
+    const [sideMenu, setSideMenu] = useState(false);
+
+    useEffect(()=>{
+      const handler = ()=>{
+        const bounds = gameWrapper.current?.getBoundingClientRect();
+        const minSize = Math.min(bounds.width, bounds.height);
+        setCellSize(minSize / 10 || 30);
+      }
+      window.addEventListener('resize', handler);
+      handler();
+      return ()=>{
+        window.removeEventListener('resize', handler);
+      }
+    }, [gameWrapper.current]);
   
   
     const startLevel = ()=>{
@@ -49,12 +66,19 @@ export function GameField({onClose, levelData} : {onClose:()=>void, levelData: a
   
     return (
       <div className="base_screen">
-      <div className="ani_cell"></div>
-      <TopPanel game={game}></TopPanel>
-      <button onClick={()=>{
-              onClose();
-            }}>menu</button>
-      <div className="game_wrapper">
+      {false && <div className="ani_cell"></div>}
+      <TopPanel game={game} onSideMenu={()=>{
+        setSideMenu(last=>!last);
+      }}></TopPanel>
+      {sideMenu && <SideMenu
+        onMenu = {()=>{
+          onClose();
+        }}
+        onClose={()=>{
+          setSideMenu(false);
+        }}
+      ></SideMenu>} 
+      <div ref={gameWrapper} className="game_wrapper" style={{'--size': cellSize + 'px'}}>
         {game && game.field && <Field data={game.field}></Field>}
         
         <div className="field2">
@@ -74,6 +98,9 @@ export function GameField({onClose, levelData} : {onClose:()=>void, levelData: a
         {
           game && game.checkEmptyObjectsCount() == false && game.getMovesLeft() == 0 && <FailScreen onMenu={onClose} onRestart={startLevel}></FailScreen>
         }
+      </div>
+      <div>
+        bottom panel
       </div>
       </div>
     )

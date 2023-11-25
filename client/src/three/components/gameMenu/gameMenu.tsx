@@ -20,9 +20,9 @@ export function GameMenu(){
     }, [startedLevel, levelList, editorLevel]);
     return <div className="base_screen">
   
-          <button onClick={()=>{
+    {startedLevelData == null && <button onClick={()=>{
         setShowEditor((last)=> !last)
-      }}>{isShowEditor ? 'hide editor' : 'show editor'}</button>
+      }}>{isShowEditor ? 'hide editor' : 'show editor'}</button>}
       { !startedLevelData && <div>
       {
         levelList.map((level, index)=>{

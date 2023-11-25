@@ -1,10 +1,16 @@
 .editor_wrapper{
     position: relative;
     --size: 30px;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
 }
 
 .editor_field{
     position: relative;
+    height: 100%;
 }
 
 .tool{
@@ -16,5 +22,11 @@
 }
 
 .editor_objects{
+    position: absolute;
     pointer-events: none;
+    width: calc(var(--size) * 10);
+    height: calc(var(--size) * 10);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }

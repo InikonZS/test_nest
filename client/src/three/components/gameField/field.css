@@ -24,6 +24,15 @@
     border-top: 2px solid var(--border-color);
 }
 
+.gameScreen_wrapper{
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    width: 100%;
+    padding: 10px;
+    background-color: #222;
+}
+
 .field_cell_left{
     border-left: 2px solid var(--border-color);
 }
@@ -53,6 +62,6 @@
 }
 
 .field_cell_empty{
-    background-color: #ddd;
-    border: 1px solid #fcc;
+    background-color: #ddd2;
+    border: 1px solid #fff2
 }

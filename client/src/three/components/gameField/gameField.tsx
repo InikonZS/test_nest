@@ -7,6 +7,7 @@ import { IDragData } from "../../common/interfaces";
 import { Game } from "../../core/game2";
 import { TopPanel } from "./topPanel";
 import { SideMenu } from "./sideMenu";
+import { BottomPanel } from "./bottomPanel";
 
 export function GameField({onClose, levelData} : {onClose:()=>void, levelData: any}) {
     //const [levelData, setLevelData] = useState(level);
@@ -64,6 +65,12 @@ export function GameField({onClose, levelData} : {onClose:()=>void, levelData: a
       }
     }, [dragStart]);
   
+    const fieldSizeValues = {
+      '--size': cellSize + 'px', 
+      '--field-x': levelData.field[0].length, 
+      '--field-y': levelData.field.length,
+    }
+
     return (
       <div className="base_screen">
       {false && <div className="ani_cell"></div>}
@@ -78,7 +85,8 @@ export function GameField({onClose, levelData} : {onClose:()=>void, levelData: a
           setSideMenu(false);
         }}
       ></SideMenu>} 
-      <div ref={gameWrapper} className="game_wrapper" style={{'--size': cellSize + 'px', '--field-x': levelData.field[0].length, '--field-y': levelData.field.length}}>
+      <div className="gameScreen_wrapper">
+      <div ref={gameWrapper} className="game_wrapper" style={fieldSizeValues}>
         {game && game.field && <Field data={game.field}></Field>}
         
         <div className="field2">
@@ -99,9 +107,8 @@ export function GameField({onClose, levelData} : {onClose:()=>void, levelData: a
           game && game.checkEmptyObjectsCount() == false && game.getMovesLeft() == 0 && <FailScreen onMenu={onClose} onRestart={startLevel}></FailScreen>
         }
       </div>
-      <div>
-        bottom panel
       </div>
+      <BottomPanel></BottomPanel>
       </div>
     )
   }

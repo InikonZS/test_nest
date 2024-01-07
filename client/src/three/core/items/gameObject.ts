@@ -27,6 +27,10 @@ export class GameObject{
         this.id = GameObject.getNextId();
     }
 
+    afterTurn(){
+        
+    }
+
     valueOf(){
         return 0;
     }

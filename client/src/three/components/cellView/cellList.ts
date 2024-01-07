@@ -7,6 +7,8 @@ import { CellView } from "./items/cell";
 import { BoxView } from "./items/box";
 import { GrassView } from "./items/grass";
 import { SubtiledView } from "./items/subtiled";
+import { WaterView } from "./items/water";
+import { SandView } from "./items/sand";
 
 export const cellList: Record<string, (props: {cell: GameObject})=>React.JSX.Element> = {
     '1': CellView,
@@ -20,5 +22,7 @@ export const cellList: Record<string, (props: {cell: GameObject})=>React.JSX.Ele
     '10': GrassView,
     '11': GrassView,
     '12': HeliView,
-    '13': SubtiledView
+    '13': SubtiledView,
+    '17': WaterView,
+    '18': SandView,
 }

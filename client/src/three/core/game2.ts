@@ -13,6 +13,7 @@ import { closest } from '../common/closest';
 import {level} from '../levels/level1';
 import { createGameObject } from './objectFactory';
 import {getTransformedPatterns, patterns} from './helpPattern';
+import { SandCell } from './items/sand';
 
 const generateLevel = (game: Game, fieldSize: IVector)=>{
     const objects: Array<GameObject> = [];
@@ -31,7 +32,7 @@ const generateLevel = (game: Game, fieldSize: IVector)=>{
     return objects;
 }
 
-function generateLevel1(game: Game, level: {field: Array<Array<string>>, objects: Array<any>}){
+function generateLevel1(game: Game, level: {field: Array<Array<string>>, objects: Array<any>, sand: boolean}){
     const objects: Array<GameObject> = [];
     level.objects.forEach(it=>{
         try {
@@ -46,6 +47,10 @@ function generateLevel1(game: Game, level: {field: Array<Array<string>>, objects
             if (cell == '+' && objects.find(it=>it.checkPos({x, y})) == undefined){
                 const cell = new Cell(game, {x, y}, Math.floor(Math.random() * 4) + 1);
                 objects.push(cell); 
+                if (level.sand){
+                    const cell1 = new SandCell(game, {x, y});
+                    objects.push(cell1); 
+                }
             }
         });
     });
@@ -359,6 +364,7 @@ export class Game{
             };
         };
         this.objects.forEach(it=> it.moving = false);
+        this.objects.forEach(it=> it.afterTurn?.());
         this.onGameState();
     }
 
@@ -366,6 +372,16 @@ export class Game{
         return this.objects.find(jt=>{
             return jt.checkPos(pos);
         });
+    }
+
+    getPosObjects(pos:IVector){
+        return this.objects.filter(jt=>{
+            return jt.position.x == pos.x && jt.position.y == pos.y;
+        })
+    }
+
+    inField(pos:IVector){
+        return this.field[pos.y]?.[pos.x]=='+';
     }
 
     getUnder(it: IVector){

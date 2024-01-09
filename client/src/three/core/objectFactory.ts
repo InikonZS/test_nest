@@ -5,6 +5,7 @@ import { GrassCell } from "./items/grass";
 import { SubtiledCell } from "./items/subtiled";
 import { WaterCell } from "./items/water";
 import { SandCell } from "./items/sand";
+import { ColoredCell } from "./items/colored";
 
 const objectCtors = {
     5: BoxCell,
@@ -12,6 +13,7 @@ const objectCtors = {
     10: GrassCell,
     17: WaterCell,
     18: SandCell,
+    19: ColoredCell,
 }
 
 export function createGameObject(game: Game, type: number, pos: IVector){

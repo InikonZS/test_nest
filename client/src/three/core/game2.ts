@@ -160,12 +160,12 @@ export class Game{
         let removed = false;
         threeList.map(three => {
             //this.colorsCount[Number(three.cells[0])-1]+=three.cells.length;
-            const damageList: Array<IVector> = [];
+            const damageList: Array<IVector & {color: number}> = [];
             three.cells.map((cell, cellIndex) => {
                 //damageList.push({x:cell.position.x, y:cell.position.y});
                 closest.forEach(vc=>{
                    if (damageList.find(it=> it.x == vc.x + cell.position.x && it.y == vc.y + cell.position.y) == null){
-                    damageList.push({x:vc.x + cell.position.x ,y: vc.y + cell.position.y});
+                    damageList.push({x:vc.x + cell.position.x ,y: vc.y + cell.position.y, color: Number(cell)});
                    } 
                 })
                 //cell.removed = true;
@@ -178,7 +178,7 @@ export class Game{
                 const dm = this.objects.filter(jt=> /*jt.position.x == it.x && jt.position.y == it.y &&*/ !jt.removed);
                 dm.forEach(it=>{
                     //it.damage();
-                    it.damagePos(pos);
+                    it.damagePos(pos, pos.color.toString());
                 })
                 //if (dm){
                 //    dm.damage();

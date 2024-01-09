@@ -53,7 +53,7 @@ export function CellView({setDragStart, cell, isTo, isFrom}: {setDragStart: (e: 
     const backgroundColor = "#0000"//['#fff', '#f000', '#00f0', '#0f00', '#ff00', '#f0f', '#999', '#f90', '#444', '#0ff', '#4949', '#9f99', '#2999', '#606'][Number(cell)];
   
     return <div 
-      className={cellClassName} 
+      className={!cell.subtiles ? cellClassName : (cellClassName + ' cell2_group')} 
       style={{
         'backgroundColor': cell.subtiles ? '#0000' : backgroundColor, 
         '--posx': cell.position.x, 
@@ -64,7 +64,7 @@ export function CellView({setDragStart, cell, isTo, isFrom}: {setDragStart: (e: 
       onMouseDown={handleMouseMove}
     >
       {false && (cell as any).id}
-      {true && ((cell as any).health || '')}
+      {false && ((cell as any).health || '')}
       {/*<div> {
         (() => {
           if (cell.subtiles) {

@@ -8,6 +8,7 @@ import { BombCell } from './items/bomb';
 import { BreakableCell } from './items/breakable';
 import { GrassCell } from './items/grass';
 import { HeliCell } from './items/heli';
+import { HeliBombCell } from './items/heliBomb';
 import { SubtiledCell } from './items/subtiled';
 import { closest } from '../common/closest';
 import {level} from '../levels/level1';
@@ -249,9 +250,28 @@ export class Game{
             if (moved){
                 this.moveCount ++;
             }
+            this.checkMoveCombo(clicked, directed);
             this.onGameState();
             this.check();
         }
+    }
+
+    checkMoveCombo(clicked: GameObject, directed: GameObject){
+        if(Number(clicked) == 12 && Number(directed) == 7) {
+            //heli-rocket
+            
+        }
+        if(Number(clicked) == 12 && Number(directed) == 12) {
+            //heli-heli
+        }
+        if((Number(clicked) == 12 && Number(directed) == 8) || (Number(clicked) == 8 && Number(directed) == 12)) {
+            //heli-bomb
+            clicked.remove();
+            directed.remove();
+            const heliBomb = new HeliBombCell(this, directed.position);
+            heliBomb.execute(this.objects);
+        }
+        //disco 9
     }
 
     byCols(field: Array<Array<Cell>>) {

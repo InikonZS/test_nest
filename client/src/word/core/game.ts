@@ -1,20 +1,24 @@
 import { FieldLetter } from "./fieldLetter";
 import { Player } from "./player";
+import { Bank } from "./bank";
 
 const testLetters = [
     {
+        id: '-1',
         x: -10,
         y: -10,
         value: 1,
         text: 'a'
     },
     {
+        id: '-2',
         x: 10,
         y: 10,
         value: 2,
         text: 'b'
     },
     {
+        id: '-3',
         x: 0,
         y: 0,
         value: 3,
@@ -27,9 +31,24 @@ export class Game{
     letters: Array<FieldLetter> = [...testLetters];
     currentPlayerIndex: number = 0;
     inputLetters: Array<FieldLetter> = [];
-    bank: Array<string> = [];
+    bank: Bank;
     constructor(){
+        this.bank = new Bank();
+        this.addLetters();
+    }
 
+    addLetters(){
+        const playerLetterLimit = 7;
+        if (!this.bank.letters.length){
+            return;
+        }
+        this.players.forEach(player=>{
+            let breaker = 0;
+            while (player.letters.length < playerLetterLimit && this.bank.letters.length && breaker < 1000) {
+                breaker++;
+                player.letters.push(this.bank.letters.pop());
+            }
+        });
     }
 
     checkInput(){
@@ -74,6 +93,14 @@ export class Game{
         return {field, bounds};
     }
     
+    public submitWord(){
+        this.inputLetters.forEach(letter=>{
+            this.letters.push(letter);
+        });
+        this.inputLetters = [];
+        this.addLetters();
+    }
+
     destroy(){
 
     }

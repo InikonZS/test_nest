@@ -1,5 +1,7 @@
+import { BankLetter } from "./bankLetter";
+
 export class Player{
-    letters: Array<string> = ['a', 'b', 'c'];
+    letters: Array<BankLetter> = [];
     constructor(){
 
     }

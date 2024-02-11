@@ -5,6 +5,7 @@ import { Views } from "./cards/views";
 import { App as Three } from "./three/app";
 import { App as Pixels } from "./pixels/app";
 import { App as Ani} from "./ani/app";
+import { App as Word} from "./word/app";
 import { NeirView } from './neir/app';
 import  './root.css';
 
@@ -17,7 +18,8 @@ export function App() {
         'three': Three,
         'pixels': Pixels,
         'generation': NeirView,
-        'ani': Ani
+        'ani': Ani,
+        'word': Word,
     }
     useEffect(()=>{
         const socket = new WebSocket('ws://localhost:3000');

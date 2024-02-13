@@ -75,7 +75,7 @@ export class Bank{
     letters: Array<BankLetter> = [];
 
     constructor(){
-        const bank = bankFromFrequency(100, abc, frequency);
+        const bank = bankFromFrequency(200, abc, frequency);
         bank.forEach(it=>{
             for (let i=0; i< it.count; i++){
                 this.letters.push({

@@ -375,13 +375,19 @@ export class Game{
     }
 
     anagramChecker(candidate: Array<string>, handLetters: Array<BankLetter>){
+        const candidateTrueLetters = candidate.map((it, i)=>{
+            return {
+                text: it,
+                index: i
+            }
+        }).filter(it=> it.text);
         //optimized listByLength
         const availableWords = this.wordTools.listsByLength[candidate.length]?.filter(word=>{
             if (word.length != candidate.length){
                 return false;
             };
-            const wrongLetterIndex = candidate.findIndex((candidateLetter, letterIndex)=>{
-                return candidateLetter && word[letterIndex] != candidateLetter;
+            const wrongLetterIndex = candidateTrueLetters.findIndex((candidateLetter)=>{
+                return word[candidateLetter.index] != candidateLetter.text//candidateLetter && word[letterIndex] != candidateLetter;
             });
             return wrongLetterIndex == -1;
         }) || [];

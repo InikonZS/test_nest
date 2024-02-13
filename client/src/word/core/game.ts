@@ -4,6 +4,29 @@ import { Bank } from "./bank";
 import { BankLetter } from "./bankLetter";
 import { WordTools} from "./wordTools";
 
+function binarySearch(items: Array<string | number>, value: string | number): number{
+
+    var startIndex  = 0,
+        stopIndex   = items.length - 1,
+        middle      = Math.floor((stopIndex + startIndex)/2);
+
+    while(items[middle] != value && startIndex < stopIndex){
+
+        //adjust search area
+        if (value < items[middle]){
+            stopIndex = middle - 1;
+        } else if (value > items[middle]){
+            startIndex = middle + 1;
+        }
+
+        //recalculate middle
+        middle = Math.floor((stopIndex + startIndex)/2);
+    }
+
+    //make sure it's the right value
+    return (items[middle] != value) ? -1 : middle;
+}
+
 const testLetters = [
     {
         id: '-1',
@@ -106,8 +129,8 @@ export class Game{
     }
 
     checkWord(word: string){
-        console.log(word);
-        return this.wordTools.list.find(it=> it==word) != undefined;
+        //console.log(word);
+        return binarySearch(this.wordTools.listsByLength[word.length] || [], word) != -1;//this.wordTools.list.find(it=> it==word) != undefined;
     }
 
     checkInput(inputLetters: Array<FieldLetter>){
@@ -148,7 +171,7 @@ export class Game{
             
             const vericalWords = wordLetters.map(it=>this.getVerticalWord([it])).filter(it=>it.length > 1);
             const checkVerticalResult = vericalWords.find(word=> this.checkWord(word.map(it=>it.text).join('')) == false);// == undefined;
-            console.log('ch res', wordLetters, vericalWords, checkVerticalResult);
+            //console.log('ch res', wordLetters, vericalWords, checkVerticalResult);
             if (vericalWords.length && checkVerticalResult){
                 return false;
             }
@@ -176,7 +199,7 @@ export class Game{
             const horizontalWords = wordLetters.map(it=>this.getHorizontalWord([it])).filter(it=>it.length > 1);
             
             const checkHorizontalResult = horizontalWords.find(word=> this.checkWord(word.map(it=>it.text).join('')) == false);// == undefined;
-            console.log('ch res h', wordLetters, horizontalWords, checkHorizontalResult);
+            //console.log('ch res h', wordLetters, horizontalWords, checkHorizontalResult);
             if (horizontalWords.length && checkHorizontalResult){
                 return false;
             }
@@ -199,26 +222,34 @@ export class Game{
         return horizontalCorrect || verticalCorrect;
     }
 
+    finishBotTest(){
+        while(this.scanField()){
+            console.log('bot move');
+        }
+        console.log('game over');
+    }
+
     scanField(){
         let matchedResults: Array<FieldLetter[]> = [];
         const bounds = this.getLettersBounds();
         for (let y=bounds.top; y<= bounds.bottom; y++){
-            console.log('scan line', y);
+            //console.log('scan line', y);
             const matchedResultsV = this.scanLine(y, 7, false);
             matchedResults = matchedResults.concat(matchedResultsV);
             
         }
         for (let x=bounds.left; x<= bounds.right; x++){
-            console.log('scan line', x);
+            //console.log('scan line', x);
             const matchedResultsH = this.scanLine(x, 7, true);
             matchedResults = matchedResults.concat(matchedResultsH);
         }
         if (matchedResults.length){
             matchedResults.sort((a, b)=> b.length - a.length);
             this.botSubmit(matchedResults[0]);
-            return;
+            return true;
         } else {
             console.log('no matched any result')
+            return false;
         }
     }
 
@@ -241,18 +272,32 @@ export class Game{
         const ay = vertical ? 'x' : 'y';
         const ax = vertical ? 'y' : 'x';
         const fieldRow = this.letters.filter(it=>it[ay] == row).sort((a, b)=>a[ax] - b[ax]);
+        if (!fieldRow.length) return [];
+
+        //optimization with only separated letters check
+        const separatedLetters: Array<FieldLetter> = [];
+        let lastLetter = fieldRow[0];
+        for (let i = 1; i< fieldRow.length; i++){
+            if (lastLetter[ax] == fieldRow[i][ax] - 1){} else {
+                separatedLetters.push(lastLetter);
+            }
+            lastLetter = fieldRow[i];
+        }
+        separatedLetters.push(lastLetter);
+        //console.log(separatedLetters, fieldRow);
+
         const indexed: Record<number, FieldLetter> = {};
         fieldRow.forEach(it=>{
             indexed[it[ax]] = it;
         });
         let preparedResults: Array<Array<FieldLetter>> = [];
-        fieldRow.forEach(initialLetter=>{
+        /*fieldRow*/separatedLetters.forEach(initialLetter=>{
             for (let i = handLettersLength; i>=0; i--){
                 for (let offsets = 0; offsets<=i; offsets++){
                     let rightLetters = i - offsets;
                     let rightPos = initialLetter[ax];
                     let leftLetters = offsets;
-                    let leftPos = initialLetter[ax] + (offsets == i ? 0 : -1);
+                    let leftPos = initialLetter[ax] -1/*+ (offsets == i ? 0 : -1)*/;
                     const candidateSlots: Array<FieldLetter> = [];
                     while(rightLetters>0){
                         while (indexed[rightPos]){
@@ -268,34 +313,38 @@ export class Game{
                         rightPos++;
                     }
 
+                    candidateSlots.reverse(); //double reverse instead of unshift
                     while(leftLetters>0){
                         while (indexed[leftPos]){
-                            candidateSlots.unshift(indexed[leftPos]);
+                            candidateSlots.push(indexed[leftPos]);
                             leftPos--;
                         }
-                        candidateSlots.unshift({x:null, y:null, id: null, text: null, value: null, [ax]: leftPos, [ay]: row}); //null for hand letter
+                        candidateSlots.push({x:null, y:null, id: null, text: null, value: null, [ax]: leftPos, [ay]: row}); //null for hand letter
                         leftPos--;
                         leftLetters--;
                     }
                     while (indexed[leftPos]){
-                        candidateSlots.unshift(indexed[leftPos]);
+                        candidateSlots.push(indexed[leftPos]);
                         leftPos--;
                     }
-                    console.log(candidateSlots);
+                    candidateSlots.reverse();
+                    //console.log(candidateSlots);
                     const matchedWords = this.anagramChecker(candidateSlots.map(slot=> slot.text), this.players[0].letters);
-                    console.log('matched', matchedWords);
-
+                    //console.log('matched', matchedWords);
+                    if (!matchedWords.length){
+                        continue;
+                    }
                     // generate only inputed letters
                     const getPreparedInput = (word: string)=>{
                         return candidateSlots.map((slot, index)=>{
                             if (slot.text) return null;
                             const playerHand = [...this.players[0].letters];
-                            console.log(playerHand, word);
+                            //console.log(playerHand, word);
                             const foundPlayerLetterIndex = playerHand.findIndex(playerLetter=>{
                                 return playerLetter.text == word[index];
                             });
                             const foundPlayerLetter = playerHand[foundPlayerLetterIndex];
-                            console.log(foundPlayerLetter);
+                            //console.log(foundPlayerLetter);
                             playerHand.splice(foundPlayerLetterIndex, 1);
                             const preparedInputSlot = {
                                 ...slot,
@@ -321,12 +370,13 @@ export class Game{
             }
         });
 
-        console.log('full matched list', preparedResults);
+        //console.log('full matched list', preparedResults);
         return preparedResults;
     }
 
     anagramChecker(candidate: Array<string>, handLetters: Array<BankLetter>){
-        const availableWords = this.wordTools.list.filter(word=>{
+        //optimized listByLength
+        const availableWords = this.wordTools.listsByLength[candidate.length]?.filter(word=>{
             if (word.length != candidate.length){
                 return false;
             };
@@ -334,8 +384,34 @@ export class Game{
                 return candidateLetter && word[letterIndex] != candidateLetter;
             });
             return wrongLetterIndex == -1;
+        }) || [];
+
+        const handMap:Record<string, number> = {};
+        handLetters.forEach(it=>{
+            if (handMap[it.text]) {
+                handMap[it.text]++;
+            } else {
+                handMap[it.text] = 1;
+            }
         });
 
+        const matchedWithHand = availableWords.filter(word=>{
+            const handRemains = {...handMap};
+            const wrongLetterIndex = candidate.findIndex((candidateLetter, letterIndex)=>{
+                if (!candidateLetter){
+                    const foundHandLetterCount = handRemains[word[letterIndex]];
+                    if (foundHandLetterCount){
+                        handRemains[word[letterIndex]]--;
+                        return false
+                    } else {
+                        return true;
+                    }
+                }
+                return false;
+            });
+            return wrongLetterIndex == -1;
+        });
+        /*
         const matchedWithHand = availableWords.filter(word=>{
             const handRemains = handLetters.map(it=> it.text);
             const wrongLetterIndex = candidate.findIndex((candidateLetter, letterIndex)=>{
@@ -351,7 +427,7 @@ export class Game{
                 return false;
             });
             return wrongLetterIndex == -1;
-        });
+        });*/
         return matchedWithHand;
         
     }

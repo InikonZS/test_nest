@@ -83,6 +83,10 @@ export function App(){
                     game.scanField();
                     setFix(last=>last+1);
                 }}>scan</button>
+                <button onClick={()=>{
+                    game.finishBotTest();
+                    setFix(last=>last+1);
+                }}>test finish</button>
             </div>
             
         </>

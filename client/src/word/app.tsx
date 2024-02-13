@@ -21,7 +21,7 @@ export function App(){
                 return <div className="row">
                 {row.map((cell, x) => {                            
                     const bounds = game.lettersToMap().bounds;
-                    console.log(game.inputLetters);
+                    //console.log(game.inputLetters);
                     const input = game.inputLetters.find((inputLetter)=>{
                         return (inputLetter.x == (x + bounds.left)) && (inputLetter.y == (y + bounds.top));
                     });
@@ -78,7 +78,7 @@ export function App(){
                 <button onClick={()=>{
                     game.submitWord();
                     setFix(last=>last+1);
-                }}>submit word</button>
+                }}>submit word {game ? (game.checkInput() && 'ok'): ''}</button>
             </div>
             
         </>

@@ -79,6 +79,10 @@ export function App(){
                     game.submitWord();
                     setFix(last=>last+1);
                 }}>submit word {game ? (game.checkInput() && 'ok'): ''}</button>
+                <button onClick={()=>{
+                    game.scanField();
+                    setFix(last=>last+1);
+                }}>scan</button>
             </div>
             
         </>

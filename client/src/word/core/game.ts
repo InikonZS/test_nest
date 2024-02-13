@@ -1,6 +1,7 @@
 import { FieldLetter } from "./fieldLetter";
 import { Player } from "./player";
 import { Bank } from "./bank";
+import { BankLetter } from "./bankLetter";
 
 const testLetters = [
     {
@@ -157,6 +158,53 @@ export class Game{
             return true;
             //const startInput = this.inputLetters.reduce((min, letter)=>Math.min(letter.x, min), 1000);
         }
+    }
+
+    scanField(){
+        const bounds = this.getLettersBounds();
+        for (let y=bounds.top; y<= bounds.bottom; y++){
+            //console.log('scan line', y);
+            this.scanLine(y, 7)
+        }
+    }
+
+    scanLine(y: number, handLettersLength: number){
+        const fieldRow = this.letters.filter(it=>it.y == y).sort((a, b)=>a.x - b.x);
+        const indexed: Record<number, FieldLetter> = {};
+        fieldRow.forEach(it=>{
+            indexed[it.x] = it;
+        });
+        fieldRow.forEach(initialLetter=>{
+            for (let i = handLettersLength; i>0; i--){
+                for (let offsets = 0; offsets<=i; offsets++){
+                    let rightLetters = i - offsets;
+                    let rightPos = initialLetter.x;
+                    let leftLetters = offsets;
+                    let leftPos = initialLetter.x + (offsets == i ? 0 : -1);
+                    const candidateSlots: Array<FieldLetter> = [];
+                    while(rightLetters>0){
+                        while (indexed[rightPos]){
+                            candidateSlots.push(indexed[rightPos]);
+                            rightPos++;
+                        }
+                        candidateSlots.push(null); //null for hand letter
+                        rightPos++;
+                        rightLetters--;
+                    }
+
+                    while(leftLetters>0){
+                        while (indexed[leftPos]){
+                            candidateSlots.unshift(indexed[leftPos]);
+                            leftPos--;
+                        }
+                        candidateSlots.unshift(null); //null for hand letter
+                        leftPos--;
+                        leftLetters--;
+                    }
+                    //console.log(candidateSlots);
+                }
+            }
+        });
     }
 
     getLettersBounds(){

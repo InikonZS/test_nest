@@ -2,6 +2,7 @@ import { FieldLetter } from "./fieldLetter";
 import { Player } from "./player";
 import { Bank } from "./bank";
 import { BankLetter } from "./bankLetter";
+import { WordTools} from "./wordTools";
 
 const testLetters = [
     {
@@ -33,8 +34,10 @@ export class Game{
     currentPlayerIndex: number = 0;
     inputLetters: Array<FieldLetter> = [];
     bank: Bank;
+    wordTools: WordTools;
     constructor(){
         this.bank = new Bank();
+        this.wordTools = new WordTools();
         this.addLetters();
     }
 
@@ -102,15 +105,20 @@ export class Game{
         return wordLetters;
     }
 
-    checkInput(){
-        if (!this.inputLetters.length){
+    checkWord(word: string){
+        console.log(word);
+        return this.wordTools.list.find(it=> it==word) != undefined;
+    }
+
+    checkInput(inputLetters: Array<FieldLetter>){
+        if (!inputLetters.length){
             return;
         }
         let verticalCorrect = true;
         let horizontalCorrect = true;
-        for (let i=1; i< this.inputLetters.length; i++){
-            const prevLetter = this.inputLetters[i - 1];
-            const letter = this.inputLetters[i];
+        for (let i=1; i< inputLetters.length; i++){
+            const prevLetter = inputLetters[i - 1];
+            const letter = inputLetters[i];
             if (letter.x != prevLetter.x){
                 verticalCorrect = false;
             }
@@ -125,17 +133,29 @@ export class Game{
         }
         
         if (horizontalCorrect){
-            const wordLetters = this.getHorizontalWord(this.inputLetters);
-            const includesAllInput = this.inputLetters.find(letter => !wordLetters.includes(letter)) == undefined;
+            //do not return cause of horizontal and vertical both test
+            const wordLetters = this.getHorizontalWord(inputLetters);
+            const includesAllInput = inputLetters.find(letter => !wordLetters.includes(letter)) == undefined;
             if (!includesAllInput){
                 console.log('not all input');
                 return;
             }
+
+            const checkWordResult = this.checkWord(wordLetters.map(it=>it.text).join(''));
+            if (!checkWordResult){
+                console.log('rejected main word', checkWordResult);
+                return;
+            }
             
             const vericalWords = wordLetters.map(it=>this.getVerticalWord([it])).filter(it=>it.length > 1);
-            console.log(wordLetters, vericalWords);
-            const isInitial = this.inputLetters.find(it=> it.x == 0 && it.y == 0);
-            if (!isInitial && (!vericalWords.length && wordLetters.length == this.inputLetters.length)){
+            const checkVerticalResult = vericalWords.find(word=> this.checkWord(word.map(it=>it.text).join('')) == false);// == undefined;
+            console.log('ch res', wordLetters, vericalWords, checkVerticalResult);
+            if (vericalWords.length && checkVerticalResult){
+                return;
+            }
+            
+            const isInitial = inputLetters.find(it=> it.x == 0 && it.y == 0);
+            if (!isInitial && (!vericalWords.length && wordLetters.length == inputLetters.length)){
                 return;
             }
             return true;
@@ -143,16 +163,28 @@ export class Game{
         }
 
         if (verticalCorrect){
-            const wordLetters = this.getVerticalWord(this.inputLetters);
-            const includesAllInput = this.inputLetters.find(letter => !wordLetters.includes(letter)) == undefined;
+            const wordLetters = this.getVerticalWord(inputLetters);
+            const includesAllInput = inputLetters.find(letter => !wordLetters.includes(letter)) == undefined;
             if (!includesAllInput){
                 console.log('not all input');
                 return;
             }
-            const horizontalWords = wordLetters.map(it=>this.getHorizontalWord([it])).filter(it=>it.length > 1);;
-            console.log(wordLetters, horizontalWords);
-            const isInitial = this.inputLetters.find(it=> it.x == 0 && it.y == 0);
-            if (!isInitial && (!horizontalWords.length && wordLetters.length == this.inputLetters.length)){
+
+            const checkWordResult = this.checkWord(wordLetters.map(it=>it.text).join(''));
+            if (!checkWordResult){
+                console.log('rejected main word', checkWordResult);
+                return;
+            }
+            const horizontalWords = wordLetters.map(it=>this.getHorizontalWord([it])).filter(it=>it.length > 1);
+            
+            const checkHorizontalResult = horizontalWords.find(word=> this.checkWord(word.map(it=>it.text).join('')) == false);// == undefined;
+            console.log('ch res h', wordLetters, horizontalWords, checkHorizontalResult);
+            if (horizontalWords.length && checkHorizontalResult){
+                return;
+            }
+            
+            const isInitial = inputLetters.find(it=> it.x == 0 && it.y == 0);
+            if (!isInitial && (!horizontalWords.length && wordLetters.length == inputLetters.length)){
                 return;
             }
             return true;
@@ -163,33 +195,67 @@ export class Game{
     scanField(){
         const bounds = this.getLettersBounds();
         for (let y=bounds.top; y<= bounds.bottom; y++){
-            //console.log('scan line', y);
-            this.scanLine(y, 7)
+            console.log('scan line', y);
+            const matchedResults = this.scanLine(y, 7, false);
+            if (matchedResults.length){
+                this.botSubmit(matchedResults[0]);
+                return;
+            }
+        }
+        for (let x=bounds.left; x<= bounds.right; x++){
+            console.log('scan line', x);
+            const matchedResults = this.scanLine(x, 7, true);
+            if (matchedResults.length){
+                this.botSubmit(matchedResults[0]);
+                return;
+            }
         }
     }
 
-    scanLine(y: number, handLettersLength: number){
-        const fieldRow = this.letters.filter(it=>it.y == y).sort((a, b)=>a.x - b.x);
+    botSubmit(inputSlots: Array<FieldLetter>){
+        inputSlots.forEach(slot=>{
+           this.inputLetters.push(slot);
+           const hand = this.players[0].letters;
+           hand.splice(hand.findIndex(it=> it.id == slot.id), 1);
+        });
+        
+        this.inputLetters.forEach(letter=>{
+            this.letters.push(letter);
+        });
+        this.inputLetters = [];
+
+        this.addLetters();
+    }
+
+    scanLine(row: number, handLettersLength: number, vertical: boolean){
+        const ay = vertical ? 'x' : 'y';
+        const ax = vertical ? 'y' : 'x';
+        const fieldRow = this.letters.filter(it=>it[ay] == row).sort((a, b)=>a[ax] - b[ax]);
         const indexed: Record<number, FieldLetter> = {};
         fieldRow.forEach(it=>{
-            indexed[it.x] = it;
+            indexed[it[ax]] = it;
         });
+        let preparedResults: Array<Array<FieldLetter>> = [];
         fieldRow.forEach(initialLetter=>{
             for (let i = handLettersLength; i>0; i--){
                 for (let offsets = 0; offsets<=i; offsets++){
                     let rightLetters = i - offsets;
-                    let rightPos = initialLetter.x;
+                    let rightPos = initialLetter[ax];
                     let leftLetters = offsets;
-                    let leftPos = initialLetter.x + (offsets == i ? 0 : -1);
+                    let leftPos = initialLetter[ax] + (offsets == i ? 0 : -1);
                     const candidateSlots: Array<FieldLetter> = [];
                     while(rightLetters>0){
                         while (indexed[rightPos]){
                             candidateSlots.push(indexed[rightPos]);
                             rightPos++;
                         }
-                        candidateSlots.push(null); //null for hand letter
+                        candidateSlots.push({x:null, y:null, id: null, text: null, value: null, [ax]: rightPos, [ay]: row}); //null for hand letter
                         rightPos++;
                         rightLetters--;
+                    }
+                    while (indexed[rightPos]){
+                        candidateSlots.push(indexed[rightPos]);
+                        rightPos++;
                     }
 
                     while(leftLetters>0){
@@ -197,14 +263,87 @@ export class Game{
                             candidateSlots.unshift(indexed[leftPos]);
                             leftPos--;
                         }
-                        candidateSlots.unshift(null); //null for hand letter
+                        candidateSlots.unshift({x:null, y:null, id: null, text: null, value: null, [ax]: leftPos, [ay]: row}); //null for hand letter
                         leftPos--;
                         leftLetters--;
                     }
-                    //console.log(candidateSlots);
+                    while (indexed[leftPos]){
+                        candidateSlots.unshift(indexed[leftPos]);
+                        leftPos--;
+                    }
+                    console.log(candidateSlots);
+                    const matchedWords = this.anagramChecker(candidateSlots.map(slot=> slot.text), this.players[0].letters);
+                    console.log('matched', matchedWords);
+
+                    // generate only inputed letters
+                    const getPreparedInput = (word: string)=>{
+                        return candidateSlots.map((slot, index)=>{
+                            if (slot.text) return null;
+                            const playerHand = [...this.players[0].letters];
+                            console.log(playerHand, word);
+                            const foundPlayerLetterIndex = playerHand.findIndex(playerLetter=>{
+                                return playerLetter.text == word[index];
+                            });
+                            const foundPlayerLetter = playerHand[foundPlayerLetterIndex];
+                            console.log(foundPlayerLetter);
+                            playerHand.splice(foundPlayerLetterIndex, 1);
+                            const preparedInputSlot = {
+                                ...slot,
+                                text: foundPlayerLetter.text,
+                                id: foundPlayerLetter.id
+                            }
+                            return preparedInputSlot
+                        }).filter(it=>it);
+                    }
+                    const foundPrepared = matchedWords.map(matched =>{
+                        const prepared = getPreparedInput(matched);
+                        console.log('prepared', prepared);
+                        if (this.checkInput(prepared)){
+                            console.log('checked ', prepared)
+                            return prepared;
+                        }
+                        return null;
+                    }).filter(it=>it);
+                    if (foundPrepared.length){
+                        preparedResults = [...preparedResults, ...foundPrepared]
+                    }
                 }
             }
         });
+
+        console.log('full matched list', preparedResults);
+        return preparedResults;
+    }
+
+    anagramChecker(candidate: Array<string>, handLetters: Array<BankLetter>){
+        const availableWords = this.wordTools.list.filter(word=>{
+            if (word.length != candidate.length){
+                return false;
+            };
+            const wrongLetterIndex = candidate.findIndex((candidateLetter, letterIndex)=>{
+                return candidateLetter && word[letterIndex] != candidateLetter;
+            });
+            return wrongLetterIndex == -1;
+        });
+
+        const matchedWithHand = availableWords.filter(word=>{
+            const handRemains = handLetters.map(it=> it.text);
+            const wrongLetterIndex = candidate.findIndex((candidateLetter, letterIndex)=>{
+                if (!candidateLetter){
+                    const foundHandLetterIndex = handRemains.findIndex(it=>it == word[letterIndex]);
+                    if (foundHandLetterIndex != -1){
+                        handRemains.splice(foundHandLetterIndex, 1);
+                        return false
+                    } else {
+                        return true;
+                    }
+                }
+                return false;
+            });
+            return wrongLetterIndex == -1;
+        });
+        return matchedWithHand;
+        
     }
 
     getLettersBounds(){
@@ -246,7 +385,7 @@ export class Game{
     }
     
     public submitWord(){        
-        if (!this.checkInput()){
+        if (!this.checkInput(this.inputLetters)){
             return;
         };
         this.inputLetters.forEach(letter=>{

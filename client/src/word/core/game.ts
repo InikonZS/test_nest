@@ -131,84 +131,94 @@ export class Game{
             console.log('incorrect horizontal and vertical');
             return;
         }
-        
-        if (horizontalCorrect){
-            //do not return cause of horizontal and vertical both test
+
+        const checkHorizontal = ()=>{
             const wordLetters = this.getHorizontalWord(inputLetters);
             const includesAllInput = inputLetters.find(letter => !wordLetters.includes(letter)) == undefined;
             if (!includesAllInput){
                 console.log('not all input');
-                return;
+                return false;
             }
 
             const checkWordResult = this.checkWord(wordLetters.map(it=>it.text).join(''));
             if (!checkWordResult){
                 console.log('rejected main word', checkWordResult);
-                return;
+                return false;
             }
             
             const vericalWords = wordLetters.map(it=>this.getVerticalWord([it])).filter(it=>it.length > 1);
             const checkVerticalResult = vericalWords.find(word=> this.checkWord(word.map(it=>it.text).join('')) == false);// == undefined;
             console.log('ch res', wordLetters, vericalWords, checkVerticalResult);
             if (vericalWords.length && checkVerticalResult){
-                return;
+                return false;
             }
             
             const isInitial = inputLetters.find(it=> it.x == 0 && it.y == 0);
             if (!isInitial && (!vericalWords.length && wordLetters.length == inputLetters.length)){
-                return;
+                return false;
             }
             return true;
-            //const startInput = this.inputLetters.reduce((min, letter)=>Math.min(letter.x, min), 1000);
         }
 
-        if (verticalCorrect){
+        const checkVertical = ()=>{
             const wordLetters = this.getVerticalWord(inputLetters);
             const includesAllInput = inputLetters.find(letter => !wordLetters.includes(letter)) == undefined;
             if (!includesAllInput){
                 console.log('not all input');
-                return;
+                return false;
             }
 
             const checkWordResult = this.checkWord(wordLetters.map(it=>it.text).join(''));
             if (!checkWordResult){
                 console.log('rejected main word', checkWordResult);
-                return;
+                return false;
             }
             const horizontalWords = wordLetters.map(it=>this.getHorizontalWord([it])).filter(it=>it.length > 1);
             
             const checkHorizontalResult = horizontalWords.find(word=> this.checkWord(word.map(it=>it.text).join('')) == false);// == undefined;
             console.log('ch res h', wordLetters, horizontalWords, checkHorizontalResult);
             if (horizontalWords.length && checkHorizontalResult){
-                return;
+                return false;
             }
             
             const isInitial = inputLetters.find(it=> it.x == 0 && it.y == 0);
             if (!isInitial && (!horizontalWords.length && wordLetters.length == inputLetters.length)){
-                return;
+                return false;
             }
             return true;
-            //const startInput = this.inputLetters.reduce((min, letter)=>Math.min(letter.x, min), 1000);
         }
+        
+        if (horizontalCorrect){
+            horizontalCorrect = checkHorizontal();
+        }
+
+        if (verticalCorrect){
+            verticalCorrect = checkVertical();
+        }
+
+        return horizontalCorrect || verticalCorrect;
     }
 
     scanField(){
+        let matchedResults: Array<FieldLetter[]> = [];
         const bounds = this.getLettersBounds();
         for (let y=bounds.top; y<= bounds.bottom; y++){
             console.log('scan line', y);
-            const matchedResults = this.scanLine(y, 7, false);
-            if (matchedResults.length){
-                this.botSubmit(matchedResults[0]);
-                return;
-            }
+            const matchedResultsV = this.scanLine(y, 7, false);
+            matchedResults = matchedResults.concat(matchedResultsV);
+            
         }
         for (let x=bounds.left; x<= bounds.right; x++){
             console.log('scan line', x);
-            const matchedResults = this.scanLine(x, 7, true);
-            if (matchedResults.length){
-                this.botSubmit(matchedResults[0]);
-                return;
-            }
+            const matchedResultsH = this.scanLine(x, 7, true);
+            matchedResults = matchedResults.concat(matchedResultsH);
+        }
+        if (matchedResults.length){
+            matchedResults.sort((a, b)=> b.length - a.length);
+            this.botSubmit(matchedResults[0]);
+            return;
+        } else {
+            console.log('no matched any result')
         }
     }
 
@@ -237,7 +247,7 @@ export class Game{
         });
         let preparedResults: Array<Array<FieldLetter>> = [];
         fieldRow.forEach(initialLetter=>{
-            for (let i = handLettersLength; i>0; i--){
+            for (let i = handLettersLength; i>=0; i--){
                 for (let offsets = 0; offsets<=i; offsets++){
                     let rightLetters = i - offsets;
                     let rightPos = initialLetter[ax];
@@ -297,9 +307,9 @@ export class Game{
                     }
                     const foundPrepared = matchedWords.map(matched =>{
                         const prepared = getPreparedInput(matched);
-                        console.log('prepared', prepared);
+                        //console.log('prepared', prepared);
                         if (this.checkInput(prepared)){
-                            console.log('checked ', prepared)
+                            //console.log('checked ', prepared)
                             return prepared;
                         }
                         return null;

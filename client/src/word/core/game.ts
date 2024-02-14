@@ -573,6 +573,35 @@ export class Game{
         this.inputLetters = [];
     }
 
+    public moveOrRevertLetter(selected: BankLetter, _letterIndex: number){
+        const game = this;
+        const playerLetterIndex = game.players[0].letters.findIndex(it=> it.id == selected.id);
+        if (playerLetterIndex != -1){
+            const moved = game.players[0].letters[playerLetterIndex];
+            game.players[0].letters[playerLetterIndex] = null;
+            game.players[0].letters.splice(_letterIndex, 0, {id: moved.id, text: moved.text, value: moved.value});
+            game.players[0].letters = game.players[0].letters.filter(it=>it);
+        } else {
+            const letterIndex = game.inputLetters.findIndex(it=> it.id == selected.id);
+            game.inputLetters.splice(letterIndex, 1);
+            //console.log('up', _letterIndex);
+            game.players[0].letters.splice(_letterIndex, 0, {id: selected.id, text: selected.text, value: selected.value});//.push({id: selected.id, text: selected.text, value: selected.value});
+        }    
+    }
+
+    public letterToInput(selected: BankLetter, x: number, y: number){
+        const bounds = this.getLettersBounds();
+        const game = this;
+        const playerLetterIndex = game.players[0].letters.findIndex(it=> it.id == selected.id);
+        if (playerLetterIndex != -1){
+            game.players[0].letters.splice(playerLetterIndex, 1);
+        } else {
+            const letterIndex = game.inputLetters.findIndex(it=> it.id == selected.id);
+            game.inputLetters.splice(letterIndex, 1);
+        }                            
+        game.inputLetters.push({id: selected.id, text: selected.text, value: selected.value, y: y + bounds.top , x: x + bounds.left});
+    }
+
     destroy(){
 
     }

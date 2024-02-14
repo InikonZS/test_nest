@@ -133,6 +133,29 @@ export class Game{
         return binarySearch(this.wordTools.listsByLength[word.length] || [], word) != -1;//this.wordTools.list.find(it=> it==word) != undefined;
     }
 
+    getWordScore(word:Array<FieldLetter>, sideWords: Array<Array<FieldLetter>>){
+        let score = word.reduce((ac, it) => ac + it.value, 0);
+        const result: {
+            mainWord: Array<FieldLetter>,
+            sideWords: Array<Array<FieldLetter>>,
+            score: number
+        } = {
+            mainWord: word,
+            sideWords: [],
+            score
+        }
+        sideWords.forEach(it=>{
+            const containsLetter = it.find(jt=> this.inputLetters.includes(jt));
+            if (containsLetter){
+                score += it.reduce((ac, it) => ac + it.value, 0);
+                result.sideWords.push(it);
+            }
+        });
+        //now score duplicate if letter related to both word
+        result.score = score;
+        return result;
+    }
+
     checkInput(inputLetters: Array<FieldLetter>){
         if (!inputLetters.length){
             return;
@@ -180,6 +203,8 @@ export class Game{
             if (!isInitial && (!vericalWords.length && wordLetters.length == inputLetters.length)){
                 return false;
             }
+
+            console.log(this.getWordScore(wordLetters, vericalWords));
             return true;
         }
 
@@ -208,6 +233,7 @@ export class Game{
             if (!isInitial && (!horizontalWords.length && wordLetters.length == inputLetters.length)){
                 return false;
             }
+            console.log(this.getWordScore(wordLetters, horizontalWords));
             return true;
         }
         
@@ -349,7 +375,8 @@ export class Game{
                             const preparedInputSlot = {
                                 ...slot,
                                 text: foundPlayerLetter.text,
-                                id: foundPlayerLetter.id
+                                id: foundPlayerLetter.id,
+                                value: foundPlayerLetter.value
                             }
                             return preparedInputSlot
                         }).filter(it=>it);
@@ -496,7 +523,6 @@ export class Game{
         const field: Array<Array<string>>= new Array(bounds.bottom - bounds.top + 1).fill(null).map((row, rowIndex)=> new Array(bounds.right - bounds.left + 1).fill('').map((cell, cellIndex)=>{
             const y = rowIndex + bounds.top;
             const x = cellIndex + bounds.left;
-            console.log(y, x);
             if (x == 0 && y==0){
                 return 'start'
             }
@@ -538,6 +564,13 @@ export class Game{
         this.inputLetters = [];
 
         this.addLetters();
+    }
+
+    public resetInput(){
+        this.inputLetters.forEach(letter=>{
+            this.players[0].letters.push({id: letter.id, text: letter.text, value: letter.value});
+        });
+        this.inputLetters = [];
     }
 
     destroy(){

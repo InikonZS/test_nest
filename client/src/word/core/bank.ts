@@ -80,7 +80,8 @@ export class Bank{
             for (let i=0; i< it.count; i++){
                 this.letters.push({
                     id: this.letters.length.toString(),
-                    text: it.text
+                    text: it.text,
+                    value: (it.count > 10 ? 1 : 4)
                 })
             }
         });

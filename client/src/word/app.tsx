@@ -6,6 +6,8 @@ import { BankLetter } from "./core/bankLetter";
 export function App(){
     const [game, setGame] = useState<Game>(null);
     const [selected, setSelected] = useState<BankLetter>(null);
+    const [scrollStart, setScrollStart] = useState<{x: number, y: number}>(null);
+    const [scrollPos, setScrollPos] = useState<{x: number, y: number}>({x:0, y: 0});
     const [fix, setFix] = useState(0);
     useEffect(()=>{
         const _game = new Game();
@@ -17,8 +19,24 @@ export function App(){
     const letterMap = game?.lettersToMap();
     const boosterMap = game?.boosterToMap();
     return (
-        <>
-            <div>
+        <>  <div className="field_scroll">
+            <div className="field_content" style={{transform: `translate(${scrollPos.x}px, ${scrollPos.y}px)`}} onMouseDown={(e)=>{
+                if (!selected){
+                    setScrollStart({x: e.clientX, y: e.clientY});
+                }
+            }}
+            onMouseMove={(e)=>{
+                if (scrollStart){
+                    setScrollStart({x: e.clientX, y: e.clientY});
+                    setScrollPos(last=> ({x: last.x + e.movementX, y: last.y + e.movementY}));
+                }
+            }}
+            onMouseUp={(e)=>{
+                if (scrollStart){
+                    setScrollStart(null);
+                }
+            }}
+            >
                 {game && letterMap && letterMap.field.map((row, y) => {
                 return <div className="row">
                 {row.map((cell, x) => {                            
@@ -28,8 +46,10 @@ export function App(){
                         return (inputLetter.x == (x + bounds.left)) && (inputLetter.y == (y + bounds.top));
                     });
                     if (input){
-                        return <div className="cell cell_input" onMouseDown={()=>{
-                            setSelected({id: input.id, text: input.text});
+                        return <div className="cell cell_input" onMouseDown={(e)=>{
+                            e.stopPropagation();
+                            setSelected({id: input.id, text: input.text, value: input.value});
+                            
                         }}>
                             {input.text || ''}
                         </div>
@@ -44,21 +64,23 @@ export function App(){
                                 const letterIndex = game.inputLetters.findIndex(it=> it.id == selected.id);
                                 game.inputLetters.splice(letterIndex, 1);
                             }                            
-                            game.inputLetters.push({id: selected.id, text: selected.text, value: 0, y: y + bounds.top , x: x + bounds.left});
+                            game.inputLetters.push({id: selected.id, text: selected.text, value: selected.value, y: y + bounds.top , x: x + bounds.left});
                             setSelected(null);
                         }
                     }}>
                         {cell?.text || ''}
+                        {<div className="cell_value">{cell?.value}</div>}
                         {!cell?.text && <div>{{'-': '', '1': '3l', '2': '2w', '3': '2l', '4': '3w', 'start': '!!!'}[boosterMap[y][x]] || ''}</div>}
                     </div>
                 })}
                 </div>
             })}
             </div>
+            </div>
             <div>
                <div className="row">
                     {game && game.players[0].letters.map(letter=>{
-                        return <div className="cell" onMouseDown={()=>{
+                        return <div className="cell cell_player" onMouseDown={()=>{
                             setSelected(letter);
                         }}
                         onMouseUp={()=>{
@@ -70,7 +92,7 @@ export function App(){
                                 } else {
                                     const letterIndex = game.inputLetters.findIndex(it=> it.id == selected.id);
                                     game.inputLetters.splice(letterIndex, 1);
-                                    game.players[0].letters.push({id: selected.id, text: selected.text});
+                                    game.players[0].letters.push({id: selected.id, text: selected.text, value: selected.value});
                                 }                            
                     
                                 setSelected(null);
@@ -82,6 +104,10 @@ export function App(){
                     game.submitWord();
                     setFix(last=>last+1);
                 }}>submit word {game ? (game.checkInput(game.inputLetters) && 'ok'): ''}</button>
+                <button onClick={()=>{
+                    game.resetInput();
+                    setFix(last=>last+1);
+                }}>reset</button>
                 <button onClick={()=>{
                     game.scanField();
                     setFix(last=>last+1);

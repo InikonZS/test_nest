@@ -5,19 +5,51 @@
 .cell {
     width: 30px;
     height: 30px;
-    border: 1px solid #0006;
+    border: 1px solid #0002;
     user-select: none;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 21px;
+    position: relative;
+    color: #fff;
+    border-radius: 3px;
+    margin: 1px;
+}
+
+.cell_player{
+    background-color: rgb(252, 185, 91);
+}
+
+.cell_value{
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 10px;
 }
 
 .cell_letter {
-    background-color: rgb(255, 165, 234);
+    background-color: rgb(255 100 193);
+    border: 2px solid #923b95;
+    border-top: 2px solid #e7acdd;
+    border-left: 2px solid #e8a6e9;
+    transform: scale(1.08);
 }
 
 .cell_input {
     background-color: rgb(252, 185, 91);
+}
+
+.field_scroll {
+    position: relative;
+    width: 700px;
+    height: 500px;
+    overflow: hidden;
+    margin: 10px;
+    border: 3px solid #ccc;
+}
+
+.field_content {
+    position: absolute;
 }

@@ -16,6 +16,7 @@
     color: #fff;
     border-radius: 3px;
     margin: 1px;
+    background-color: #e8f5fe;
 }
 
 .cell_player{
@@ -30,15 +31,38 @@
 }
 
 .cell_letter {
-    background-color: rgb(255 100 193);
+   /* background-color: rgb(255 100 193);
     border: 2px solid #923b95;
     border-top: 2px solid #e7acdd;
     border-left: 2px solid #e8a6e9;
+    transform: scale(1.08);*/
+    background-color: rgb(104 150 226);
+    border: 2px solid #2a4795;
+    border-top: 2px solid #a6caff;
+    border-left: 2px solid #b5ceff;
     transform: scale(1.08);
 }
 
 .cell_input {
     background-color: rgb(252, 185, 91);
+}
+
+.cell_2w{
+    background-color:rgb(168 231 168);
+}
+
+.cell_2l{
+    background-color:rgb(185 227 255);
+}
+
+.cell_3w{
+    background-color: rgb(255, 153, 153);
+}
+.cell_3l{
+    background-color:rgb(255 229 133);
+}
+.cell_start{
+    background-color:rgb(245, 60, 91);
 }
 
 .field_scroll {
@@ -52,4 +76,45 @@
 
 .field_content {
     position: absolute;
+}
+
+.bottom_panel{
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -100%);
+}
+
+.control_panel{
+    background-color: #ffe3a1;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: 2px solid #ffb928;
+}
+
+.controlButtons_list{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding-top: 5px;
+}
+
+.player_letters{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding-bottom: 5px;
+}
+
+.cell_player_expand{
+    padding-left: 30px;
+}
+
+.cell_ghost{
+    background-color: #ffb928;
+    position: absolute;
+    z-index: 10;
+    pointer-events: none;
 }

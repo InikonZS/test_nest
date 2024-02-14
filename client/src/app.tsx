@@ -92,8 +92,9 @@ export function App() {
         }}>for authorized</button>
     */}
         {/*<CardsView></CardsView>*/}
-        {<div>
-            {Object.keys(games).map((it)=> <button style={{'background-color': currentGame == it? '#f00': ''}} onClick={()=> setCurrentGame(it)}>{it}</button>)}
+        {<div className="header_menu">
+            <div className="logo"><span className="logo_s">De</span>mo</div>
+            {Object.keys(games).map((it)=> <button className={'header_button' +  (currentGame == it? ' header_button_selected': '')} onClick={()=> setCurrentGame(it)}>{it}</button>)}
         </div>}
         {/*<Views></Views>*/}
         {/*<Three></Three>*/}

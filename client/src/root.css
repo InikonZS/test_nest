@@ -9,3 +9,44 @@ body{
     display: flex;
     flex-direction: column;
 }
+
+.header_menu{
+    display: flex;
+    padding: 2px 5px;
+    padding-bottom: 0px;
+    border-bottom: 3px solid #001;
+    background-color: #223;
+}
+
+.header_button {
+    background-color: #334;
+    border: none;
+    margin: 5px;
+    padding: 5px 20px;
+    color: #fff;
+}
+
+.header_button:hover{
+    background-color: #556; 
+}
+
+.header_button_selected{
+    background-color: #99b;
+}
+
+.logo{
+    padding: 5px 10px;
+    padding-left: 5px;
+    font-size: 20px;
+    color: #ccf;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    border-right: 3px dotted #334;
+}
+
+.logo_s{
+    color: #fff;
+}

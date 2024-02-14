@@ -1,8 +1,14 @@
 .v_table{
-    background-color: #0f09;
+    /*background-color: #0f09;
+    width: 500px;
+    height: 250px;
+    position: absolute;*/
+    background: linear-gradient(-10deg, #006e00, #9eea8c);
     width: 500px;
     height: 250px;
     position: absolute;
+    border-radius: 30px;
+    border: 5px solid #582903;
 }
 
 .v_pair{
@@ -10,22 +16,84 @@
 }
 
 .v_player{
-    background-color: #0f09;
+    background-color: #18587899;
     width: 150px;
     height: 150px;
     position: absolute;
+    border-radius: 100%;
+}
+
+.v_player_1{
+    border-radius: 40px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.v_player_2{
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.v_player_3{
+    border-radius: 40px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.v_player_4{
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.v_player_5{
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
 .v_my_player{
-    background-color: #0f09;
+    /*background-color: #0f09;
+    width: 300px;
+    height: 200px;
+    position: absolute;*/
+    background-color: #18587899;
     width: 300px;
     height: 200px;
     position: absolute;
+    border-top-right-radius: 150px;
+    border-top-left-radius: 150px;
 }
 
 .v_wrapper{
-    background-color: #00f9;
+    background-color: #8bafc3;
     width: 800px;
     height: 600px;
     position: relative;
+    margin: auto;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.player_controls{
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translate(-50%, -100%);
+    padding: 10px;
+    background-color: #fff5;
+    border-radius: 5px;
+}
+
+.player_button{
+    background-color: #222;
+    color: #ccc;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin: 0px 5px;
+}
+
+.player_button:hover{
+    background-color: #444;
 }

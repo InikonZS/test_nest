@@ -107,7 +107,7 @@ function getPlayerCardTransform(player: number, index: number, length: number){
 }
 
 function getMyCardTransform(index: number, length: number){
-    return `translate(${(300 + (index - (length-1) / 2)*15)}px, ${400}px) rotate(${(index - (length-1) / 2)*Math.min((120/length), 15)}deg) translateY(${-20}px) scale(0.5)`
+    return `translate(${(325 + (index - (length-1) / 2)*15)}px, ${400}px) rotate(${(index - (length-1) / 2)*Math.min((120/length), 15)}deg) translateY(${-20}px) scale(0.5)`
 }
 
 function CardViewTr({ value, type,  selected, zindex }: {value: number, type: number, selected: boolean, zindex: number}) {
@@ -192,31 +192,31 @@ export function Views(){
     }, [tick]);
     return <div className="v_wrapper">
         {game && <>
-        <div className="v_player" style={{left: '0px', top: '0px'}}>
+        <div className="v_player v_player_1" style={{left: '0px', top: '0px'}}>
             0
             {game.getDefender() == 0 && game.isFoldRequested && 'fold'}
             {game.currentPlayerIndex == 0 && 'A'}
             {game.getDefender() == 0 && 'D'}
         </div>
-        <div className="v_player" style={{left: '325px', top: '0px'}}>
+        <div className="v_player v_player_2" style={{left: '325px', top: '0px'}}>
             1
             {game.getDefender() == 1 && game.isFoldRequested && 'fold'}
             {game.currentPlayerIndex == 1 && 'A'}
             {game.getDefender() == 1 && 'D'}
         </div>
-        <div className="v_player" style={{left: '650px', top: '0px'}}>
+        <div className="v_player v_player_3" style={{left: '650px', top: '0px'}}>
             2
             {game.getDefender() == 2 && game.isFoldRequested && 'fold'}
             {game.currentPlayerIndex == 2 && 'A'}
             {game.getDefender() == 2 && 'D'}
         </div>
-        <div className="v_player" style={{left: '0px', top: '250px'}}>
+        <div className="v_player v_player_4" style={{left: '0px', top: '250px'}}>
             3
             {game.getDefender() == 3 && game.isFoldRequested && 'fold'}
             {game.currentPlayerIndex == 3 && 'A'}
             {game.getDefender() == 3 && 'D'}
         </div>
-        <div className="v_player" style={{left: '650px', top: '250px'}}>
+        <div className="v_player v_player_5" style={{left: '650px', top: '250px'}}>
             4
             {game.getDefender() == 4 && game.isFoldRequested && 'fold'}
             {game.currentPlayerIndex == 4 && 'A'}
@@ -231,16 +231,18 @@ export function Views(){
         </>
         }
         <div>
-            test
-            {game?.isFinished && <button style={{position: 'relative', 'z-index': 100}} onClick={()=>{
-                game.start();
-            }}>restart</button>}
-            <button style={{position: 'relative', 'z-index': 100}} onClick={()=>{
-                myPlayer.requestFold();
-            }}>забрать</button>
-            <button style={{position: 'relative', 'z-index': 100}} onClick={()=>{
-                myPlayer.turn();
-            }}>отбить</button>
+            <div className="player_controls">
+                {game?.isFinished && <button className="player_button" style={{position: 'relative', 'z-index': 100}} onClick={()=>{
+                    game.start();
+                }}>restart</button>}
+                <button className="player_button" style={{position: 'relative', 'z-index': 100}} onClick={()=>{
+                    myPlayer.requestFold();
+                }}>забрать</button>
+                <button className="player_button" style={{position: 'relative', 'z-index': 100}} onClick={()=>{
+                    myPlayer.turn();
+                }}>отбить</button>
+            </div>
+            
             {game && cardsPos.map(it=> <div className="views_card" style={{ transition: '400ms', transform: it.transform, 'z-index':it.zindex.toString()}}
             onClick={()=>{
                 if (myPlayer.cards.find(card=>{

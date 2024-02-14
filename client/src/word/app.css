@@ -12,11 +12,10 @@
     justify-content: center;
     align-items: center;
     font-size: 21px;
-
 }
 
 .cell_letter {
-    background-color: rgb(191, 255, 189);
+    background-color: rgb(255, 165, 234);
 }
 
 .cell_input {

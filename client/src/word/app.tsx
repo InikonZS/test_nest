@@ -14,13 +14,15 @@ export function App(){
             _game.destroy();
         }
     }, []);
+    const letterMap = game?.lettersToMap();
+    const boosterMap = game?.boosterToMap();
     return (
         <>
             <div>
-                {game && game.lettersToMap().field.map((row, y) => {
+                {game && letterMap && letterMap.field.map((row, y) => {
                 return <div className="row">
                 {row.map((cell, x) => {                            
-                    const bounds = game.lettersToMap().bounds;
+                    const bounds = letterMap.bounds;
                     //console.log(game.inputLetters);
                     const input = game.inputLetters.find((inputLetter)=>{
                         return (inputLetter.x == (x + bounds.left)) && (inputLetter.y == (y + bounds.top));
@@ -32,7 +34,7 @@ export function App(){
                             {input.text || ''}
                         </div>
                     }
-                    return <div className={`cell ${cell?.text ? 'cell_letter' : ''}`} onMouseUp={()=>{
+                    return <div className={`cell ${cell?.text ? 'cell_letter' : ''}`}  style={{backgroundColor: !cell?.text && {'-': '#fff', '2': '#9f9', '1': '#ff9', '3': '#9ff', '4': '#f99', 'start': '#f0f'}[boosterMap[y][x]]}} onMouseUp={()=>{
                         if (selected){
 
                             const playerLetterIndex = game.players[0].letters.findIndex(it=> it.id == selected.id);
@@ -47,6 +49,7 @@ export function App(){
                         }
                     }}>
                         {cell?.text || ''}
+                        {!cell?.text && <div>{{'-': '', '1': '3l', '2': '2w', '3': '2l', '4': '3w', 'start': '!!!'}[boosterMap[y][x]] || ''}</div>}
                     </div>
                 })}
                 </div>

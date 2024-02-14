@@ -459,10 +459,10 @@ export class Game{
         });
         
         return {
-            left: minX,
-            right: maxX,
-            top: minY,
-            bottom: maxY,
+            left: minX - 7,
+            right: maxX +7,
+            top: minY -7,
+            bottom: maxY+7,
         }
     }
 
@@ -474,6 +474,58 @@ export class Game{
             field[letter.y - bounds.top][letter.x - bounds.left] = letter;
         });
         return {field, bounds};
+    }
+
+    boosterToMap(){
+        const pattern = [
+            '-1----3----1',
+            '---2-----2--',
+            '--3--3-3--3-',
+            '3---2---2---',
+            '---3-1-1-3--',
+            '23----4----3',
+            '---3-1-1-3--',
+            '3---2---2---',
+            '--3--3-3--3-',
+            '---2-----2--',
+            '-1----3----1',
+            '--2---2---2-',
+        ];
+        const bounds = this.getLettersBounds();
+        //console.log(bounds);
+        const field: Array<Array<string>>= new Array(bounds.bottom - bounds.top + 1).fill(null).map((row, rowIndex)=> new Array(bounds.right - bounds.left + 1).fill('').map((cell, cellIndex)=>{
+            const y = rowIndex + bounds.top;
+            const x = cellIndex + bounds.left;
+            console.log(y, x);
+            if (x == 0 && y==0){
+                return 'start'
+            }
+            return pattern[(y - 5 + 1000) % pattern.length][(x - 4 + 1000) % pattern[0].length];
+            /*if (((x - y) % 12 == 0 || (y + x) % 12 == 0) && ((x + 1 )% 6==0 || (y + 1)% 6==0 || (y - 1 )% 6==0)){
+                return '2w'
+            }
+
+            if (((x - y) % 24 == 0 || (y + x) % 24 == 0) && ((x + 6)% 12==0 || (y + 6)% 12==0)){
+                return '3w'
+            }
+
+            if (((x - y) % 12 == 0 || (y + x) % 6 == 0) && ((x + 1 )% 6==0 || (y + 1)% 6==0 || (y - 1 )% 3==0)){
+                return '2l'
+            }*/
+            /*if ((x - 2) % 4 ==0 && (y - 2) % 4 ==0){
+                return '2w'
+            }
+            if ((x - 4) % 16 ==0 && (y - 4) % 16 ==0){
+                return '3w'
+            }
+            if (((x - 2) % 8 ==0 || (x + 2) % 8 ==0) && (y - 4) % 8 ==0){
+                return '2l'
+            }
+            if ( (x - 4) % 16 ==0 && ((y - 2) % 16 ==0 || (y + 2) % 16 ==0)){
+                return '3l'
+            }*/
+        }));
+        return field;
     }
     
     public submitWord(){        

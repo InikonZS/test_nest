@@ -3,6 +3,9 @@ import './app.css';
 import { Game } from "./core/game";
 import { BankLetter } from "./core/bankLetter";
 import { LetterPanel } from "./components/letterPanel";
+import { LetterList } from "./components/letterList";
+import { LetterListOpenButton } from "./components/letterListOpenButton";
+import { PlayerList } from "./components/playerList";
 
 export function App(){
     const [game, setGame] = useState<Game>(null);
@@ -11,7 +14,8 @@ export function App(){
     const [scrollPos, setScrollPos] = useState<{x: number, y: number}>({x:0, y: 0});
     const [playerLetterMove, setPlayerLetterMove] = useState('');
     const [fix, setFix] = useState(0);
-    const [ghostPosition, setGhostPosition] = useState<{x: number, y: number}>({x:0, y: 0});
+    const [ghostPosition, setGhostPosition] = useState<{x: number, y: number}>(null);
+    const [showLetterList, setShowLetterList] = useState(false);
 
     useEffect(()=>{
         const _game = new Game();
@@ -25,8 +29,9 @@ export function App(){
     const fieldScroll = useRef<HTMLDivElement>();
     return (
         <>  <div className="field_scroll" ref={fieldScroll}>
-            {selected && !playerLetterMove && <div className="cell cell_ghost" style={{top: ghostPosition.y - fieldScroll.current.getBoundingClientRect().top - 15, left: ghostPosition.x - fieldScroll.current.getBoundingClientRect().left - 15}}>{selected.text}</div>}
-            <div className="field_content" style={{transform: `translate(${scrollPos.x}px, ${scrollPos.y}px)`}} onMouseDown={(e)=>{
+            {selected && !playerLetterMove && ghostPosition && <div className="cell cell_ghost" style={{top: ghostPosition.y - fieldScroll.current.getBoundingClientRect().top - 15, left: ghostPosition.x - fieldScroll.current.getBoundingClientRect().left - 15}}>{selected.text}</div>}
+            <div className="field_content" style={{transform: `translate(${scrollPos.x}px, ${scrollPos.y}px)`}} 
+            onMouseDown={(e)=>{
                 if (!selected){
                     setScrollStart({x: e.clientX, y: e.clientY});
                 }
@@ -43,6 +48,7 @@ export function App(){
             onMouseUp={(e)=>{
                 if (scrollStart){
                     setScrollStart(null);
+                    setGhostPosition(null);
                 }
             }}
             >
@@ -58,7 +64,7 @@ export function App(){
                         return <div className="cell cell_input" onMouseDown={(e)=>{
                             e.stopPropagation();
                             setSelected({id: input.id, text: input.text, value: input.value});
-                            
+                            setGhostPosition({x: e.clientX, y: e.clientY});
                         }}>
                             {input.text || ''}
                         </div>
@@ -77,9 +83,17 @@ export function App(){
                 </div>
             })}
             </div>
-            
+            <LetterListOpenButton onClick={()=>{setShowLetterList(true);}} count={game?.bank.letters.length || 0}></LetterListOpenButton>
+            {showLetterList && <LetterList letters={game?.bank.getLetterCounts() || {}} onClose={()=>{setShowLetterList(false);}}></LetterList>}
             <div className="bottom_panel">
-                <LetterPanel selected={selected} onSelect={(letter)=>setSelected(letter)} game={game} onFix={()=>setFix(last=>last+1)}></LetterPanel>
+                <LetterPanel 
+                    selected={selected} 
+                    onSelect={(letter)=>setSelected(letter)} 
+                    game={game} 
+                    onFix={()=>setFix(last=>last+1)} 
+                    playerLetterMove={playerLetterMove} 
+                    onPlayerLetterMove={setPlayerLetterMove}
+                />
             </div>
             </div>
         </>

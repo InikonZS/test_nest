@@ -1,0 +1,39 @@
+.letterList_popup{
+    position: absolute;
+    background-color: #ffe3a1;
+    padding: 10px 20px;
+    padding-top: 40px;
+    border-radius: 5px;
+    border: 2px solid #b8a785;
+    border-top: 2px solid #fff0d3;
+    border-left: 2px solid #fff0d3;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: #0004 2px 5px 8px;
+}
+
+.letterList_closeButton{
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    width: 30px;
+    height: 30px;
+    border-radius: 100%;
+    border: none;
+    user-select: none;
+}
+
+.letterList_wrapper{
+    display: flex;
+    flex-wrap: wrap;
+    width: calc((30px + 2px) * 7);
+}
+
+.letterList_cell{
+    background-color: rgb(252, 185, 91);
+}
+
+.letterList_cell_empty{
+    background-color: #999;
+}

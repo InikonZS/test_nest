@@ -87,4 +87,16 @@ export class Bank{
         });
         this.letters = mixArray(this.letters);
     }
+
+    getLetterCounts(){
+        const result: Record<string, number> = {};
+        this.letters.forEach((letter)=>{
+            if (result[letter.text]){
+                result[letter.text] += 1;
+            } else {
+                result[letter.text] = 1;
+            }
+        });
+        return result;
+    }
 }

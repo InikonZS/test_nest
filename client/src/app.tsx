@@ -10,7 +10,7 @@ import { NeirView } from './neir/app';
 import  './root.css';
 
 export function App() {
-    const [currentGame, setCurrentGame] = useState('cards');
+    const [currentGame, setCurrentGame] = useState('');
     const [loginInput, setLoginInput] = useState({ login: '', password: '' });
     const [isLogined, setLogined] = useState(false);
     const games = {
@@ -21,6 +21,23 @@ export function App() {
         'ani': Ani,
         'word': Word,
     }
+
+    useEffect(()=>{
+        const handlePop = ()=>{
+            const page = location.hash.slice(1);
+            if (games[page as keyof typeof games]){
+                setCurrentGame(page);
+            } else {
+                location.hash = 'cards';
+            }
+        }
+        window.addEventListener('popstate', handlePop);
+        handlePop();
+        return ()=>{
+            window.removeEventListener('popstate', handlePop);
+        }
+    }, []);
+
     useEffect(()=>{
         const socket = new WebSocket('ws://localhost:3000');
         socket.onopen = ()=>{
@@ -37,6 +54,8 @@ export function App() {
             socket.close();
         }
     }, []);
+
+    const gameComponent = games[currentGame as keyof typeof games];
     return <div className="root_block">
         {/*
             !isLogined ? (
@@ -94,10 +113,10 @@ export function App() {
         {/*<CardsView></CardsView>*/}
         {<div className="header_menu">
             <div className="logo"><span className="logo_s">De</span>mo</div>
-            {Object.keys(games).map((it)=> <button className={'header_button' +  (currentGame == it? ' header_button_selected': '')} onClick={()=> setCurrentGame(it)}>{it}</button>)}
+            {Object.keys(games).map((it)=> <button className={'header_button' +  (currentGame == it? ' header_button_selected': '')} onClick={()=> /*setCurrentGame(it)*/ location.hash = it}>{it}</button>)}
         </div>}
         {/*<Views></Views>*/}
         {/*<Three></Three>*/}
-        {React.createElement(games[currentGame as keyof typeof games])}
+        {gameComponent && React.createElement(gameComponent)}
     </div>
 }

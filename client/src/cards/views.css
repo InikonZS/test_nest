@@ -31,3 +31,13 @@
     border: 1px solid;
     position: absolute;
 }
+
+.settings_open_button{
+    background-color: #222;
+    color: #ccc;
+    border: none;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 10;
+}

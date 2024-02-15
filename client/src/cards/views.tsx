@@ -3,6 +3,7 @@ import "./views.css";
 import "./views1.css";
 import "./components/card/card.css"
 import { BotPlayer, BotPlayer1, Card, Cards, Player } from "./cards";
+import {SettingsView} from "./settingsView";
 
 /*const testMoves = [
     {
@@ -130,6 +131,8 @@ export function Views(){
     const [game, setGame] = useState<Cards>(null);
     const [tick, setTick] = useState(0);
     const [myPlayer, setMyPlayer] = useState<Player>(null);
+    const [isSettingsOpen, setSettingsOpen] = useState(false);
+    const [playersCount, setPlayersCount] = useState(2);
 
     useEffect(()=>{
         const _game = new Cards();
@@ -137,22 +140,23 @@ export function Views(){
             setTick(last=> last+1);
         })
         setGame(_game);
-        const players = [
-            _game.addPlayer(),
+        const players = new Array(playersCount - 1).fill(null).map(it => _game.addPlayer());
+        //[
+        //    _game.addPlayer(),
            // _game.addPlayer(),
           //  _game.addPlayer(),
           //  _game.addPlayer()
-        ];
-        new BotPlayer(players[0]);
+        //];
+        //new BotPlayer(players[0]);
        // new BotPlayer1(players[1]);
-        //players.map(it=> new BotPlayer(it));
+        players.map(it=> new BotPlayer(it));
         const _myPlayer = _game.addPlayer();
        _myPlayer.onGameState = ()=>{
 
         }
         setMyPlayer(_myPlayer);
         _game.start();
-    }, []);
+    }, [playersCount]);
 
     /*useEffect(()=>{
         setCardsPos({transform: deckPositions, card: {}});
@@ -191,6 +195,13 @@ export function Views(){
         }
     }, [tick]);
     return <div className="v_wrapper">
+        <button className="settings_open_button" onClick={()=>{
+            setSettingsOpen(true);
+        }}>setting</button>
+        {isSettingsOpen && <SettingsView playersCount={playersCount} onCountChange={(count)=>{
+            setPlayersCount(count);
+            setSettingsOpen(false);
+        }}></SettingsView>}
         {game && <>
         <div className="v_player v_player_1" style={{left: '0px', top: '0px'}}>
             0

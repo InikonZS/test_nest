@@ -1,0 +1,39 @@
+.settings_wrapper{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 10;
+    padding: 20px;
+    background-color: #4f86a1;
+    border-radius: 5px;
+}
+
+.settings_count{
+
+}
+
+.count_header {
+    margin: 5px;
+}
+.count_button{
+    border: none;
+    background-color: #ccc;
+    margin: 5px;
+}
+
+.count_button_selected{
+    background-color: #999;
+}
+
+.settings_close_button{
+    background-color: #222;
+    color: #ccc;
+    border: none;
+    border-radius: 100%;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    cursor: pointer;
+}

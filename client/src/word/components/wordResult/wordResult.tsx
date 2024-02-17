@@ -14,13 +14,18 @@ export function WordResult({scoreData}: IWordResultProps){
     const words = [scoreData.mainWord, ...scoreData.sideWords];
     return (
         <div className='wordResult_popup'>
-            {words.map(word=>{
-                return <div className='row wordResult_word'>
-                    {word.map(letter=>{
-                        return <div className='cell cell_input'>{letter.text}</div>;
-                    })}
-                </div>
-            })}
+            <div>
+                {words.map(word=>{
+                    return <div className='row wordResult_word'>
+                        {word.map(letter=>{
+                            return <div className='cell cell_input'>{letter.text}</div>;
+                        })}
+                    </div>
+                })}
+            </div>
+            <div>
+                {scoreData.score}
+            </div>
         </div>
     )
 }

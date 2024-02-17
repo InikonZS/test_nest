@@ -9,4 +9,5 @@
     right: 2px;
     bottom: 2px;
     box-shadow: #0004 2px 5px 8px;
+    user-select: none;
 }

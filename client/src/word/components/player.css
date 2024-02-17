@@ -1,5 +1,11 @@
 .player_wrapper{
+    background-color: #ffb928;
+    border: 1px solid #0000;
+}
 
+.player_wrapper_current{
+    background-color: #ffb928;
+    border: 1px solid #f00;
 }
 
 .player_ava{
@@ -11,5 +17,5 @@
 }
 
 .player_score{
-    
+
 }

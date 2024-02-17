@@ -10,6 +10,7 @@ import { FieldLetter } from "./core/fieldLetter";
 import { WordResult } from "./components/wordResult/wordResult";
 import { IGameOptions } from "./core/interfaces";
 import { OptionsPopup } from "./components/optionsPopup/optionsPopup";
+import { GameResult } from "./components/gameResult/gameResult";
 
 export function App(){
     const [game, setGame] = useState<Game>(null);
@@ -29,7 +30,8 @@ export function App(){
     const [gameOptions, setGameOptions] = useState<IGameOptions>({
         players: 1,
         letters: 200
-    })
+    });
+    const [gameResult, setGameResult] = useState(null);
 
     useEffect(()=>{
         const _game = new Game(gameOptions);
@@ -43,6 +45,11 @@ export function App(){
                 setShownScoreData(null);
             }, 2000);
         }
+        _game.onFinish = ()=>{
+            console.log('finished');
+            setGameResult({});
+        }
+        setGameResult(null);
         setGame(_game);
         return ()=>{
             _game.destroy();
@@ -107,12 +114,13 @@ export function App(){
                 </div>
             })}
             </div>
+            {gameResult && <GameResult game={game} onPlayAgain={()=>{setGameResult(null); setGameOptions({...gameOptions});}}></GameResult>}
             {showOptions && <OptionsPopup onClose={()=>{setShowOptions(false)}} onSubmit={(data)=>{setGameOptions(data); setShowOptions(false)}} initialOptions={gameOptions}/>}
             <button className="showOptions_button" onClick={()=>{
                 setShowOptions(true);
             }}>settings</button>
             {shownScoreData && <WordResult scoreData={shownScoreData}></WordResult>}
-            {game && <PlayerList players={game.players}></PlayerList>}
+            {game && <PlayerList players={game.players} currentPlayerIndex={game.currentPlayerIndex}></PlayerList>}
             <LetterListOpenButton onClick={()=>{setShowLetterList(true);}} count={game?.bank.letters.length || 0}></LetterListOpenButton>
             {showLetterList && <LetterList letters={game?.bank.getLetterCounts() || {}} onClose={()=>{setShowLetterList(false);}}></LetterList>}
             <div className="bottom_panel">

@@ -121,4 +121,5 @@
 
 .showOptions_button{
     position: absolute;
+    user-select: none;
 }

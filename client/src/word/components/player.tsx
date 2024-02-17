@@ -1,4 +1,5 @@
 import React from 'react';
+import './player.css';
 
 interface IPlayerProps{
     playerData: Array<any>

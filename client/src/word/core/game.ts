@@ -3,6 +3,7 @@ import { Player } from "./player";
 import { Bank } from "./bank";
 import { BankLetter } from "./bankLetter";
 import { WordTools} from "./wordTools";
+import { IGameOptions } from "./interfaces";
 
 function binarySearch(items: Array<string | number>, value: string | number): number{
 
@@ -52,15 +53,21 @@ const testLetters = [
 ];
 
 export class Game{
-    players: Array<Player> = [new Player()];
+    players: Array<Player> = [];
     letters: Array<FieldLetter> = [...testLetters];
     currentPlayerIndex: number = 0;
     inputLetters: Array<FieldLetter> = [];
     bank: Bank;
     wordTools: WordTools;
-    constructor(){
-        this.bank = new Bank();
+    onWordSubmitted: (score: {
+        mainWord: FieldLetter[];
+        sideWords: FieldLetter[][];
+        score: number;
+    })=>void;
+    constructor(options: IGameOptions){
+        this.bank = new Bank(options.letters);
         this.wordTools = new WordTools();
+        this.players = new Array(options.players).fill(null).map(() =>new Player());
         this.addLetters();
     }
 
@@ -183,29 +190,29 @@ export class Game{
             const includesAllInput = inputLetters.find(letter => !wordLetters.includes(letter)) == undefined;
             if (!includesAllInput){
                 console.log('not all input');
-                return false;
+                return null;
             }
 
             const checkWordResult = this.checkWord(wordLetters.map(it=>it.text).join(''));
             if (!checkWordResult){
                 console.log('rejected main word', checkWordResult);
-                return false;
+                return null;
             }
             
             const vericalWords = wordLetters.map(it=>this.getVerticalWord([it])).filter(it=>it.length > 1);
             const checkVerticalResult = vericalWords.find(word=> this.checkWord(word.map(it=>it.text).join('')) == false);// == undefined;
             //console.log('ch res', wordLetters, vericalWords, checkVerticalResult);
             if (vericalWords.length && checkVerticalResult){
-                return false;
+                return null;
             }
             
             const isInitial = inputLetters.find(it=> it.x == 0 && it.y == 0);
             if (!isInitial && (!vericalWords.length && wordLetters.length == inputLetters.length)){
-                return false;
+                return null;
             }
 
-            console.log(this.getWordScore(wordLetters, vericalWords));
-            return true;
+            //console.log(this.getWordScore(wordLetters, vericalWords));
+            return this.getWordScore(wordLetters, vericalWords);
         }
 
         const checkVertical = ()=>{
@@ -213,39 +220,45 @@ export class Game{
             const includesAllInput = inputLetters.find(letter => !wordLetters.includes(letter)) == undefined;
             if (!includesAllInput){
                 console.log('not all input');
-                return false;
+                return null;
             }
 
             const checkWordResult = this.checkWord(wordLetters.map(it=>it.text).join(''));
             if (!checkWordResult){
                 console.log('rejected main word', checkWordResult);
-                return false;
+                return null;
             }
             const horizontalWords = wordLetters.map(it=>this.getHorizontalWord([it])).filter(it=>it.length > 1);
             
             const checkHorizontalResult = horizontalWords.find(word=> this.checkWord(word.map(it=>it.text).join('')) == false);// == undefined;
             //console.log('ch res h', wordLetters, horizontalWords, checkHorizontalResult);
             if (horizontalWords.length && checkHorizontalResult){
-                return false;
+                return null;
             }
             
             const isInitial = inputLetters.find(it=> it.x == 0 && it.y == 0);
             if (!isInitial && (!horizontalWords.length && wordLetters.length == inputLetters.length)){
-                return false;
+                return null;
             }
-            console.log(this.getWordScore(wordLetters, horizontalWords));
-            return true;
+            //console.log(this.getWordScore(wordLetters, horizontalWords));
+            return this.getWordScore(wordLetters, horizontalWords);
         }
+
+        let scoreResult = null
         
         if (horizontalCorrect){
-            horizontalCorrect = checkHorizontal();
+            const horizontalScore = checkHorizontal();
+            horizontalCorrect = horizontalScore != null;
+            scoreResult = horizontalScore;
         }
 
         if (verticalCorrect){
-            verticalCorrect = checkVertical();
+            const verticalScore = checkVertical()
+            verticalCorrect = verticalScore != null;
+            scoreResult = verticalScore;
         }
 
-        return horizontalCorrect || verticalCorrect;
+        return scoreResult;
     }
 
     finishBotTest(){
@@ -554,15 +567,16 @@ export class Game{
         return field;
     }
     
-    public submitWord(){        
-        if (!this.checkInput(this.inputLetters)){
+    public submitWord(){    
+        const wordScore = this.checkInput(this.inputLetters);  
+        if (!wordScore){
             return;
         };
+        this.onWordSubmitted(wordScore);
         this.inputLetters.forEach(letter=>{
             this.letters.push(letter);
         });
         this.inputLetters = [];
-
         this.addLetters();
     }
 

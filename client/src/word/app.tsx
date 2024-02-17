@@ -6,6 +6,10 @@ import { LetterPanel } from "./components/letterPanel";
 import { LetterList } from "./components/letterList";
 import { LetterListOpenButton } from "./components/letterListOpenButton";
 import { PlayerList } from "./components/playerList";
+import { FieldLetter } from "./core/fieldLetter";
+import { WordResult } from "./components/wordResult/wordResult";
+import { IGameOptions } from "./core/interfaces";
+import { OptionsPopup } from "./components/optionsPopup/optionsPopup";
 
 export function App(){
     const [game, setGame] = useState<Game>(null);
@@ -16,14 +20,34 @@ export function App(){
     const [fix, setFix] = useState(0);
     const [ghostPosition, setGhostPosition] = useState<{x: number, y: number}>(null);
     const [showLetterList, setShowLetterList] = useState(false);
+    const [shownScoreData, setShownScoreData] = useState<{
+        mainWord: FieldLetter[];
+        sideWords: FieldLetter[][];
+        score: number;
+    }>(null);
+    const [showOptions, setShowOptions] = useState(false);
+    const [gameOptions, setGameOptions] = useState<IGameOptions>({
+        players: 1,
+        letters: 200
+    })
 
     useEffect(()=>{
-        const _game = new Game();
+        const _game = new Game(gameOptions);
+        const lastScoreTimerId: ReturnType<typeof setTimeout> = null;
+        _game.onWordSubmitted = (scoreData)=>{
+            if (lastScoreTimerId){
+                clearInterval(lastScoreTimerId);
+            }
+            setShownScoreData(scoreData);
+            setTimeout(()=>{
+                setShownScoreData(null);
+            }, 2000);
+        }
         setGame(_game);
         return ()=>{
             _game.destroy();
         }
-    }, []);
+    }, [gameOptions]);
     const letterMap = game?.lettersToMap();
     const boosterMap = game?.boosterToMap();
     const fieldScroll = useRef<HTMLDivElement>();
@@ -83,6 +107,12 @@ export function App(){
                 </div>
             })}
             </div>
+            {showOptions && <OptionsPopup onClose={()=>{setShowOptions(false)}} onSubmit={(data)=>{setGameOptions(data); setShowOptions(false)}} initialOptions={gameOptions}/>}
+            <button className="showOptions_button" onClick={()=>{
+                setShowOptions(true);
+            }}>settings</button>
+            {shownScoreData && <WordResult scoreData={shownScoreData}></WordResult>}
+            {game && <PlayerList players={game.players}></PlayerList>}
             <LetterListOpenButton onClick={()=>{setShowLetterList(true);}} count={game?.bank.letters.length || 0}></LetterListOpenButton>
             {showLetterList && <LetterList letters={game?.bank.getLetterCounts() || {}} onClose={()=>{setShowLetterList(false);}}></LetterList>}
             <div className="bottom_panel">

@@ -1,0 +1,21 @@
+.optionsPopup_popup{
+    position: absolute;
+    background-color: #ffe3a1;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: 2px solid #b8a785;
+    border-top: 2px solid #fff0d3;
+    border-left: 2px solid #fff0d3;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: #0004 2px 5px 8px;
+}
+
+.select_button{
+
+}
+
+.select_button_active{
+    background-color: #999;
+}

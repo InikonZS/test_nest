@@ -1,5 +1,6 @@
 import React from 'react';
 import { Player } from './player';
+import './playerList.css';
 
 interface IPlayerListProps{
     players: Array<any>

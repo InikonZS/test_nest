@@ -118,3 +118,7 @@
     z-index: 10;
     pointer-events: none;
 }
+
+.showOptions_button{
+    position: absolute;
+}

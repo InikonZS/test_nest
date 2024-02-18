@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './wordResult.css';
 import { FieldLetter } from '../../core/fieldLetter';
-import { IBoostedWord } from '../../core/game';
+import { Boosters, IBoostedWord } from '../../core/game';
 
 interface IWordResultProps{
     scoreData: {
@@ -15,6 +15,7 @@ export function WordResult({scoreData, onAnimated}: IWordResultProps){
     const words = scoreData.words;
     const [animationStage, setAnimationStage] = useState('show');
     const delayLetters = 200;
+    console.log(scoreData);
     useEffect(()=>{
         setAnimationStage('show');
         let aBID: ReturnType<typeof setInterval> = null;
@@ -37,19 +38,19 @@ export function WordResult({scoreData, onAnimated}: IWordResultProps){
     let renderedLetterCount = 0;
     return (
         <div className='wordResult_popup'>
+            <div className='wordResult_score'>
+                {scoreData.score}
+            </div>
             <div key={JSON.stringify(scoreData)}>
                 {words.map((boostedWord, wordIndex)=>{
                     return <div className='row wordResult_word'>
                         {boostedWord.word.map((boostedLetter, letterIndex)=>{
                             renderedLetterCount +=1;
-                            const cellClass = `cell cell_input ${animationStage=='show' ? 'cell_show': 'cell_shown'} ${(animationStage=='wordBoost' && boostedWord.wordBoosters[0]) ? 'cell_boost_2w': ''} ${(animationStage=='letterBoost' && boostedWord.wordBoosters[0]) ? 'cell_boosted_2w': ''} ${(animationStage=='letterBoost' && boostedLetter.booster) ? 'cell_boost_2l': ''} `;
+                            const cellClass = `cell cell_input ${animationStage=='show' ? 'cell_show': 'cell_shown'} ${(animationStage=='wordBoost' && boostedWord.wordBoosters[0]) ? (boostedWord.wordBoosters[0] == Boosters.doubleWord ? 'cell_boost_2w' : 'cell_boost_3w'): ''} ${(animationStage=='letterBoost' && boostedWord.wordBoosters[0]) ? (boostedWord.wordBoosters[0] == Boosters.doubleWord ? 'cell_boosted_2w' : 'cell_boosted_3w'): ''} ${(animationStage=='letterBoost' && boostedLetter.booster) ? (boostedLetter.booster == Boosters.doubleLetter ? 'cell_boost_2l' : 'cell_boost_3l'): ''} `;
                             return <div className={cellClass} style={{'--delay': `${(renderedLetterCount - 1)*delayLetters}ms`}}>{boostedLetter.letter.text}</div>;
                         })}
                     </div>
                 })}
-            </div>
-            <div>
-                {scoreData.score}
             </div>
         </div>
     )

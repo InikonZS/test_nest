@@ -5,6 +5,22 @@ import { BankLetter } from "./bankLetter";
 import { WordTools} from "./wordTools";
 import { IGameOptions } from "./interfaces";
 
+export enum Boosters {
+    doubleLetter = '3',
+    tripleLetter = '1',
+    doubleWord = '2',
+    tripleWord = '4',
+    none = ''
+}
+
+export type IBoostedWord = {
+    word: {
+        letter: FieldLetter;
+        booster: string;
+    }[];
+    wordBoosters: string[];
+}
+
 function binarySearch(items: Array<string | number>, value: string | number): number{
 
     var startIndex  = 0,
@@ -60,11 +76,26 @@ export class Game{
     bank: Bank;
     wordTools: WordTools;
     onWordSubmitted: (score: {
-        mainWord: FieldLetter[];
-        sideWords: FieldLetter[][];
+        words: IBoostedWord[]
         score: number;
     })=>void;
     onFinish: ()=>void;
+
+    pattern = [
+        '-1----3----1',
+        '---2-----2--',
+        '--3--3-3--3-',
+        '3---2---2---',
+        '---3-1-1-3--',
+        '23----4----3',
+        '---3-1-1-3--',
+        '3---2---2---',
+        '--3--3-3--3-',
+        '---2-----2--',
+        '-1----3----1',
+        '--2---2---2-',
+    ];
+
     constructor(options: IGameOptions){
         this.bank = new Bank(options.letters);
         this.wordTools = new WordTools();
@@ -156,27 +187,56 @@ export class Game{
     }
 
     getWordScore(word:Array<FieldLetter>, sideWords: Array<Array<FieldLetter>>){
-        let score = word.reduce((ac, it) => ac + it.value, 0);
-        const result: {
-            mainWord: Array<FieldLetter>,
-            sideWords: Array<Array<FieldLetter>>,
-            score: number
-        } = {
-            mainWord: word,
-            sideWords: [],
-            score
+        const getBoosteredWord = (_word: Array<FieldLetter>)=>{
+            const wordBoosters: Array<string> = [];
+            const boostedLetters: Array<{letter: FieldLetter, booster: string}> = [];
+            _word.forEach(letter=>{
+                const booster = this.getBoosterAt(letter.x, letter.y);
+                if (booster == Boosters.doubleWord || booster == Boosters.tripleWord){
+                    wordBoosters.push(booster);
+                }
+                if (booster == Boosters.doubleLetter || booster == Boosters.tripleLetter){
+                    boostedLetters.push({letter: letter, booster: booster});
+                } else {
+                    boostedLetters.push({letter: letter, booster: Boosters.none});
+                }
+            })
+            return {word: boostedLetters, wordBoosters}
         }
+        //let score = word.reduce((ac, it) => ac + it.value, 0);
+
+        const boostedWords: Array<IBoostedWord> = [getBoosteredWord(word)];
         //if (sideWords.length){ console.log('side', sideWords);}
         sideWords.forEach(it=>{
             const containsLetter = it.find(jt=> this.inputLetters.includes(jt));
             if (containsLetter){
-                score += it.reduce((ac, it) => ac + it.value, 0);
-                result.sideWords.push(it);
+                //score += it.reduce((ac, it) => ac + it.value, 0);
+                boostedWords.push(getBoosteredWord(it));
             }
         });
         //now score duplicate if letter related to both word
-        result.score = score;
-        return result;
+        //result.score = score;
+        const getWordScore = (_boosted: IBoostedWord)=>{
+            let wordScore = _boosted.word.reduce((ac, it) => {
+                let letterScore = it.letter.value;
+                if (it.booster == Boosters.doubleLetter){
+                    letterScore *= 2;
+                } else if (it.booster == Boosters.tripleLetter){
+                    letterScore *= 3;
+                }
+                return ac + letterScore;
+            }, 0);
+            _boosted.wordBoosters.forEach(booster=>{
+                if (booster == Boosters.doubleWord){
+                    wordScore *= 2;
+                } else if (booster == Boosters.tripleWord){
+                    wordScore *= 3;
+                }
+            });
+            return wordScore;
+        }
+        const score = boostedWords.reduce((ac, it)=> ac + getWordScore(it), 0);
+        return {words: boostedWords, score: score};
     }
 
     checkInput(inputLetters: Array<FieldLetter>){
@@ -332,7 +392,7 @@ export class Game{
             this.letters.push(letter);
         });
         this.inputLetters = [];
-
+        this.onWordSubmitted(wordScore);
         this.addLetters();
         this.turnNextPlayer();
     }
@@ -558,30 +618,23 @@ export class Game{
         return {field, bounds};
     }
 
+    getBoosterAt(x: number, y: number){
+        const periodicY = (y - 5 + 1000) % this.pattern.length;
+        const periodicX = (x - 4 + 1000) % this.pattern[0].length;
+        return this.pattern[periodicY][periodicX];
+    }
+
     boosterToMap(){
-        const pattern = [
-            '-1----3----1',
-            '---2-----2--',
-            '--3--3-3--3-',
-            '3---2---2---',
-            '---3-1-1-3--',
-            '23----4----3',
-            '---3-1-1-3--',
-            '3---2---2---',
-            '--3--3-3--3-',
-            '---2-----2--',
-            '-1----3----1',
-            '--2---2---2-',
-        ];
         const bounds = this.getLettersBounds();
-        //console.log(bounds);
-        const field: Array<Array<string>>= new Array(bounds.bottom - bounds.top + 1).fill(null).map((row, rowIndex)=> new Array(bounds.right - bounds.left + 1).fill('').map((cell, cellIndex)=>{
+        const fieldHeight = bounds.bottom - bounds.top + 1;
+        const fielWidth = bounds.right - bounds.left + 1;
+        const field: Array<Array<string>>= new Array(fieldHeight).fill(null).map((row, rowIndex)=> new Array(fielWidth).fill('').map((cell, cellIndex)=>{
             const y = rowIndex + bounds.top;
             const x = cellIndex + bounds.left;
             if (x == 0 && y==0){
                 return 'start'
             }
-            return pattern[(y - 5 + 1000) % pattern.length][(x - 4 + 1000) % pattern[0].length];
+            return this.getBoosterAt(x, y);
             /*if (((x - y) % 12 == 0 || (y + x) % 12 == 0) && ((x + 1 )% 6==0 || (y + 1)% 6==0 || (y - 1 )% 6==0)){
                 return '2w'
             }

@@ -1,6 +1,6 @@
 import React, { MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
 import './app.css';
-import { Game } from "./core/game";
+import { Game, IBoostedWord } from "./core/game";
 import { BankLetter } from "./core/bankLetter";
 import { LetterPanel } from "./components/letterPanel";
 import { LetterList } from "./components/letterList";
@@ -22,8 +22,7 @@ export function App(){
     const [ghostPosition, setGhostPosition] = useState<{x: number, y: number}>(null);
     const [showLetterList, setShowLetterList] = useState(false);
     const [shownScoreData, setShownScoreData] = useState<{
-        mainWord: FieldLetter[];
-        sideWords: FieldLetter[][];
+        words: IBoostedWord[]
         score: number;
     }>(null);
     const [showOptions, setShowOptions] = useState(false);
@@ -41,9 +40,9 @@ export function App(){
                 clearInterval(lastScoreTimerId);
             }
             setShownScoreData(scoreData);
-            setTimeout(()=>{
-                setShownScoreData(null);
-            }, 2000);
+           // setTimeout(()=>{
+           //     setShownScoreData(null);
+           // }, 6000);
         }
         _game.onFinish = ()=>{
             console.log('finished');
@@ -119,7 +118,7 @@ export function App(){
             <button className="showOptions_button" onClick={()=>{
                 setShowOptions(true);
             }}>settings</button>
-            {shownScoreData && <WordResult scoreData={shownScoreData}></WordResult>}
+            {shownScoreData && <WordResult scoreData={shownScoreData} onAnimated={()=> setShownScoreData(null)}></WordResult>}
             {game && <PlayerList players={game.players} currentPlayerIndex={game.currentPlayerIndex}></PlayerList>}
             <LetterListOpenButton onClick={()=>{setShowLetterList(true);}} count={game?.bank.letters.length || 0}></LetterListOpenButton>
             {showLetterList && <LetterList letters={game?.bank.getLetterCounts() || {}} onClose={()=>{setShowLetterList(false);}}></LetterList>}

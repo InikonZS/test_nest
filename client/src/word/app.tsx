@@ -54,8 +54,8 @@ export function App(){
             _game.destroy();
         }
     }, [gameOptions]);
-    const letterMap = game?.lettersToMap();
-    const boosterMap = game?.boosterToMap();
+    const letterMap = useMemo(()=>game?.lettersToMap(), [game?.inputLetters.length, game?.letters.length]);
+    const boosterMap = useMemo(()=>game?.boosterToMap(), [game?.inputLetters.length, game?.letters.length]);
     const fieldScroll = useRef<HTMLDivElement>();
     return (
         <>  <div className="field_scroll" ref={fieldScroll}>
@@ -115,7 +115,7 @@ export function App(){
             </div>
             {gameResult && <GameResult game={game} onPlayAgain={()=>{setGameResult(null); setGameOptions({...gameOptions});}}></GameResult>}
             {showOptions && <OptionsPopup onClose={()=>{setShowOptions(false)}} onSubmit={(data)=>{setGameOptions(data); setShowOptions(false)}} initialOptions={gameOptions}/>}
-            <button className="showOptions_button" onClick={()=>{
+            <button className="default_button showOptions_button" onClick={()=>{
                 setShowOptions(true);
             }}>settings</button>
             {shownScoreData && <WordResult scoreData={shownScoreData} onAnimated={()=> setShownScoreData(null)}></WordResult>}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {Game} from '../core/game';
 import { Player } from './player';
 import { BankLetter } from '../core/bankLetter';
@@ -14,6 +14,8 @@ interface ILetterPanelProps{
 
 export function LetterPanel({game, selected, onSelect, onFix, playerLetterMove, onPlayerLetterMove}: ILetterPanelProps){
     //const [playerLetterMove, setPlayerLetterMove] = useState('');
+
+    const score = useMemo(()=>game ? game.checkInput(game.inputLetters)?.score : 0, [JSON.stringify(game?.inputLetters)]);
 
     return (
         <div className="control_panel">
@@ -51,19 +53,19 @@ export function LetterPanel({game, selected, onSelect, onFix, playerLetterMove, 
                 })}
             </div> 
             <div className="controlButtons_list">
-                <button onClick={()=>{
+                <button className={`default_button ${!score ? 'default_button_inactive' : ''}`} onClick={()=>{
                     game.submitWord();
                     onFix();
-                }}>submit word {game ? (game.checkInput(game.inputLetters) && 'ok'): ''}</button>
-                <button onClick={()=>{
+                }}>submit {score ? score : ''}</button>
+                <button className={`default_button ${!(game && game.inputLetters.length) ? 'default_button_inactive' : ''}`} onClick={()=>{
                     game.resetInput();
                     onFix();
                 }}>reset</button>
-                <button onClick={()=>{
+                <button className={"default_button"} onClick={()=>{
                     game.scanField();
                     onFix();
                 }}>scan</button>
-                <button onClick={()=>{
+                <button className={"default_button"} onClick={()=>{
                     game.finishBotTest();
                     onFix();
                 }}>test finish</button>

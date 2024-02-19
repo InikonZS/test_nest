@@ -46,7 +46,11 @@ export function WordResult({scoreData, onAnimated}: IWordResultProps){
                     return <div className='row wordResult_word'>
                         {boostedWord.word.map((boostedLetter, letterIndex)=>{
                             renderedLetterCount +=1;
-                            const cellClass = `cell cell_input ${animationStage=='show' ? 'cell_show': 'cell_shown'} ${(animationStage=='wordBoost' && boostedWord.wordBoosters[0]) ? (boostedWord.wordBoosters[0] == Boosters.doubleWord ? 'cell_boost_2w' : 'cell_boost_3w'): ''} ${(animationStage=='letterBoost' && boostedWord.wordBoosters[0]) ? (boostedWord.wordBoosters[0] == Boosters.doubleWord ? 'cell_boosted_2w' : 'cell_boosted_3w'): ''} ${(animationStage=='letterBoost' && boostedLetter.booster) ? (boostedLetter.booster == Boosters.doubleLetter ? 'cell_boost_2l' : 'cell_boost_3l'): ''} `;
+                            const shownClass = animationStage=='show' ? 'cell_show': 'cell_shown';
+                            const showBoostClass = (animationStage=='wordBoost' && boostedWord.wordBoosters[0]) ? (boostedWord.wordBoosters[0] == Boosters.doubleWord ? 'cell_boost_2w' : 'cell_boost_3w'): '';
+                            const showLetterBoostClass = (animationStage=='letterBoost' && boostedWord.wordBoosters[0]) ? (boostedWord.wordBoosters[0] == Boosters.doubleWord ? 'cell_boosted_2w' : 'cell_boosted_3w'): '';
+                            const shownLetterBoostClass = (animationStage=='letterBoost' && boostedLetter.booster) ? (boostedLetter.booster == Boosters.doubleLetter ? 'cell_boost_2l' : 'cell_boost_3l'): '';
+                            const cellClass = `cell cell_input ${shownClass} ${showBoostClass} ${showLetterBoostClass} ${shownLetterBoostClass}`;
                             return <div className={cellClass} style={{'--delay': `${(renderedLetterCount - 1)*delayLetters}ms`}}>{boostedLetter.letter.text}</div>;
                         })}
                     </div>

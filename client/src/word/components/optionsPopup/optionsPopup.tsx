@@ -29,8 +29,8 @@ export function OptionsPopup({initialOptions, onSubmit, onClose}: IOptionsPopupP
 
     return (
         <div className='optionsPopup_popup'>
-            <div>OPTIONS</div>
-            <div>Game mode:  </div>
+            <div className='optionsPopup_header'>OPTIONS</div>
+            <div className='optionsPopup_group_header'>Game mode:  </div>
             <div className='optionsPopup_select optionsPopup_mode_select'>
                 {Object.keys(modes).map((it: keyof typeof modes)=>{
                     return <button className={`select_button ${options.players == modes[it] ? 'select_button_active':''}`} onClick={()=>{
@@ -38,9 +38,9 @@ export function OptionsPopup({initialOptions, onSubmit, onClose}: IOptionsPopupP
                             return {...last, players: modes[it]}
                         })
                     }}>{it}</button>
-                })};
+                })}
             </div>
-            <div>Letters count: </div>
+            <div className='optionsPopup_group_header'>Letters count: </div>
             <div className='optionsPopup_select optionsPopup_letters_select'>
                 {Object.keys(counts).map((it: keyof typeof counts)=>{
                     return <button className={`select_button ${options.letters == counts[it] ? 'select_button_active':''}`} onClick={()=>{
@@ -48,13 +48,13 @@ export function OptionsPopup({initialOptions, onSubmit, onClose}: IOptionsPopupP
                             return {...last, letters: counts[it]}
                         })
                     }}>{it}</button>
-                })};
+                })}
             </div>
-            <div>
-                <button onClick={()=>{
+            <div className={'optionsPopup_buttons_group'}>
+                <button className={'default_button'} onClick={()=>{
                     onSubmit(options);
                 }}>apply</button>
-                <button onClick={()=>{
+                <button className={'default_button'} onClick={()=>{
                     onClose();
                 }}>cancel</button>
             </div>

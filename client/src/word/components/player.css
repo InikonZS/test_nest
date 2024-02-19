@@ -1,6 +1,11 @@
 .player_wrapper{
     background-color: #ffb928;
     border: 1px solid #0000;
+    border-radius: 3px;
+    padding: 2px 5px;
+    margin: 3px 0px;
+    display: flex;
+    min-width: 130px;
 }
 
 .player_wrapper_current{
@@ -9,13 +14,23 @@
 }
 
 .player_ava{
-
+    width: 30px;
+    height: 30px;
+    border-radius: 100%;
+    flex-shrink: 0;
+    border: 1px solid #fff;
+    margin: 3px;
+    margin-right: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
 }
 
 .player_name{
-
+    font-size: 12px;
 }
 
 .player_score{
-
+    font-size: 14px;
 }

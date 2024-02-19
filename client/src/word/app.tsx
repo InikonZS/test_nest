@@ -106,7 +106,7 @@ export function App(){
                         }
                     }}>
                         {cell?.text || ''}
-                        {<div className="cell_value">{cell?.value}</div>}
+                        {cell?.value && <div className="cell_value">{cell?.value}</div>}
                         {!cell?.text && <div>{{'-': '', '1': '3l', '2': '2w', '3': '2l', '4': '3w', 'start': '!!!'}[boosterMap[y][x]] || ''}</div>}
                     </div>
                 })}

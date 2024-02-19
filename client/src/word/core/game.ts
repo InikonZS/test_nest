@@ -3,6 +3,23 @@ import { Player } from "./player";
 import { Bank } from "./bank";
 import { BankLetter } from "./bankLetter";
 import { WordTools} from "./wordTools";
+import { IGameOptions } from "./interfaces";
+
+export enum Boosters {
+    doubleLetter = '3',
+    tripleLetter = '1',
+    doubleWord = '2',
+    tripleWord = '4',
+    none = ''
+}
+
+export type IBoostedWord = {
+    word: {
+        letter: FieldLetter;
+        booster: string;
+    }[];
+    wordBoosters: string[];
+}
 
 function binarySearch(items: Array<string | number>, value: string | number): number{
 
@@ -52,30 +69,66 @@ const testLetters = [
 ];
 
 export class Game{
-    players: Array<Player> = [new Player()];
+    players: Array<Player> = [];
     letters: Array<FieldLetter> = [...testLetters];
     currentPlayerIndex: number = 0;
     inputLetters: Array<FieldLetter> = [];
     bank: Bank;
     wordTools: WordTools;
-    constructor(){
-        this.bank = new Bank();
+    onWordSubmitted: (score: {
+        words: IBoostedWord[]
+        score: number;
+    })=>void;
+    onFinish: ()=>void;
+
+    pattern = [
+        '-1----3----1',
+        '---2-----2--',
+        '--3--3-3--3-',
+        '3---2---2---',
+        '---3-1-1-3--',
+        '23----4----3',
+        '---3-1-1-3--',
+        '3---2---2---',
+        '--3--3-3--3-',
+        '---2-----2--',
+        '-1----3----1',
+        '--2---2---2-',
+    ];
+
+    constructor(options: IGameOptions){
+        this.bank = new Bank(options.letters);
         this.wordTools = new WordTools();
+        this.players = new Array(options.players).fill(null).map(() =>new Player());
         this.addLetters();
     }
 
     addLetters(){
         const playerLetterLimit = 7;
         if (!this.bank.letters.length){
+            const player = this.currentPlayer;
+            if (this.currentPlayer.isLastMove){
+                this.currentPlayer.isFinished = true;
+            }
+            if (player.letters.length< playerLetterLimit && player.isLastMove == false && player.isFinished == false){
+                player.isLastMove = true;
+            }
+            if (player.letters.length == 0){
+                player.isFinished = true;
+            }
             return;
         }
         this.players.forEach(player=>{
             let breaker = 0;
             while (player.letters.length < playerLetterLimit && this.bank.letters.length && breaker < 1000) {
                 breaker++;
-                player.letters.push(this.bank.letters.pop());
+                player.letters.push(this.bank.letters.pop());   
+            }
+            if (player.letters.length< playerLetterLimit && player.isLastMove == false && player.isFinished == false){
+                player.isLastMove = true;
             }
         });
+        console.log(this.players);
     }
 
     getHorizontalWord(input: Array<FieldLetter>){
@@ -134,26 +187,56 @@ export class Game{
     }
 
     getWordScore(word:Array<FieldLetter>, sideWords: Array<Array<FieldLetter>>){
-        let score = word.reduce((ac, it) => ac + it.value, 0);
-        const result: {
-            mainWord: Array<FieldLetter>,
-            sideWords: Array<Array<FieldLetter>>,
-            score: number
-        } = {
-            mainWord: word,
-            sideWords: [],
-            score
+        const getBoosteredWord = (_word: Array<FieldLetter>)=>{
+            const wordBoosters: Array<string> = [];
+            const boostedLetters: Array<{letter: FieldLetter, booster: string}> = [];
+            _word.forEach(letter=>{
+                const booster = this.getBoosterAt(letter.x, letter.y);
+                if (booster == Boosters.doubleWord || booster == Boosters.tripleWord){
+                    wordBoosters.push(booster);
+                }
+                if (booster == Boosters.doubleLetter || booster == Boosters.tripleLetter){
+                    boostedLetters.push({letter: letter, booster: booster});
+                } else {
+                    boostedLetters.push({letter: letter, booster: Boosters.none});
+                }
+            })
+            return {word: boostedLetters, wordBoosters}
         }
+        //let score = word.reduce((ac, it) => ac + it.value, 0);
+
+        const boostedWords: Array<IBoostedWord> = [getBoosteredWord(word)];
+        //if (sideWords.length){ console.log('side', sideWords);}
         sideWords.forEach(it=>{
             const containsLetter = it.find(jt=> this.inputLetters.includes(jt));
             if (containsLetter){
-                score += it.reduce((ac, it) => ac + it.value, 0);
-                result.sideWords.push(it);
+                //score += it.reduce((ac, it) => ac + it.value, 0);
+                boostedWords.push(getBoosteredWord(it));
             }
         });
         //now score duplicate if letter related to both word
-        result.score = score;
-        return result;
+        //result.score = score;
+        const getWordScore = (_boosted: IBoostedWord)=>{
+            let wordScore = _boosted.word.reduce((ac, it) => {
+                let letterScore = it.letter.value;
+                if (it.booster == Boosters.doubleLetter){
+                    letterScore *= 2;
+                } else if (it.booster == Boosters.tripleLetter){
+                    letterScore *= 3;
+                }
+                return ac + letterScore;
+            }, 0);
+            _boosted.wordBoosters.forEach(booster=>{
+                if (booster == Boosters.doubleWord){
+                    wordScore *= 2;
+                } else if (booster == Boosters.tripleWord){
+                    wordScore *= 3;
+                }
+            });
+            return wordScore;
+        }
+        const score = boostedWords.reduce((ac, it)=> ac + getWordScore(it), 0);
+        return {words: boostedWords, score: score};
     }
 
     checkInput(inputLetters: Array<FieldLetter>){
@@ -183,29 +266,29 @@ export class Game{
             const includesAllInput = inputLetters.find(letter => !wordLetters.includes(letter)) == undefined;
             if (!includesAllInput){
                 console.log('not all input');
-                return false;
+                return null;
             }
 
             const checkWordResult = this.checkWord(wordLetters.map(it=>it.text).join(''));
             if (!checkWordResult){
                 console.log('rejected main word', checkWordResult);
-                return false;
+                return null;
             }
             
             const vericalWords = wordLetters.map(it=>this.getVerticalWord([it])).filter(it=>it.length > 1);
             const checkVerticalResult = vericalWords.find(word=> this.checkWord(word.map(it=>it.text).join('')) == false);// == undefined;
             //console.log('ch res', wordLetters, vericalWords, checkVerticalResult);
             if (vericalWords.length && checkVerticalResult){
-                return false;
+                return null;
             }
             
             const isInitial = inputLetters.find(it=> it.x == 0 && it.y == 0);
             if (!isInitial && (!vericalWords.length && wordLetters.length == inputLetters.length)){
-                return false;
+                return null;
             }
 
-            console.log(this.getWordScore(wordLetters, vericalWords));
-            return true;
+            //console.log(this.getWordScore(wordLetters, vericalWords));
+            return this.getWordScore(wordLetters, vericalWords);
         }
 
         const checkVertical = ()=>{
@@ -213,39 +296,45 @@ export class Game{
             const includesAllInput = inputLetters.find(letter => !wordLetters.includes(letter)) == undefined;
             if (!includesAllInput){
                 console.log('not all input');
-                return false;
+                return null;
             }
 
             const checkWordResult = this.checkWord(wordLetters.map(it=>it.text).join(''));
             if (!checkWordResult){
                 console.log('rejected main word', checkWordResult);
-                return false;
+                return null;
             }
             const horizontalWords = wordLetters.map(it=>this.getHorizontalWord([it])).filter(it=>it.length > 1);
             
             const checkHorizontalResult = horizontalWords.find(word=> this.checkWord(word.map(it=>it.text).join('')) == false);// == undefined;
             //console.log('ch res h', wordLetters, horizontalWords, checkHorizontalResult);
             if (horizontalWords.length && checkHorizontalResult){
-                return false;
+                return null;
             }
             
             const isInitial = inputLetters.find(it=> it.x == 0 && it.y == 0);
             if (!isInitial && (!horizontalWords.length && wordLetters.length == inputLetters.length)){
-                return false;
+                return null;
             }
-            console.log(this.getWordScore(wordLetters, horizontalWords));
-            return true;
+            //console.log(this.getWordScore(wordLetters, horizontalWords));
+            return this.getWordScore(wordLetters, horizontalWords);
         }
+
+        let scoreResult = null
         
         if (horizontalCorrect){
-            horizontalCorrect = checkHorizontal();
+            const horizontalScore = checkHorizontal();
+            horizontalCorrect = horizontalScore != null;
+            scoreResult = horizontalScore;
         }
 
         if (verticalCorrect){
-            verticalCorrect = checkVertical();
+            const verticalScore = checkVertical()
+            verticalCorrect = verticalScore != null;
+            scoreResult = verticalScore;
         }
 
-        return horizontalCorrect || verticalCorrect;
+        return scoreResult;
     }
 
     finishBotTest(){
@@ -279,19 +368,45 @@ export class Game{
         }
     }
 
+    get currentPlayer(){
+        return this.players[this.currentPlayerIndex];
+    }
+
     botSubmit(inputSlots: Array<FieldLetter>){
+        
         inputSlots.forEach(slot=>{
            this.inputLetters.push(slot);
-           const hand = this.players[0].letters;
+           const hand = this.currentPlayer.letters;
            hand.splice(hand.findIndex(it=> it.id == slot.id), 1);
         });
+        
+        const wordScore = this.checkInput(this.inputLetters);  
+        if (!wordScore){
+            console.log('impossible case, incorrect bot move');
+            return;
+        };
+        this.players[this.currentPlayerIndex].score +=wordScore.score;
+        //this.onWordSubmitted(wordScore);
         
         this.inputLetters.forEach(letter=>{
             this.letters.push(letter);
         });
         this.inputLetters = [];
-
+        this.onWordSubmitted(wordScore);
         this.addLetters();
+        this.turnNextPlayer();
+    }
+
+    turnNextPlayer(){
+        if (!this.players.find(it=>!it.isFinished)){
+            this.onFinish();
+        }
+        this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
+        
+        if(this.currentPlayerIndex!=0){
+            //bot move;
+            this.scanField(); 
+        }
     }
 
     scanLine(row: number, handLettersLength: number, vertical: boolean){
@@ -355,7 +470,7 @@ export class Game{
                     }
                     candidateSlots.reverse();
                     //console.log(candidateSlots);
-                    const matchedWords = this.anagramChecker(candidateSlots.map(slot=> slot.text), this.players[0].letters);
+                    const matchedWords = this.anagramChecker(candidateSlots.map(slot=> slot.text), this.currentPlayer.letters);
                     //console.log('matched', matchedWords);
                     if (!matchedWords.length){
                         continue;
@@ -364,7 +479,7 @@ export class Game{
                     const getPreparedInput = (word: string)=>{
                         return candidateSlots.map((slot, index)=>{
                             if (slot.text) return null;
-                            const playerHand = [...this.players[0].letters];
+                            const playerHand = [...this.currentPlayer.letters];
                             //console.log(playerHand, word);
                             const foundPlayerLetterIndex = playerHand.findIndex(playerLetter=>{
                                 return playerLetter.text == word[index];
@@ -503,30 +618,23 @@ export class Game{
         return {field, bounds};
     }
 
+    getBoosterAt(x: number, y: number){
+        const periodicY = (y - 5 + 1000) % this.pattern.length;
+        const periodicX = (x - 4 + 1000) % this.pattern[0].length;
+        return this.pattern[periodicY][periodicX];
+    }
+
     boosterToMap(){
-        const pattern = [
-            '-1----3----1',
-            '---2-----2--',
-            '--3--3-3--3-',
-            '3---2---2---',
-            '---3-1-1-3--',
-            '23----4----3',
-            '---3-1-1-3--',
-            '3---2---2---',
-            '--3--3-3--3-',
-            '---2-----2--',
-            '-1----3----1',
-            '--2---2---2-',
-        ];
         const bounds = this.getLettersBounds();
-        //console.log(bounds);
-        const field: Array<Array<string>>= new Array(bounds.bottom - bounds.top + 1).fill(null).map((row, rowIndex)=> new Array(bounds.right - bounds.left + 1).fill('').map((cell, cellIndex)=>{
+        const fieldHeight = bounds.bottom - bounds.top + 1;
+        const fielWidth = bounds.right - bounds.left + 1;
+        const field: Array<Array<string>>= new Array(fieldHeight).fill(null).map((row, rowIndex)=> new Array(fielWidth).fill('').map((cell, cellIndex)=>{
             const y = rowIndex + bounds.top;
             const x = cellIndex + bounds.left;
             if (x == 0 && y==0){
                 return 'start'
             }
-            return pattern[(y - 5 + 1000) % pattern.length][(x - 4 + 1000) % pattern[0].length];
+            return this.getBoosterAt(x, y);
             /*if (((x - y) % 12 == 0 || (y + x) % 12 == 0) && ((x + 1 )% 6==0 || (y + 1)% 6==0 || (y - 1 )% 6==0)){
                 return '2w'
             }
@@ -554,47 +662,51 @@ export class Game{
         return field;
     }
     
-    public submitWord(){        
-        if (!this.checkInput(this.inputLetters)){
+    public submitWord(){    
+        const wordScore = this.checkInput(this.inputLetters);  
+        if (!wordScore){
             return;
         };
+        this.players[this.currentPlayerIndex].score +=wordScore.score;
+        this.onWordSubmitted(wordScore);
         this.inputLetters.forEach(letter=>{
             this.letters.push(letter);
         });
         this.inputLetters = [];
-
         this.addLetters();
+        this.turnNextPlayer();
     }
 
     public resetInput(){
         this.inputLetters.forEach(letter=>{
-            this.players[0].letters.push({id: letter.id, text: letter.text, value: letter.value});
+            this.currentPlayer.letters.push({id: letter.id, text: letter.text, value: letter.value});
         });
         this.inputLetters = [];
     }
 
     public moveOrRevertLetter(selected: BankLetter, _letterIndex: number){
         const game = this;
-        const playerLetterIndex = game.players[0].letters.findIndex(it=> it.id == selected.id);
+        const currentPlayer = this.currentPlayer;
+        const playerLetterIndex = currentPlayer.letters.findIndex(it=> it.id == selected.id);
         if (playerLetterIndex != -1){
-            const moved = game.players[0].letters[playerLetterIndex];
-            game.players[0].letters[playerLetterIndex] = null;
-            game.players[0].letters.splice(_letterIndex, 0, {id: moved.id, text: moved.text, value: moved.value});
-            game.players[0].letters = game.players[0].letters.filter(it=>it);
+            const moved = currentPlayer.letters[playerLetterIndex];
+            currentPlayer.letters[playerLetterIndex] = null;
+            currentPlayer.letters.splice(_letterIndex, 0, {id: moved.id, text: moved.text, value: moved.value});
+            currentPlayer.letters = currentPlayer.letters.filter(it=>it);
         } else {
             const letterIndex = game.inputLetters.findIndex(it=> it.id == selected.id);
             game.inputLetters.splice(letterIndex, 1);
             //console.log('up', _letterIndex);
-            game.players[0].letters.splice(_letterIndex, 0, {id: selected.id, text: selected.text, value: selected.value});//.push({id: selected.id, text: selected.text, value: selected.value});
+            currentPlayer.letters.splice(_letterIndex, 0, {id: selected.id, text: selected.text, value: selected.value});//.push({id: selected.id, text: selected.text, value: selected.value});
         }    
     }
 
     public letterToInput(selected: BankLetter, x: number, y: number){
         const bounds = this.getLettersBounds();
         const game = this;
-        const playerLetterIndex = game.players[0].letters.findIndex(it=> it.id == selected.id);
+        const playerLetterIndex = this.currentPlayer.letters.findIndex(it=> it.id == selected.id);
         if (playerLetterIndex != -1){
-            game.players[0].letters.splice(playerLetterIndex, 1);
+            this.currentPlayer.letters.splice(playerLetterIndex, 1);
         } else {
             const letterIndex = game.inputLetters.findIndex(it=> it.id == selected.id);
             game.inputLetters.splice(letterIndex, 1);

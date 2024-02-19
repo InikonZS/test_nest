@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {Game} from '../core/game';
 import { Player } from './player';
 import { BankLetter } from '../core/bankLetter';
@@ -8,10 +8,14 @@ interface ILetterPanelProps{
     selected: BankLetter,
     onSelect: (letter: BankLetter)=>void;
     onFix: ()=>void;
+    playerLetterMove: string;
+    onPlayerLetterMove: (letter: string)=>void;
 }
 
-export function LetterPanel({game, selected, onSelect, onFix}: ILetterPanelProps){
-    const [playerLetterMove, setPlayerLetterMove] = useState('');
+export function LetterPanel({game, selected, onSelect, onFix, playerLetterMove, onPlayerLetterMove}: ILetterPanelProps){
+    //const [playerLetterMove, setPlayerLetterMove] = useState('');
+
+    const score = useMemo(()=>game ? game.checkInput(game.inputLetters)?.score : 0, [JSON.stringify(game?.inputLetters)]);
 
     return (
         <div className="control_panel">
@@ -20,43 +24,48 @@ export function LetterPanel({game, selected, onSelect, onFix}: ILetterPanelProps
                     return (letter !== selected) && <div key={letter.id} className={`${playerLetterMove == letter.id ? 'cell_player_expand' : ''}`} 
                     onMouseMove={()=>{
                         if (selected){
-                            setPlayerLetterMove(letter.id);
+                            onPlayerLetterMove(letter.id);
                         }
                     }}
                     onMouseLeave={()=>{
                         if (selected){
-                            setPlayerLetterMove('');
+                            onPlayerLetterMove('');
+                        }
+                    }}
+                    onMouseEnter={()=>{
+                        if (selected){
+                            onPlayerLetterMove(selected.id);
                         }
                     }}
                     onMouseDown={()=>{
                         onSelect(letter);
-                        setPlayerLetterMove(game.players[0].letters[_letterIndex+1]?.id || letter.id);
+                        onPlayerLetterMove(game.players[0].letters[_letterIndex+1]?.id || letter.id);
                     }}
                     onMouseUp={()=>{
                         if (selected){
                             game.moveOrRevertLetter(selected, _letterIndex);
                             onFix();                        
                             onSelect(null);
-                            setPlayerLetterMove('');
+                            onPlayerLetterMove('');
                             
                         }}}
                     ><div className="cell cell_player">{letter.text}</div></div>
                 })}
             </div> 
             <div className="controlButtons_list">
-                <button onClick={()=>{
+                <button className={`default_button ${!score ? 'default_button_inactive' : ''}`} onClick={()=>{
                     game.submitWord();
                     onFix();
-                }}>submit word {game ? (game.checkInput(game.inputLetters) && 'ok'): ''}</button>
-                <button onClick={()=>{
+                }}>submit {score ? score : ''}</button>
+                <button className={`default_button ${!(game && game.inputLetters.length) ? 'default_button_inactive' : ''}`} onClick={()=>{
                     game.resetInput();
                     onFix();
                 }}>reset</button>
-                <button onClick={()=>{
+                <button className={"default_button"} onClick={()=>{
                     game.scanField();
                     onFix();
                 }}>scan</button>
-                <button onClick={()=>{
+                <button className={"default_button"} onClick={()=>{
                     game.finishBotTest();
                     onFix();
                 }}>test finish</button>

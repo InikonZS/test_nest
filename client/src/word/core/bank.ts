@@ -74,8 +74,8 @@ export function mixArray<T>(_items: Array<T>): Array<T> {
 export class Bank{
     letters: Array<BankLetter> = [];
 
-    constructor(){
-        const bank = bankFromFrequency(200, abc, frequency);
+    constructor(lettersCount: number){
+        const bank = bankFromFrequency(lettersCount, abc, frequency);
         bank.forEach(it=>{
             for (let i=0; i< it.count; i++){
                 this.letters.push({
@@ -86,5 +86,17 @@ export class Bank{
             }
         });
         this.letters = mixArray(this.letters);
+    }
+
+    getLetterCounts(){
+        const result: Record<string, number> = {};
+        this.letters.forEach((letter)=>{
+            if (result[letter.text]){
+                result[letter.text] += 1;
+            } else {
+                result[letter.text] = 1;
+            }
+        });
+        return result;
     }
 }

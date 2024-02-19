@@ -1,0 +1,51 @@
+.optionsPopup_popup{
+    position: absolute;
+    background-color: #ffe3a1;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: 2px solid #b8a785;
+    border-top: 2px solid #fff0d3;
+    border-left: 2px solid #fff0d3;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: #0004 2px 5px 8px;
+}
+
+.optionsPopup_header{
+    border-bottom: 1px solid #c48400;
+    color: #c48400;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.optionsPopup_group_header{
+    color: #c48400;
+    margin-bottom: 5px;
+}
+
+.optionsPopup_select{
+    margin-bottom: 10px;
+}
+
+.optionsPopup_buttons_group{
+    display: flex;
+    justify-content: center;
+    padding-top: 10px;
+}
+
+.select_button{
+    border: none;
+    background-color: rgb(252, 185, 91);
+    border-radius: 3px;
+    padding: 3px 5px;
+    margin: 2px;
+    cursor: pointer;
+}
+.select_button:first-child{
+    margin-left: 0px;
+}
+
+.select_button_active{
+    background-color: #ff6100;
+}

@@ -1,4 +1,4 @@
-import { words } from "./wordList";
+import { words } from "./wordListLong";
 
 export class WordTools{
     list: Array<string>;

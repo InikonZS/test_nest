@@ -1,0 +1,13 @@
+.playerList_wrapper{
+    position: absolute;
+    background-color: #ffe3a1;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 2px solid #b8a785;
+    border-top: 2px solid #fff0d3;
+    border-left: 2px solid #fff0d3;
+    right: 2px;
+    bottom: 2px;
+    box-shadow: #0004 2px 5px 8px;
+    user-select: none;
+}

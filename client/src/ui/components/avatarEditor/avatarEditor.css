@@ -1,0 +1,20 @@
+.avatarEditor_wrapper{
+    padding: 10px;
+    background-color: #000;
+    width: fit-content;
+    color: #fff;
+}
+
+.avatarEditor_fileInput{
+    display: none;
+}
+
+.avatarEditor_fileLabel{
+    display: flex;
+    width: fit-content;
+    color: #ccc;
+    background-color: #222;
+    padding: 5px 10px;
+    border-radius: 3px;
+    margin: 5px;
+}

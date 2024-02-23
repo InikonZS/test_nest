@@ -3,6 +3,7 @@
     background-color: #000;
     width: fit-content;
     color: #fff;
+    user-select: none;
 }
 
 .avatarEditor_fileInput{
@@ -17,4 +18,95 @@
     padding: 5px 10px;
     border-radius: 3px;
     margin: 5px;
+    width: 100px;
+    text-align: center;
+    justify-content: center;
+}
+.avatarEditor_fileLabel:hover{
+    background-color: #333;
+}
+
+.avatarEditor_canvas{
+    display: block;
+}
+
+.avatarEditor_canvas_area{
+    position: relative;
+}
+
+.avatarEditor_overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    
+    text-shadow: #000 1px 1px 1px, #000 -1px -1px 1px;
+}
+
+.avatarEditor_overlay_drop{
+    background-color: #fff5;
+    outline: 2px #0f0 solid;
+}
+
+.avatarEditor_overlay_drag{
+    background-color: #fff3;
+    outline: 2px #ff0 solid;
+}
+
+.avatarEditor_overlay_empty{
+
+}
+
+.avatarEditor_scaleBlock{
+    display: flex;
+    width: 100%;
+    align-items: center;
+}
+
+.avatarEditor_buttonsBlock{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+}
+
+.avatarEditor_scaleRange{
+    display: block;
+    width: 100%;
+    margin-top: 7px;
+    margin-left: 7px;
+}
+
+.avatarEditor_submitButton{
+    display: flex;
+    width: fit-content;
+    color: #fff;
+    background-color: #f50;
+    padding: 5px 10px;
+    border-radius: 3px;
+    margin: 5px;
+    border: none;
+    font-family: inherit;
+    font-size: inherit;
+    width: 100px;
+    text-align: center;
+    justify-content: center;
+}
+
+.avatarEditor_submitButton_inactive{
+    color: #666;
+    background-color: #222;
+}
+
+.avatarEditor_submitButton:hover{
+    background-color: rgb(255, 116, 47);
+}
+
+.avatarEditor_submitButton_inactive:hover{
+    color: #666;
+    background-color: #222;
 }

@@ -16,16 +16,17 @@ export class Game{
     car: Car;
     onChange: ()=>void;
     constructor(){
-        this.addAnimal();
+        this.addAnimal(0);
         const factory = new FactoryEgg0(this);
         factory.onFinish=()=>{this.onChange()}
         const factory1 = new FactoryEgg1(this);
         factory1.onFinish=()=>{this.onChange()}
         this.factories.push(factory, factory1);
         this.car = new Car(this);
+        this.water = new Water(this);
     }
 
-    addAnimal(){
+    addAnimal(index: number){
         const animal = new Animal();
         animal.onPositionChange = ()=>{
             this.onChange();

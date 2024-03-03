@@ -1,0 +1,113 @@
+.wf_gameScreen{
+    position: relative;
+    width: 800px;
+    height: 600px; 
+    background-color: #43723f;
+}
+
+.wf_animalsPanel{
+    background-color: #6e92ff;
+    display: flex;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 50px;
+}
+.wf_addAnimal_item{
+    margin: 5px;
+    padding: 5px;
+    background-color: #0040ff;
+}
+.wf_movingPanel{
+    background-color: #6e92ff;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 200px;
+    height: 50px;
+}
+.wf_movingCar{
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #0040ff;
+    bottom: 5px;
+    left: 0px;
+}
+.wf_centralZone{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 300px;
+}
+
+.wf_animalsZone{
+    background-color: #ba9658;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - 2 * 80px);
+    height: 100%;
+}
+
+.wf_factorySlot{
+    background-color: #a67d36;
+    position: absolute;
+    width: 80px;
+    height: 80px;
+}
+
+.wf_factorySlot_1{
+    left: 0%;
+    top: 0%;
+    transform: translate(0%, 0%);
+}
+.wf_factorySlot_2{
+    left: 0%;
+    top: 50%;
+    transform: translate(0%, -50%);
+}
+.wf_factorySlot_3{
+    left: 0%;
+    top: 100%;
+    transform: translate(0%, -100%);
+}
+.wf_factorySlot_4{
+    right: 0%;
+    top: 0%;
+    transform: translate(0%, 0%);
+}
+.wf_factorySlot_5{
+    right: 0%;
+    top: 50%;
+    transform: translate(0%, -50%);
+}
+.wf_factorySlot_6{
+    right: 0%;
+    top: 100%;
+    transform: translate(0%, -100%);
+}
+
+.wf_waterSlot{
+    left: 50%;
+    top: -40%;
+    transform: translate(-50%, 40%);
+}
+.wf_carSlot{
+    left: 20%;
+    top: 140%;
+    transform: translate(-20%, -140%);
+}
+.wf_planeSlot{
+    left: 80%;
+    top: 140%;
+    transform: translate(-80%, -140%);
+}
+.wf_storageSlot{
+    left: 50%;
+    top: 140%;
+    transform: translate(-50%, -140%);
+}

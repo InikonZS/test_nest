@@ -1,0 +1,10 @@
+.wf_storage{
+    display: flex;
+}
+
+.wf_storage_item{
+    width: 10px;
+    height: 10px;
+    background-color: #090;
+    margin: 3px;
+}

@@ -9,6 +9,7 @@ import { Factory, FactoryEgg0, FactoryEgg1 } from './factory';
 export class Game{
     animals: Array<Animal> = [];
     items: Array<Collectable> = [];
+    grass: Array<Grass> = [];
     storage: Storage = new Storage();
     factories: Array<Factory> = [];
     money: number = 0;
@@ -24,6 +25,9 @@ export class Game{
         this.factories.push(factory, factory1);
         this.car = new Car(this);
         this.water = new Water(this);
+        this.water.onUpdate = ()=>{
+            this.onChange();
+        }
     }
 
     addAnimal(index: number){
@@ -46,6 +50,11 @@ export class Game{
 
     startFactory(factory: Factory){
         factory.startFactory();
+        this.onChange();
+    }
+
+    makeGrass(x: number, y: number){
+        this.water.makeGrass({x, y});
         this.onChange();
     }
 }

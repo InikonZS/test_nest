@@ -8,6 +8,7 @@ import { Water } from "../water/water";
 import { Car } from "../car/car";
 import { Storage } from "../storage/storage";
 import { CarPopup } from "../carPopup/carPopup";
+import { Grass } from "../grass/grass";
 
 interface IGameScreenProps{
     gameModel: Game;
@@ -34,12 +35,20 @@ export function GameScreen({gameModel, onCarPopupShow}: IGameScreenProps){
             </div>
         </div>
         <div className="wf_centralZone">
-            <div className="wf_animalsZone">
+            <div className="wf_animalsZone" onClick={(e)=>{
+                if ((e.target as HTMLElement).className == 'wf_animalsZone'){
+                   gameModel.makeGrass(e.nativeEvent.offsetX, e.nativeEvent.offsetY); 
+                }
+                
+            }}>
             {gameModel.animals.map(animal=>{
                 return <Animal animalData={animal}></Animal>
             })}
             {gameModel.items.map(item=>{
                 return <Collectable itemData= {item} onCollect={()=>{gameModel.collect(item)}}></Collectable>
+            })}
+            {gameModel.grass.map(item=>{
+                return <Grass position={item.position}></Grass>
             })}
             </div>
             {

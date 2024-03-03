@@ -1,4 +1,8 @@
+import { IVector } from "./IVector";
+
 export class Grass{
-    constructor(){
+    position: IVector;
+    constructor(position: IVector){
+        this.position = position;
     }
 }

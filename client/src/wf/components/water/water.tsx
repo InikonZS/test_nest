@@ -9,8 +9,9 @@ interface IWaterProps{
 export function Water({waterModel}: IWaterProps){
     return <div className="wf_water">
         {waterModel.count} / {waterModel.maxCount}
-        {waterModel.count == 0 && <button onClick={()=>{
+        {waterModel.count == 0 && waterModel.isReloading == false && <button onClick={()=>{
             waterModel.reload();
         }}>reload</button>}
+        {waterModel.isReloading && 'reloading...'}
     </div>
 }

@@ -1,0 +1,36 @@
+.wf_wrapper{
+    width: 100%;
+    height: 100%;
+}
+
+.wf_field{
+    position: relative;
+    width: 100%;
+    height: 300px;
+}
+
+.wf_animal{
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #f00;
+    transition: 1s linear
+}
+
+.wf_item{
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #00f;
+}
+
+.wf_storage{
+    display: flex;
+}
+
+.wf_storage_item{
+    width: 10px;
+    height: 10px;
+    background-color: #090;
+    margin: 3px;
+}

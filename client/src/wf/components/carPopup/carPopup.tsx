@@ -13,8 +13,8 @@ export function CarPopup({ onClose, gameModel }: ICarPopupProps) {
     const storageSum = game ? countItems(game.storage.items) : {};
     const carSum = game ? countItems(game.car.items) : {};
 
-    return <div className="wf_carPopup">
-        <button className="wf_carPopup_close" onClick={onClose}>close</button>
+    return <div className="wf_basePopup wf_carPopup">
+        <button className="wf_basePopup_close wf_carPopup_close" onClick={onClose}>close</button>
         <div className="wf_carPopup_storageBlock">
             <div className="wf_carPopup_storageList">
                     {Object.keys(storageSum).map(it => {

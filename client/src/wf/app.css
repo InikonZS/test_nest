@@ -24,3 +24,20 @@
     height: 10px;
     background-color: #00f;
 }
+
+.wf_basePopup{
+    position: absolute;
+    padding: 10px;
+    background-color: #fff;
+    top: 0px;
+    left: 0px;
+    display: flex;
+    width: 500px;
+    height: 300px;
+}
+
+.wf_basePopup_close{
+    position: absolute;
+    top: 0;
+    right: 0;
+}

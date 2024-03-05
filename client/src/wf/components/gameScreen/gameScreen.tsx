@@ -13,9 +13,10 @@ import { Grass } from "../grass/grass";
 interface IGameScreenProps{
     gameModel: Game;
     onCarPopupShow: ()=>void;
+    onPlanePopupShow: ()=>void;
 }
 
-export function GameScreen({gameModel, onCarPopupShow}: IGameScreenProps){
+export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameScreenProps){
     return <div className="wf_gameScreen">
         <div className="wf_animalsPanel">
             {
@@ -70,7 +71,10 @@ export function GameScreen({gameModel, onCarPopupShow}: IGameScreenProps){
             }}>car 
                 <Car carModel={gameModel.car}></Car>
             </div>
-            <div className={`wf_factorySlot wf_planeSlot`}>plane</div>
+            <div className={`wf_factorySlot wf_planeSlot`} onClick={()=>{
+                onPlanePopupShow();
+            }}>plane
+            </div>
             <div className={`wf_factorySlot wf_storageSlot`}>
                 storage
                 <Storage storageModel={gameModel.storage}></Storage>

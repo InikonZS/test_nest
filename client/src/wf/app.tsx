@@ -5,6 +5,7 @@ import { Game } from './core/game';
 import { Collectable } from "./core/collectable";
 import { GameScreen } from "./components/gameScreen/gameScreen";
 import { CarPopup } from "./components/carPopup/carPopup";
+import { PlanePopup } from "./components/planePopup/planePopup";
 
 export function App(){
     const [game, setGame] = useState<Game>(null);
@@ -20,10 +21,16 @@ export function App(){
 
     return <div className="wf_wrapper">
         {
-            game && <GameScreen gameModel={game} onCarPopupShow={()=>setShowCarPopup(true)}></GameScreen>
+            game && <GameScreen gameModel={game}
+                onCarPopupShow={()=>setShowCarPopup(true)}
+                onPlanePopupShow={()=>setShowPlanePopup(true)}
+            ></GameScreen>
         }
         {
             showCarPopup && <CarPopup gameModel={game} onClose={()=>setShowCarPopup(false)}></CarPopup>
+        }
+        {
+            showPlanePopup && <PlanePopup gameModel={game} onClose={()=>setShowPlanePopup(false)}></PlanePopup>
         }
     </div>
 }

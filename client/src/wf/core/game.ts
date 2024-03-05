@@ -4,6 +4,7 @@ import { Car } from './car';
 import { Water } from './water';
 import { Grass } from './grass';
 import { Storage } from './storage';
+import { Plane } from './plane';
 import { Factory, factories} from './factory';
 
 export class Game{
@@ -15,6 +16,7 @@ export class Game{
     money: number = 1000;
     water: Water;
     car: Car;
+    plane: Plane;
     availableAnimals = animals;
     onChange: ()=>void;
 
@@ -26,6 +28,7 @@ export class Game{
         factory1.onFinish=()=>{this.onChange()}
         this.factories.push(factory, factory1);
         this.car = new Car(this);
+        this.plane = new Plane(this);
         this.water = new Water(this);
         this.water.onUpdate = ()=>{
             this.onChange();

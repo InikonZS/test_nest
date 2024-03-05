@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import './carPopup.css';
 import { Game } from "../../core/game";
 import {countItems} from "../../core/utils";
+import { ProductSlot } from "../productSlot/productSlot";
 
 interface ICarPopupProps {
     onClose: () => void;

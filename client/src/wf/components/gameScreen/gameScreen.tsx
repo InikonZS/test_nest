@@ -19,11 +19,12 @@ export function GameScreen({gameModel, onCarPopupShow}: IGameScreenProps){
     return <div className="wf_gameScreen">
         <div className="wf_animalsPanel">
             {
-                [1,2,3,4,5,6].map((it, i)=>{
-                    return <div className="wf_addAnimal_item" onClick={()=>{
-                        gameModel.addAnimal(i);
+                Object.keys(gameModel.availableAnimals).map((id: keyof typeof gameModel.availableAnimals)=>{
+                    return <div className={`wf_addAnimal_item ${gameModel.checkSum(gameModel.availableAnimals[id].price) ? '' : 'wf_addAnimal_item_disabled'}`} onClick={()=>{
+                        gameModel.addAnimal(id);
                     }}>
-                        add {it}
+                        <div> add {id}</div> 
+                        <div> price: {gameModel.availableAnimals[id].price}</div>
                     </div>
                 })
             }

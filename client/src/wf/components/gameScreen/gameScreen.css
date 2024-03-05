@@ -18,6 +18,9 @@
     padding: 5px;
     background-color: #0040ff;
 }
+.wf_addAnimal_item_disabled{
+    background-color: #afc2ff;
+}
 .wf_movingPanel{
     background-color: #6e92ff;
     position: absolute;

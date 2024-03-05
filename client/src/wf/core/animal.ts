@@ -1,16 +1,37 @@
 import { IVector } from './IVector';
+import { collectables } from './collectable';
+
+export const animals = {
+    chicken: {
+        type: 'chicken',
+        price: 100,
+        emitted: 'egg0'
+    },
+    pig: {
+        type: 'pig',
+        price: 1000,
+        emitted: 'meat0'
+    },
+    cow: {
+        type: 'cow',
+        price: 10000,
+        emitted: 'milk0'
+    },
+}
 
 export class Animal{
     position: IVector;
     lastPosition: IVector;
     onPositionChange: ()=>void;
-    onObjectEmit: ()=>void;
+    onObjectEmit: (index: keyof typeof collectables)=>void;
     totalDist = 0;
+    type: keyof typeof animals;
 
-    constructor(){
+    constructor(type: string){
         this.position = {x: Math.random() * 300, y: Math.random() * 300};
         this.lastPosition = {...this.position};
         this.startLogicTimer();
+        this.type = (type) as keyof typeof animals;
     }
 
     startLogicTimer(){
@@ -29,7 +50,7 @@ export class Animal{
                 console.log('td ', this.totalDist)
                 if (this.totalDist>1000){
                     this.totalDist = 0;
-                    this.onObjectEmit();
+                    this.onObjectEmit(animals[this.type].emitted as keyof typeof collectables);
                 }
                 update(dist * 5);
             }, time);  

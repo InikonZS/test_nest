@@ -4,4 +4,47 @@
     background-color: #fff;
     top: 0px;
     left: 0px;
+    display: flex;
+    width: 500px;
+    height: 300px;
+}
+
+.wf_carPopup_close{
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.wf_carPopup_storageBlock{
+    width: 100%;
+}
+
+.wf_carPopup_storageList{
+
+}
+
+.wf_carPopup_storageItem{
+    display: flex;
+}
+                    
+.wf_carPopup_carBlock{
+    width: 100%;
+}
+
+.wf_carPopup_carList{
+
+}
+
+.wf_carPopup_carItem{
+    display: flex;
+}
+
+.wf_carPopup_slots{
+    display: flex;
+}
+
+.wf_carPopup_slot{
+    width: 30px;
+    height: 30px;
+    border: 1px solid;
 }

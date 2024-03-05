@@ -1,10 +1,10 @@
-import { Animal } from './animal';
+import { Animal, animals } from './animal';
 import { Collectable } from './collectable';
 import { Car } from './car';
 import { Water } from './water';
 import { Grass } from './grass';
 import { Storage } from './storage';
-import { Factory, FactoryEgg0, FactoryEgg1 } from './factory';
+import { Factory, factories} from './factory';
 
 export class Game{
     animals: Array<Animal> = [];
@@ -12,15 +12,17 @@ export class Game{
     grass: Array<Grass> = [];
     storage: Storage = new Storage();
     factories: Array<Factory> = [];
-    money: number = 0;
+    money: number = 1000;
     water: Water;
     car: Car;
+    availableAnimals = animals;
     onChange: ()=>void;
+
     constructor(){
-        this.addAnimal(0);
-        const factory = new FactoryEgg0(this);
+        this.addAnimal('chicken');
+        const factory = new Factory(this, factories['f_egg0'], 1);
         factory.onFinish=()=>{this.onChange()}
-        const factory1 = new FactoryEgg1(this);
+        const factory1 = new Factory(this, factories['f_egg1'], 1);
         factory1.onFinish=()=>{this.onChange()}
         this.factories.push(factory, factory1);
         this.car = new Car(this);
@@ -30,13 +32,21 @@ export class Game{
         }
     }
 
-    addAnimal(index: number){
-        const animal = new Animal();
+    checkSum(sum: number){
+        return sum<this.money;
+    }
+
+    addAnimal(type: keyof typeof animals){
+        if (this.money < animals[type].price){
+            return;
+        }
+        this.money -= animals[type].price;
+        const animal = new Animal(type);
         animal.onPositionChange = ()=>{
             this.onChange();
         }
-        animal.onObjectEmit = ()=>{
-            this.items.push(new Collectable('egg0', animal.lastPosition));
+        animal.onObjectEmit = (type)=>{
+            this.items.push(new Collectable(type, animal.lastPosition));
             this.onChange();
         }
         this.animals.push(animal);

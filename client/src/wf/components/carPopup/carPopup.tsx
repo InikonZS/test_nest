@@ -14,34 +14,43 @@ export function CarPopup({ onClose, gameModel }: ICarPopupProps) {
     const carSum = game ? countItems(game.car.items) : {};
 
     return <div className="wf_carPopup">
-        <button onClick={onClose}>close</button>
-        <div>
-            {Object.keys(storageSum).map(it => {
-                return <div>
-                    <div>{it} - {storageSum[it]}</div>
-                    <button onClick={() => {
-                        const items = game.storage.items.filter(jt => jt.type == it);
-                        game.storage.items = game.storage.items.filter(jt => jt != items[0])
-                        game.car.items.push(items[0]);
-                    }}>add 1</button>
-                    <button onClick={() => {
-                        const items = game.storage.items.filter(jt => jt.type == it);
-                        game.storage.items = game.storage.items.filter(jt => !items.includes(jt));
-                        game.car.items = [...game.car.items, ...items];
-                    }}>add all</button>
+        <button className="wf_carPopup_close" onClick={onClose}>close</button>
+        <div className="wf_carPopup_storageBlock">
+            <div className="wf_carPopup_storageList">
+                    {Object.keys(storageSum).map(it => {
+                        return <div className="wf_carPopup_storageItem">
+                            <div>{it} - {storageSum[it]}</div>
+                            <button onClick={() => {
+                                const items = game.storage.items.filter(jt => jt.type == it);
+                                game.storage.items = game.storage.items.filter(jt => jt != items[0])
+                                game.car.items.push(items[0]);
+                            }}>add 1</button>
+                            <button onClick={() => {
+                                const items = game.storage.items.filter(jt => jt.type == it);
+                                game.storage.items = game.storage.items.filter(jt => !items.includes(jt));
+                                game.car.items = [...game.car.items, ...items];
+                            }}>add all</button>
+                        </div>
+                    })}
                 </div>
-            })}
         </div>
-        <div>
-
-            {Object.keys(carSum).map(it => {
-                return <div>
-                    <div>{it} - {carSum[it]}</div>
-                    <button onClick={() => {
-                    }}>remove</button>
-                </div>
-            })}
-
+        
+        <div className="wf_carPopup_carBlock">
+            <div className="wf_carPopup_carList">
+                {Object.keys(carSum).map(it => {
+                    return <div className="wf_carPopup_carItem">
+                        <div>{it} - {carSum[it]}</div>
+                        <button onClick={() => {
+                        }}>remove</button>
+                    </div>
+                })}
+            </div>
+            <div className="wf_carPopup_slots">
+                {gameModel.car.itemsAsSlots().map(slot=>{
+                    return <div className="wf_carPopup_slot">{slot.type} {slot.filled}</div>
+                })}
+            </div>
+            
             <button onClick={() => {
                 game.car.start();
             }}>sell</button>

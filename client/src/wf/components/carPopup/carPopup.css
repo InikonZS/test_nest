@@ -48,3 +48,10 @@
     height: 30px;
     border: 1px solid;
 }
+
+.wf_carPopup_storageItem_img{
+    width: 32px;
+    height: 32px;
+    background-repeat: no-repeat;
+    background-size: contain;
+}

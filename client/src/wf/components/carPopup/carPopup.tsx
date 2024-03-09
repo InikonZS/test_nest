@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import './carPopup.css';
 import { Game } from "../../core/game";
 import {countItems} from "../../core/utils";
 import { ProductSlot } from "../productSlot/productSlot";
+import { AssetsContext } from "../../assetsContext";
 
 interface ICarPopupProps {
     onClose: () => void;
@@ -10,6 +11,8 @@ interface ICarPopupProps {
 }
 
 export function CarPopup({ onClose, gameModel }: ICarPopupProps) {
+    const {assets} =  useContext(AssetsContext);
+    
     const game = gameModel;
     const storageSum = game ? countItems(game.storage.items) : {};
     const carSum = game ? countItems(game.car.items) : {};
@@ -20,6 +23,7 @@ export function CarPopup({ onClose, gameModel }: ICarPopupProps) {
             <div className="wf_carPopup_storageList">
                     {Object.keys(storageSum).map(it => {
                         return <div className="wf_carPopup_storageItem">
+                            <div className="wf_carPopup_storageItem_img" style={{'background-image': `url(${assets[it].objectUrl})`}}></div>
                             <div>{it} - {storageSum[it]}</div>
                             <button onClick={() => {
                                 const items = game.storage.items.filter(jt => jt.type == it);

@@ -3,4 +3,6 @@
     width: 10px;
     height: 10px;
     background-color: #00f; 
+    background-size: contain;
+    background-repeat: no-repeat;
 }

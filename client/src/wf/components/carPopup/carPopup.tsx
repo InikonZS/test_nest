@@ -52,7 +52,7 @@ export function CarPopup({ onClose, gameModel }: ICarPopupProps) {
             </div>
             <div className="wf_carPopup_slots">
                 {gameModel.car.itemsAsSlots().map(slot=>{
-                    return <div className="wf_carPopup_slot">{slot.type} {slot.filled}</div>
+                    return <ProductSlot onClick={()=>{}} count={slot.filled} maxCount={10} type={slot.type}></ProductSlot>
                 })}
             </div>
             

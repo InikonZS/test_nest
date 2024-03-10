@@ -101,7 +101,7 @@ export class Game{
         if (mission){
             mission.current+=1;
         }
-        if (mission.current>=mission.count){
+        if (mission && mission.current>=mission.count){
             mission.isCompleted = true;
         }
         this.onChange();

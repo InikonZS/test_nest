@@ -1,0 +1,13 @@
+.wf_car{
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+.wf_car_upgrade{
+    position: absolute;
+    top: 100%;
+    right: 0;
+}

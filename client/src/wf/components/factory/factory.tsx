@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import './factory.css';
 import { Factory as FactoryModel} from "../../core/factory";
+import { AssetsContext } from "../../assetsContext";
 
 interface IFactoryProps{
     onClick:()=>void;
@@ -8,7 +9,8 @@ interface IFactoryProps{
 }
 
 export function Factory({onClick, factoryModel}: IFactoryProps){
-    return <div className="wf_factory" onClick={onClick}>
+    const {assets} = useContext(AssetsContext);
+    return <div className="wf_factory" onClick={onClick} style={{backgroundImage: `url(${assets['factory_egg0'].objectUrl})`}}>
         <div>level:{factoryModel.level}</div>
         {factoryModel.isStarted ? 'started': 'run'}
         <div onClick={(e)=>{

@@ -82,6 +82,8 @@ export class Car{
     }
 
     upgrade(){
-        
+        if (this.level<3){
+            this.level+=1;
+        }
     }
 }

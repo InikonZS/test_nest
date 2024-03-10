@@ -20,14 +20,21 @@ import chicken from './assets/chicken.png';
 import pig from './assets/pig.png';
 import cow from './assets/cow.png';
 
-const assetList: Record<string, string> = {egg0, egg1, egg2, egg3, meal, meat0, meat1, meat2, meat3, pack, milk0, milk1, milk2, milk3, bottle, chicken, pig, cow};
+import car0 from './assets/car0.png';
+import car1 from './assets/car1.png';
+import car2 from './assets/car2.png';
+import car3 from './assets/car3.png';
+
+import factory_egg0 from './assets/factory_egg0.png';
+
+const assetList: Record<string, string> = {egg0, egg1, egg2, egg3, meal, meat0, meat1, meat2, meat3, pack, milk0, milk1, milk2, milk3, bottle, chicken, pig, cow, car0, car1, car2, car3, factory_egg0};
 
 export type IAssets = Record<string, {blob: Blob, objectUrl: string}>;
 export class AssetsLoader{
     assets: Record<string, {blob: Blob, objectUrl: string}> = {};
     load(){
         return Promise.all(Object.keys(assetList).map(assetKey=>{
-            fetch(assetList[assetKey]).then(response=>{
+            return fetch(assetList[assetKey]).then(response=>{
                 return response.blob();
             }).then(blob=>{
                 this.assets[assetKey] = {

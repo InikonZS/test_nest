@@ -11,7 +11,7 @@ interface IProductSlotProps {
 
 export function ProductSlot({onClick, count, maxCount, type}: IProductSlotProps) {
     const {assets} = useContext(AssetsContext);
-    return <div className="wf_productSlot" onClick={()=>onClick}>
+    return <div className="wf_productSlot" onClick={()=>onClick()}>
         <div className="wf_productSlot_image"  style={{'background-image': `url(${assets[type]?.objectUrl || ''})`}}></div>
         <div className="wf_productSlot_counts">
             {new Array(maxCount).fill(null).map((_, index)=>{

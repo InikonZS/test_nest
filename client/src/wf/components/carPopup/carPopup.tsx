@@ -27,13 +27,15 @@ export function CarPopup({ onClose, gameModel }: ICarPopupProps) {
                             <div>{it} - {storageSum[it]}</div>
                             <button onClick={() => {
                                 const items = game.storage.items.filter(jt => jt.type == it);
-                                game.storage.items = game.storage.items.filter(jt => jt != items[0])
-                                game.car.items.push(items[0]);
+                                /*game.storage.items = game.storage.items.filter(jt => jt != items[0])
+                                game.car.items.push(items[0]);*/
+                                game.car.addItems([items[0]]);
                             }}>add 1</button>
                             <button onClick={() => {
                                 const items = game.storage.items.filter(jt => jt.type == it);
-                                game.storage.items = game.storage.items.filter(jt => !items.includes(jt));
-                                game.car.items = [...game.car.items, ...items];
+                                //game.storage.items = game.storage.items.filter(jt => !items.includes(jt));
+                                //game.car.items = [...game.car.items, ...items];
+                                game.car.addItems(items);
                             }}>add all</button>
                         </div>
                     })}
@@ -51,8 +53,8 @@ export function CarPopup({ onClose, gameModel }: ICarPopupProps) {
                 })}
             </div>
             <div className="wf_carPopup_slots">
-                {gameModel.car.itemsAsSlots().map(slot=>{
-                    return <ProductSlot onClick={()=>{}} count={slot.filled} maxCount={10} type={slot.type}></ProductSlot>
+                {gameModel.car.itemsAsSlots.map((slot, slotIndex)=>{
+                    return <ProductSlot onClick={()=>{game.car.removeSlot(slotIndex); console.log('rm ', slotIndex)}} count={slot.filled} maxCount={10} type={slot.type}></ProductSlot>
                 })}
             </div>
             

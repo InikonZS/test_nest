@@ -66,10 +66,14 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameS
             <div className={`wf_factorySlot wf_waterSlot`}>water
                 <Water waterModel={gameModel.water}></Water>
             </div>
-            <div className={`wf_factorySlot wf_carSlot`} onClick={()=>{
-                onCarPopupShow();
-            }}>car 
-                <Car carModel={gameModel.car}></Car>
+            <div className={`wf_factorySlot wf_carSlot`} >
+                <Car carModel={gameModel.car} 
+                onCarClick={()=>{
+                    onCarPopupShow();
+                }} 
+                onUpgradeClick={()=>{
+                    gameModel.car.upgrade();
+                }}></Car>
             </div>
             <div className={`wf_factorySlot wf_planeSlot`} onClick={()=>{
                 onPlanePopupShow();

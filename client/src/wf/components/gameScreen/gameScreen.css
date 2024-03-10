@@ -114,3 +114,9 @@
     top: 140%;
     transform: translate(-50%, -140%);
 }
+
+.wf_missions{
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}

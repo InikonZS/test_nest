@@ -83,7 +83,16 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameS
                 storage
                 <Storage storageModel={gameModel.storage}></Storage>
             </div>
+            
         </div>
-        
+        <div className="wf_missions">
+            missions
+            {gameModel.missionTasks.map(mission=>{
+                return <div>
+                    {mission.type+' - '}
+                    {!mission.isCompleted ? (mission.current +' / '+ mission.count) : 'ok'}
+                </div>
+            })}
+        </div>
     </div>
 }

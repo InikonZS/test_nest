@@ -116,4 +116,10 @@ export class Game{
         this.water.makeGrass({x, y});
         this.onChange();
     }
+
+    destroy(){
+        this.animals.forEach(animal=>{
+            animal.destroy();
+        })
+    }
 }

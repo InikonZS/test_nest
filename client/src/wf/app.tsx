@@ -21,6 +21,9 @@ export function App(){
         const _game = new Game();
         _game.onChange=()=>(setFix(last=>last+1));
         setGame(_game);
+        return ()=>{
+            _game.destroy();
+        }
     }, []);
 
     useEffect(()=>{

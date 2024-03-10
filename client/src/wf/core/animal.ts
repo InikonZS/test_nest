@@ -26,6 +26,7 @@ export class Animal{
     onObjectEmit: (index: keyof typeof collectables)=>void;
     totalDist = 0;
     type: keyof typeof animals;
+    timerId: ReturnType<typeof setTimeout> = null;
 
     constructor(type: string){
         this.position = {x: Math.random() * 300, y: Math.random() * 300};
@@ -53,8 +54,13 @@ export class Animal{
                     this.onObjectEmit(animals[this.type].emitted as keyof typeof collectables);
                 }
                 update(dist * 5);
-            }, time);  
+            }, time); 
+            this.timerId = timerId; 
         }
         update(1000);
+    }
+
+    destroy(){
+        clearInterval(this.timerId);
     }
 }

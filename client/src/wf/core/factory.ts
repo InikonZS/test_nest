@@ -88,9 +88,11 @@ export class Factory{
         this.slotIndex = slotIndex;
     }
 
-    protected finish(){
+    protected finish(count: number){
         //todo: use all items to
-        this.game.items.push(new Collectable(this.config.to[0], {x: Math.random() * 300, y: Math.random() * 300}));
+        for (let i = 0; i<count; i++){
+            this.game.items.push(new Collectable(this.config.to[0], {x: Math.random() * 300, y: Math.random() * 300}));
+        }
         this.onFinish?.();
     }
     
@@ -99,15 +101,21 @@ export class Factory{
             return;
         }
         //todo: use all items from
-        const foundIndex = this.game.storage.items.findIndex(it=>it.type==this.config.from[0]);
-        const found = this.game.storage.items[foundIndex];
-        if (found){
-            this.game.storage.items.splice(foundIndex, 1);
+        //const foundIndex = this.game.storage.items.findIndex(it=>it.type==this.config.from[0]);
+        const configFrom = this.config.from;
+        const foundList = configFrom.map(from=>this.game.storage.items.filter(it=>it.type==from).slice(0, this.level + 1));
+        const minCount= Math.min(...foundList.map(it=>it.length));
+        const usedList: Collectable[] = foundList.map(list=> list.slice(0, minCount)).flat();
+       
+        //const found = this.game.storage.items[foundIndex];
+        if (minCount){
+            //this.game.storage.items.splice(foundIndex, 1);
+            this.game.storage.items = this.game.storage.items.filter(it=> !usedList.includes(it));
 
             this.isStarted = true;
             setTimeout(()=>{
                 this.isStarted = false;
-                this.finish();
+                this.finish(minCount);
             }, 2000);
         }
     }

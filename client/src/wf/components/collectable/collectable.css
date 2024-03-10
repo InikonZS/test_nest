@@ -1,8 +1,8 @@
 .wf_collectable{
    position: absolute;
-    width: 10px;
-    height: 10px;
-    background-color: #00f; 
+    width: 28px;
+    height: 28px;
+    background-color: transparent; 
     background-size: contain;
     background-repeat: no-repeat;
 }

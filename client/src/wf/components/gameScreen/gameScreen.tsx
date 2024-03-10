@@ -80,7 +80,6 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameS
             }}>plane
             </div>
             <div className={`wf_factorySlot wf_storageSlot`}>
-                storage
                 <Storage storageModel={gameModel.storage}></Storage>
             </div>
             

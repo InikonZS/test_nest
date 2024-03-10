@@ -6,5 +6,6 @@
     background-color: transparent;
     background-size: contain;
     background-repeat: no-repeat;
+    transition-property: transform, left, top;
  }
  

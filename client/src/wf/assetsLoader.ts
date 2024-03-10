@@ -25,9 +25,19 @@ import car1 from './assets/car1.png';
 import car2 from './assets/car2.png';
 import car3 from './assets/car3.png';
 
+import chicken_0 from './assets/chicken/chicken_0.png';
+import chicken_45 from './assets/chicken/chicken_45.png';
+import chicken_90 from './assets/chicken/chicken_90.png';
+import chicken_135 from './assets/chicken/chicken_135.png';
+import chicken_180 from './assets/chicken/chicken_180.png';
+import chicken_225 from './assets/chicken/chicken_225.png';
+import chicken_270 from './assets/chicken/chicken_270.png';
+import chicken_315 from './assets/chicken/chicken_315.png';
+
 import factory_egg0 from './assets/factory_egg0.png';
 
-const assetList: Record<string, string> = {egg0, egg1, egg2, egg3, meal, meat0, meat1, meat2, meat3, pack, milk0, milk1, milk2, milk3, bottle, chicken, pig, cow, car0, car1, car2, car3, factory_egg0};
+const chickenList: Record<string, string> = {chicken_0, chicken_45, chicken_90, chicken_135, chicken_180, chicken_225, chicken_270, chicken_315};
+const assetList: Record<string, string> = {egg0, egg1, egg2, egg3, meal, meat0, meat1, meat2, meat3, pack, milk0, milk1, milk2, milk3, bottle, chicken, pig, cow, car0, car1, car2, car3, factory_egg0, ...chickenList};
 
 export type IAssets = Record<string, {blob: Blob, objectUrl: string}>;
 export class AssetsLoader{

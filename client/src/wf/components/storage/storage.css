@@ -1,10 +1,18 @@
 .wf_storage{
     display: flex;
+    flex-wrap: wrap;
+    flex-direction: column-reverse;
+    height: 100%;
+    width: fit-content;
+    align-items: flex-start;
+    justify-content: flex-start;
 }
 
 .wf_storage_item{
     width: 10px;
     height: 10px;
-    background-color: #090;
-    margin: 3px;
+    background-color: #0009;
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin: 2px;
 }

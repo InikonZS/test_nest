@@ -112,7 +112,12 @@ export class Factory{
         if (minCount){
             //this.game.storage.items.splice(foundIndex, 1);
             this.game.storage.items = this.game.storage.items.filter(it=> !usedList.includes(it));
-
+            usedList.forEach((used, i)=>{
+                //console.log('i', i);
+               // setTimeout(()=>{
+                    this.game.flyItem(used, 'storage', 'f_'+this.slotIndex, i);  
+               // }, i * 100);  
+            });
             this.isStarted = true;
             this.timerId = setTimeout(()=>{
                 this.isStarted = false;

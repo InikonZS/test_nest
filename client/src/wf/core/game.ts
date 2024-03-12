@@ -24,7 +24,7 @@ export class Game{
     storage: Storage = new Storage();
     factories: Array<Factory> = new Array(6).fill(null);
     factoriesSlots: Array<Array<keyof typeof factories>> = defaultFactoriesSlots;
-    flyingItems: Array<{type: string, pathType: string, startPos: IVector}> = [];
+    flyingItems: Array<{flyingId: number, type: string, pathType: string, startPos: IVector | string, endPos: IVector | string, delay: number}> = [];
     _money: number = 1000;
     get money(){
         return this._money
@@ -68,7 +68,7 @@ export class Game{
 
     constructor(){
         this.addAnimal('chicken');
-        const factory = new Factory(this, factories['f_egg0'], 1);
+        const factory = new Factory(this, factories['f_egg0'], 0);
         factory.onFinish=()=>{this.onChange()}
         const factory1 = new Factory(this, factories['f_egg1'], 1);
         factory1.onFinish=()=>{this.onChange()}
@@ -135,15 +135,24 @@ export class Game{
         if (mission && mission.current>=mission.count){
             mission.isCompleted = true;
         }
-        const flying = {type:item.type, pathType:'', startPos: {...item.position}}
+        this.flyItem(item, {...item.position}, 'storage');
+        this.onChange();
+    }
+
+    /**
+     * 
+     * @param from storage | f_0 - f_5 or vector position as collectable
+     * @param to storage | f_0 - f_5  or vector position as collectable
+     */
+    flyItem(item: Collectable, from: IVector | string, to: IVector | string, delay = 0){
+        const flying = {flyingId: Date.now() + Math.random(), type:item.type, pathType:'', startPos: from, endPos: to, delay: delay}
         this.flyingItems.push(flying);
-        console.log('added, ', flying.startPos.x)
+        console.log('added, ', flying.flyingId, delay, flying.delay);
         setTimeout(()=>{
             this.flyingItems.splice(this.flyingItems.findIndex((it)=> it == flying), 1);
-            console.log('pliced ', flying.startPos.x);
+            //console.log('pliced ', flying.startPos.x);
             this.onChange();
-        }, 1000);
-        this.onChange();
+        }, 1000 + delay * 100);
     }
 
     startFactory(factory: Factory){

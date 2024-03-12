@@ -2,6 +2,35 @@ import { Collectable } from "./collectable";
 import { Game } from "./game";
 import { countItems } from "./utils";
 
+interface ICarConfig {
+    slotCount: number,
+    time: number,
+    price: number
+}
+
+const cars: Array<ICarConfig> = [
+    {
+        slotCount: 2,
+        time: 5,
+        price: 0,
+    },
+    {
+        slotCount: 3,
+        time: 4,
+        price: 100,
+    },
+    {
+        slotCount: 5,
+        time: 3,
+        price: 500,
+    },
+    {
+        slotCount: 7,
+        time: 2,
+        price: 2000
+    }
+]
+
 export class Car{
     isStarted: boolean = false;
     items: Array<Collectable> = [];

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import './gameScreen.css';
 import { Game } from "../../core/game";
 import { Animal } from "../animal/animal";
@@ -9,6 +9,9 @@ import { Car } from "../car/car";
 import { Storage } from "../storage/storage";
 import { CarPopup } from "../carPopup/carPopup";
 import { Grass } from "../grass/grass";
+import { factories } from "../../core/factory";
+import { IVector } from "../../core/IVector";
+import { AssetsContext } from "../../assetsContext";
 
 interface IGameScreenProps{
     gameModel: Game;
@@ -17,6 +20,23 @@ interface IGameScreenProps{
 }
 
 export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameScreenProps){
+    const centralZoneRef = useRef<HTMLDivElement>(null);
+    const centralRect = centralZoneRef.current?.getBoundingClientRect();
+    const animalsZoneRef = useRef<HTMLDivElement>(null);
+    const animalsRect = animalsZoneRef.current?.getBoundingClientRect();
+
+    const storageRef = useRef<HTMLDivElement>(null);
+    const storageRect = storageRef.current?.getBoundingClientRect();
+    const storagePos = storageRect && centralRect ? {x: storageRect.left - centralRect.left + storageRect.width/2, y: storageRect.top - centralRect.top + storageRect.height/2} : {x:0, y: 0};
+    
+    const getMotionPath = (start: IVector)=>{
+        const startPos = animalsRect ? {x: start.x + animalsRect.left - centralRect.left, y: start.y - animalsRect.top + centralRect.top}: {x:0, y: 0};
+        const centralPos = {x: centralRect.width/2, y: centralRect.height/2};//{x: (storagePos.x - startPos.x + 14) / 2 + startPos.x + Math.random() * 60 - 30, y: (storagePos.y  - startPos.y + 14) /2 + startPos.y + Math.random() * 60 - 30};
+        //console.log(startPos, centralPos, storagePos);
+        return `path("M${startPos.x + 14},${startPos.y + 14} Q${Math.floor(centralPos.x)},${Math.floor(centralPos.y)} ${Math.floor(storagePos.x)},${Math.floor(storagePos.y)}")`;
+    }
+    const {assets} =  useContext(AssetsContext);
+    //console.log(motionPath);
     return <div className="wf_gameScreen">
         <div className="wf_animalsPanel">
             {
@@ -36,8 +56,8 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameS
                 car
             </div>
         </div>
-        <div className="wf_centralZone">
-            <div className="wf_animalsZone" onClick={(e)=>{
+        <div ref={centralZoneRef} className="wf_centralZone">
+            <div ref={animalsZoneRef} className="wf_animalsZone" onClick={(e)=>{
                 if ((e.target as HTMLElement).className == 'wf_animalsZone'){
                    gameModel.makeGrass(e.nativeEvent.offsetX, e.nativeEvent.offsetY); 
                 }
@@ -54,12 +74,19 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameS
             })}
             </div>
             {
-                [1,2,3,4,5,6].map((it, i)=>{
-                    return <div className={`wf_factorySlot wf_factorySlot_${it}`}>
-                        factory{it}
-                        {gameModel.factories[i] ? <Factory factoryModel={gameModel.factories[i]} onClick={()=>{
-                            gameModel.startFactory(gameModel.factories[i])
+                gameModel.getAvailableFactories().map((slot, slotIndex)=>{
+                    const foundFactory = gameModel.factories[slotIndex];
+                    const slotVarians = gameModel.getAvailableFactories()[slotIndex];
+                    return <div className={`wf_factorySlot wf_factorySlot_${slotIndex + 1}`}>
+                        factory{slotIndex + 1}
+                        {foundFactory ? <Factory factoryModel={foundFactory} onClick={()=>{
+                            gameModel.startFactory(foundFactory)
                         }}></Factory> : ''}
+                        {slotVarians.map(variant=>{
+                            return <button onClick={()=>{
+                                gameModel.createFactory(variant, slotIndex);
+                            }}>{variant} {factories[variant].prices[0]}</button>
+                        })}
                     </div>
                 })
             }
@@ -79,10 +106,12 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameS
                 onPlanePopupShow();
             }}>plane
             </div>
-            <div className={`wf_factorySlot wf_storageSlot`}>
+            <div ref={storageRef} className={`wf_factorySlot wf_storageSlot`}>
                 <Storage storageModel={gameModel.storage}></Storage>
             </div>
-            
+            <div className="wf_flying_container">
+                {gameModel.flyingItems.map((item)=>{ return <div key={item.startPos.x+'_'+item.startPos.y} className={`wf_collectable wf_flying_item wf_flying_item_${item.pathType}`} style={{offsetPath: getMotionPath(item.startPos), 'background-image': `url(${assets[item.type].objectUrl})`}}></div>})}
+            </div>
         </div>
         <div className="wf_missions">
             missions

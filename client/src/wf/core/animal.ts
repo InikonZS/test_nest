@@ -48,7 +48,7 @@ export class Animal{
                 this.onPositionChange?.();
                 
                 this.totalDist+= Number.isNaN(dist) ? 0 : dist;
-                console.log('td ', this.totalDist)
+                //console.log('td ', this.totalDist)
                 if (this.totalDist>1000){
                     this.totalDist = 0;
                     this.onObjectEmit(animals[this.type].emitted as keyof typeof collectables);

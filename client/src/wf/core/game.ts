@@ -6,13 +6,25 @@ import { Grass } from './grass';
 import { Storage } from './storage';
 import { Plane } from './plane';
 import { Factory, factories} from './factory';
+import { IVector } from './IVector';
+
+const defaultFactoriesSlots = [
+    ['f_egg0', 'f_milk0'],
+    ['f_egg1', 'f_milk1'],
+    ['f_egg2', 'f_milk2'],
+    ['f_meat0', 'f_milk0'],
+    ['f_meat1', 'f_milk1'],
+    ['f_meat2', 'f_milk2']
+];
 
 export class Game{
     animals: Array<Animal> = [];
     items: Array<Collectable> = [];
     grass: Array<Grass> = [];
     storage: Storage = new Storage();
-    factories: Array<Factory> = [];
+    factories: Array<Factory> = new Array(6).fill(null);
+    factoriesSlots: Array<Array<keyof typeof factories>> = defaultFactoriesSlots;
+    flyingItems: Array<{type: string, pathType: string, startPos: IVector}> = [];
     _money: number = 1000;
     get money(){
         return this._money
@@ -60,7 +72,8 @@ export class Game{
         factory.onFinish=()=>{this.onChange()}
         const factory1 = new Factory(this, factories['f_egg1'], 1);
         factory1.onFinish=()=>{this.onChange()}
-        this.factories.push(factory, factory1);
+        this.factories[0] = factory;
+        this.factories[1] = factory1;
         this.car = new Car(this);
         this.plane = new Plane(this);
         this.water = new Water(this);
@@ -74,7 +87,25 @@ export class Game{
     }
 
     checkSum(sum: number){
-        return sum<this.money;
+        return sum<=this.money;
+    }
+
+    createFactory(variant: string, slotIndex: number){
+        const newFactory = new Factory(this, factories[variant], slotIndex);
+        const existingFactory = this.factories[slotIndex];
+        if (existingFactory){
+            existingFactory.destroy(); 
+        }
+        this.factories[slotIndex] = newFactory;
+        this.onChange();
+    }
+
+    getAvailableFactories(){
+        return this.factoriesSlots.map((slot, slotIndex)=>{
+            return slot.filter((variant)=>{
+                return variant !=this.factories[slotIndex]?.config.type;
+            });
+        })
     }
 
     addAnimal(type: keyof typeof animals){
@@ -104,6 +135,14 @@ export class Game{
         if (mission && mission.current>=mission.count){
             mission.isCompleted = true;
         }
+        const flying = {type:item.type, pathType:'', startPos: {...item.position}}
+        this.flyingItems.push(flying);
+        console.log('added, ', flying.startPos.x)
+        setTimeout(()=>{
+            this.flyingItems.splice(this.flyingItems.findIndex((it)=> it == flying), 1);
+            console.log('pliced ', flying.startPos.x);
+            this.onChange();
+        }, 1000);
         this.onChange();
     }
 

@@ -120,3 +120,29 @@
     right: 0;
     bottom: 0;
 }
+
+.wf_flying_container{
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+    pointer-events: none;
+}
+
+.wf_flying_item{
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    animation: flying 1s forwards linear;
+    offset-rotate: 0deg;
+}
+
+@keyframes flying{
+    0% {
+        offset-distance: 0%;
+    }
+    100% {
+        offset-distance: 100%;
+    }
+}

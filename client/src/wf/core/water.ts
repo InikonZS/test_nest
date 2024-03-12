@@ -2,6 +2,40 @@ import { IVector } from "./IVector";
 import { Game } from "./game";
 import { Grass } from "./grass";
 
+interface IWaterConfig {
+    maxCount: number,
+    reloadPrice: number,
+    reloadTime: number,
+    price: number,
+}
+
+const waters: Array<IWaterConfig> = [
+    {
+        maxCount: 5,
+        reloadPrice: 20,
+        reloadTime: 2,
+        price: 0
+    },
+    {
+        maxCount: 7,
+        reloadPrice: 15,
+        reloadTime: 2,
+        price: 150
+    },
+    {
+        maxCount: 10,
+        reloadPrice: 10,
+        reloadTime: 2,
+        price: 750
+    },
+    {
+        maxCount: 15,
+        reloadPrice: 10,
+        reloadTime: 1,
+        price: 2500
+    },
+];
+
 export class Water{
     count: number;
     maxCount = 5;

@@ -6,6 +6,30 @@ class StorageItem{
     }
 }
 
+interface IStorageConfig {
+    maxCount: number,
+    price: number
+}
+
+const storages: Array<IStorageConfig> = [
+    {
+        maxCount: 100,
+        price: 0
+    },
+    {
+        maxCount: 100,
+        price: 100
+    },
+    {
+        maxCount: 100,
+        price: 500
+    },
+    {
+        maxCount: 100,
+        price: 2000
+    },
+];
+
 export class Storage{
     items: Array<Collectable> = [];
     maxCount = 100;

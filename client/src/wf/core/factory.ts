@@ -81,6 +81,7 @@ export class Factory{
     config:IFactoryConfig;
     slotIndex: number;
     level = 0;
+    timerId: ReturnType<typeof setTimeout> = null;
 
     constructor(game: Game, config:IFactoryConfig, slotIndex: number){
         this.game = game;
@@ -113,7 +114,7 @@ export class Factory{
             this.game.storage.items = this.game.storage.items.filter(it=> !usedList.includes(it));
 
             this.isStarted = true;
-            setTimeout(()=>{
+            this.timerId = setTimeout(()=>{
                 this.isStarted = false;
                 this.finish(minCount);
             }, 2000);
@@ -127,5 +128,9 @@ export class Factory{
            this.game.money -= price;
         }
         this.game.onChange();
+    }
+
+    destroy(){
+        clearTimeout(this.timerId);
     }
 }

@@ -86,7 +86,7 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameS
                 
             }}>
             {gameModel.animals.map(animal=>{
-                return <Animal animalData={animal}></Animal>
+                return <Animal key={animal.id} animalData={animal}></Animal>
             })}
             {gameModel.items.map(item=>{
                 return <Collectable itemData= {item} onCollect={()=>{gameModel.collect(item)}}></Collectable>

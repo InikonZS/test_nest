@@ -113,7 +113,7 @@ export class Game{
             return;
         }
         this.money -= animals[type].price;
-        const animal = new Animal(type);
+        const animal = new Animal(this, type);
         animal.onPositionChange = ()=>{
             this.onChange();
         }

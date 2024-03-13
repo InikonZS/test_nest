@@ -65,7 +65,7 @@ export class Water{
             return;
         }
         this.count -=1;
-        for (let i=0; i< 3; i++){
+        for (let i=0; i< 7; i++){
             this.game.grass.push(new Grass({x: position.x + Math.random()* 20 - 10, y: position.y + Math.random()* 20 - 10}));
         }
         this.onUpdate();

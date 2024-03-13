@@ -1,3 +1,4 @@
+import { IVector } from './IVector';
 import { Collectable } from './collectable';
 
 export function countItems(items: Array< Collectable >): Record<string, number>{
@@ -10,4 +11,8 @@ export function countItems(items: Array< Collectable >): Record<string, number>{
         }
     })
     return storageSum;
+}
+
+export function getDist(a: IVector, b: IVector){
+    return Math.hypot(a.x - b.x, a.y - b.y);
 }

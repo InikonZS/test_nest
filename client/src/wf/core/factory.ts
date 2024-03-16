@@ -119,11 +119,22 @@ export class Factory{
                // }, i * 100);  
             });
             this.isStarted = true;
-            this.timerId = setTimeout(()=>{
+            this.tick(minCount);
+        }
+    }
+
+    protected tick(minCount: number){
+        this.timerId = setTimeout(()=>{
+            this.progress+=1;
+            if (this.progress >=10){
                 this.isStarted = false;
                 this.finish(minCount);
-            }, 2000);
-        }
+                this.progress = 0;
+            } else {
+                this.tick(minCount);
+            }
+            this.game.onChange();
+        }, 200)
     }
 
     upLevel(){

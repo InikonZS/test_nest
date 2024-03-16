@@ -1,5 +1,5 @@
 import { Animal, animals } from './animal';
-import { Collectable } from './collectable';
+import { Collectable, collectables } from './collectable';
 import { Car } from './car';
 import { Water } from './water';
 import { Grass } from './grass';
@@ -44,6 +44,9 @@ export class Game{
     car: Car;
     plane: Plane;
     availableAnimals = animals;
+    planeItems: Array<keyof typeof collectables> = [
+        'meal', 'pack', 'bottle'
+    ];
     missionTasks = [
         {
             type: 'egg0',
@@ -80,6 +83,10 @@ export class Game{
         this.water.onUpdate = ()=>{
             this.onChange();
         }
+    }
+
+    getPlaneItems(){
+        return this.planeItems.map(it=> collectables[it]);
     }
 
     checkMissionTasks(){

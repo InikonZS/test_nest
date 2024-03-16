@@ -16,6 +16,11 @@ export const collectables = {
         price: 100,
         size: 2
     },
+    egg3: {
+        type: 'egg3',
+        price: 250,
+        size: 2
+    },
 
     meat0: {
         type: 'meat0',
@@ -33,6 +38,12 @@ export const collectables = {
         size: 2
     },
 
+    meat3: {
+        type: 'meat2',
+        price: 2000,
+        size: 2
+    },
+
     milk0: {
         type: 'milk0',
         price: 1000,
@@ -45,7 +56,13 @@ export const collectables = {
     },
     milk2: {
         type: 'milk2',
-        price: 10000,
+        price: 4000,
+        size: 2
+    },
+
+    milk3: {
+        type: 'milk2',
+        price: 5000,
         size: 2
     },
 
@@ -68,12 +85,15 @@ export const collectables = {
 
 export class Collectable{
     position: IVector;
-    type: string;
-    price = 100;
-    size = 1;
+    type: keyof typeof collectables;
+    price: number;
+    size: number;
 
-    constructor(type: string, position: IVector){
+    constructor(type: keyof typeof collectables, position: IVector){
         this.position = {...position}
         this.type = type;
+        const config  = collectables[type];
+        this.price = config.price;
+        this.size = config.size;
     }
 }

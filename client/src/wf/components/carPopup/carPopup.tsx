@@ -58,6 +58,9 @@ export function CarPopup({ onClose, gameModel }: ICarPopupProps) {
                 })}
             </div>
             
+            <div className="wf_carPopup_totalSum">
+                {game.car.getTotalSum()}
+            </div>
             <button onClick={() => {
                 game.car.start();
             }}>sell</button>

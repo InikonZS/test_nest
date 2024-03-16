@@ -1,10 +1,10 @@
-import { Collectable } from "./collectable";
+import { Collectable, collectables } from "./collectable";
 import { Game } from "./game";
 
 interface IFactoryConfig {
     type: string,
-    from: Array<string>,
-    to: Array<string>,
+    from: Array<keyof typeof collectables>,
+    to: Array<keyof typeof collectables>,
     prices: Array<number>
 }
 

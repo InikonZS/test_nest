@@ -37,6 +37,37 @@
     bottom: 5px;
     left: 0px;
 }
+.wf_movingCar_active{
+    animation: moveCarAni 1s forwards linear;
+}
+
+.wf_plane{
+    bottom: 25px;
+}
+
+@keyframes moveCarAni{
+    0%{
+        left: 0%;
+        transform: translate(0, 0);
+    }
+    40%{
+        left: 100%;
+        transform: translate(-100%, 0);
+    }
+    50%{
+        left: 100%;
+        transform: translate(-100%, 0) rotateY(180deg);
+    }
+    90%{
+        left: 0%;
+        transform: translate(0, 0) rotateY(180deg);
+    }
+    100%{
+        left: 0%;
+        transform: translate(0, 0);
+    }
+}
+
 .wf_centralZone{
     position: absolute;
     left: 50%;

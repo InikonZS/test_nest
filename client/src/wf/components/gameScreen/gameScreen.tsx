@@ -74,7 +74,10 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameS
         </div>
         <div className="wf_movingPanel">
             <div>money: {gameModel.money}</div>
-            <div className="wf_movingCar">
+            <div className={`wf_movingCar ${gameModel.plane.isStarted ? 'wf_movingCar_active':''} wf_plane`} style={{animationDuration: /*gameModel.plane.getConfigByLevel().time*/1000 + 'ms'}}>
+                pln
+            </div>
+            <div className={`wf_movingCar ${gameModel.car.isStarted ? 'wf_movingCar_active':''}`} style={{animationDuration: gameModel.car.getConfigByLevel().time + 'ms'}}>
                 car
             </div>
         </div>

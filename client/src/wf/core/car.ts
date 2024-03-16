@@ -11,22 +11,22 @@ interface ICarConfig {
 const cars: Array<ICarConfig> = [
     {
         slotCount: 2,
-        time: 5,
+        time: 5000,
         price: 0,
     },
     {
         slotCount: 3,
-        time: 4,
+        time: 4000,
         price: 100,
     },
     {
         slotCount: 5,
-        time: 3,
+        time: 3000,
         price: 500,
     },
     {
         slotCount: 7,
-        time: 2,
+        time: 2000,
         price: 2000
     }
 ]
@@ -51,6 +51,7 @@ export class Car{
 
     finish(){
         this.onFinish?.();
+        this.game.onChange();
     }
 
     itemsToSlots(items: Array<Collectable>){
@@ -78,6 +79,7 @@ export class Car{
         const accepted = this.itemsToSlots(list);
         this.items = [...this.items, ...accepted];
         this.game.storage.items = this.game.storage.items.filter(jt => !accepted.includes(jt));
+        this.game.onChange();
     }
 
     removeSlot(slotIndex: number){
@@ -93,6 +95,11 @@ export class Car{
         if (slot.items.length == 0){
             slot.type = '';
         }
+        this.game.onChange();
+    }
+
+    getTotalSum(){
+        return this.items.reduce((ac, it)=> ac + it.price, 0);
     }
 
     start(){
@@ -100,6 +107,7 @@ export class Car{
             return;
         }
         this.isStarted = true;
+        this.game.onChange();
         setTimeout(()=>{
             this.isStarted = false;
             const totalPrice = this.items.reduce((ac, it)=>ac+it.price, 0);
@@ -107,12 +115,21 @@ export class Car{
             this.items = [];
             this.itemsAsSlots = new Array(this.slotCount).fill(null).map(it=> ({type: '', filled: 0, items:[]}));
             this.finish();
-        }, 2000);
+        }, this.getConfigByLevel().time);
+    }
+
+    getConfigByLevel(){
+        return cars[this.level];
+    }
+
+    getUpgradePrice(){
+        return cars[this.level+1]?.price || 0;
     }
 
     upgrade(){
         if (this.level<3){
             this.level+=1;
         }
+        this.game.onChange();
     }
 }

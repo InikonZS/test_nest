@@ -1,4 +1,4 @@
-import { Collectable } from "./collectable";
+import { Collectable, collectables } from "./collectable";
 import { Game } from "./game";
 
 export class Plane{
@@ -27,7 +27,7 @@ export class Plane{
         setTimeout(()=>{
             this.isStarted = false;
             this.items.forEach(type=>{
-                this.game.items.push(new Collectable(type, {x: Math.random() * 300, y: Math.random() * 300}));
+                this.game.items.push(new Collectable(type as keyof typeof collectables, {x: Math.random() * 300, y: Math.random() * 300}));
             })
             this.items = [];
         }, 2000);

@@ -5,4 +5,5 @@
     background-color: transparent; 
     background-size: contain;
     background-repeat: no-repeat;
+    z-index: 1;
 }

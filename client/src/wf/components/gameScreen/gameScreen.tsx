@@ -140,15 +140,17 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameS
                 {gameModel.flyingItems.map((item)=>{ console.log(item.delay); return <div key={item.flyingId} className={`wf_collectable wf_flying_item wf_flying_item_${item.pathType}`} style={{offsetPath: getMotionPath(item.startPos, item.endPos), 'animation-delay': item.delay*100+'ms', 'background-image': `url(${assets[item.type].objectUrl})`}}></div>})}
             </div>
         </div>
-        <div className="wf_missions">
+        <div className="wf_missions_container">
             <button onClick={()=>gameModel.isPaused ? gameModel.resume() : gameModel.pause()}>{gameModel.isPaused ? 'resume' : 'pause'}</button>
             missions
+        <div className="wf_missions">
             {gameModel.missionTasks.map(mission=>{
-                return <div>
+                return <div className={`wf_missionItem ${mission.isCompleted ? 'wf_missionItem_complete' : ''}`}>
                     {mission.type+' - '}
                     {!mission.isCompleted ? (mission.current +' / '+ mission.count) : 'ok'}
                 </div>
             })}
+        </div>
         </div>
     </div>
 }

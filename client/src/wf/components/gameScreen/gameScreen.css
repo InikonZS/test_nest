@@ -170,10 +170,26 @@
     transform: translate(-50%, -140%);
 }
 
-.wf_missions{
+.wf_missions_container{
     position: absolute;
     right: 0;
     bottom: 0;
+}
+
+.wf_missions{
+    display: flex;
+}
+
+.wf_missionItem{
+    background-color: #75a7fd;
+    margin: 2px;
+    padding: 5px;
+}
+
+.wf_missionItem_complete{
+    background-color: #00b463;
+    margin: 2px;
+    padding: 5px;
 }
 
 .wf_flying_container{
@@ -204,4 +220,11 @@
 
 .wf_paused{
      animation-play-state: paused !important;
+}
+
+.wf_icon{
+    background-size: cover;
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
 }

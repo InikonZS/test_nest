@@ -66,3 +66,13 @@
     background-repeat: no-repeat;
     background-size: contain;
 }
+
+.wf_carPopup_totalSum{
+    display: flex;
+    align-items: center;
+    margin: 5px 0px;
+}
+
+.wf_carPopup_totalSum div{
+    margin-right: 10px;
+}

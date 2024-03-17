@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import './grass.css';
 import { IVector } from "../../core/IVector";
+import { AssetsContext } from "../../assetsContext";
 
 interface IGrassProps{
     position: IVector;
 }
 
 export function Grass({position}: IGrassProps){
-    return <div className="wf_grass" style={{left: position.x, top: position.y}}>
+    const {assets} =  useContext(AssetsContext);
+
+    return <div className="wf_grass" style={{left: position.x, top: position.y, backgroundImage: `url(${assets['grass0'].objectUrl})`}}>
     </div>
 }

@@ -1,8 +1,12 @@
 .wf_grass{
     border-radius: 100%;
-    width: 10px;
-    height: 10px;
-    background-color: #0f09;
+    width: 16px;
+    height: 16px;
+    background-color: #0f00;
+    opacity: 0.5;
     position: absolute;
     pointer-events: none;
+    background-repeat: no-repeat;
+    background-size: cover;
+    z-index: 0;
 }

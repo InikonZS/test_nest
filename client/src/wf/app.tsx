@@ -39,15 +39,23 @@ export function App(){
         {isAssetsLoaded && <div className="wf_wrapper">
             {
                 game && <GameScreen gameModel={game}
-                    onCarPopupShow={()=>setShowCarPopup(true)}
+                    onCarPopupShow={()=>{
+                        game.car.resetItems();
+                        setShowCarPopup(true);
+                    }}
                     onPlanePopupShow={()=>setShowPlanePopup(true)}
                 ></GameScreen>
             }
             {
-                showCarPopup && <CarPopup gameModel={game} onClose={()=>setShowCarPopup(false)}></CarPopup>
+                showCarPopup && <CarPopup gameModel={game} onClose={()=>{
+                    game.car.resetItems();
+                    setShowCarPopup(false);
+                }}></CarPopup>
             }
             {
-                showPlanePopup && <PlanePopup gameModel={game} onClose={()=>setShowPlanePopup(false)}></PlanePopup>
+                showPlanePopup && <PlanePopup gameModel={game} onClose={()=>{
+                    setShowPlanePopup(false);
+                }}></PlanePopup>
             }
         </div>}
     </AssetsContext.Provider>

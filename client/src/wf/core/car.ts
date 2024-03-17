@@ -36,15 +36,20 @@ export class Car{
     items: Array<Collectable> = [];
     onFinish: ()=>void;
     game: Game;
-    slotCount = 2;
+    //slotCount = 2;
     slotSize = 10;
+    level = 0;
     itemsAsSlots: {
         type: string;
         filled: number;
         items: Array<Collectable>;
-    }[] = new Array(this.slotCount).fill(null).map(it=> ({type: '', filled: 0, items:[]}));
-    level = 0;
+    }[];
     
+    
+    get slotCount(){
+        return this.getConfigByLevel().slotCount;
+    }
+
     constructor(game: Game){
         this.game = game;
     }
@@ -79,7 +84,20 @@ export class Car{
         const accepted = this.itemsToSlots(list);
         this.items = [...this.items, ...accepted];
         this.game.storage.items = this.game.storage.items.filter(jt => !accepted.includes(jt));
-        this.game.onChange();
+        this.game.onChange?.();
+    }
+
+    initSlots(){
+        this.itemsAsSlots = new Array(this.slotCount).fill(null).map(it=> ({type: '', filled: 0, items:[]}));
+    }
+
+    resetItems(){
+        this.items.forEach(item=>{
+            this.game.storage.items.push(item);
+        })
+        this.items = [];
+        this.initSlots();
+        this.game.onChange?.();
     }
 
     removeSlot(slotIndex: number){

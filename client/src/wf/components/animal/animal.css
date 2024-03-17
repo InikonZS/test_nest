@@ -8,5 +8,6 @@
     background-repeat: no-repeat;
     transition-property: transform, left, top;
     z-index: 2;
+    pointer-events: none;
  }
  

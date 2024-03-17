@@ -7,6 +7,7 @@ import { Storage } from './storage';
 import { Plane } from './plane';
 import { Factory, factories} from './factory';
 import { IVector } from './IVector';
+import { getDist } from './utils';
 
 const defaultFactoriesSlots = [
     ['f_egg0', 'f_milk0'],
@@ -133,7 +134,7 @@ export class Game{
         this.onChange?.();
     }
 
-    collect(item: Collectable){
+    collectOne(item: Collectable, delay: number){
         this.items.splice(this.items.findIndex(it=>it==item), 1);
         this.storage.items.push(item);
         const mission = this.missionTasks.find(it=>it.type == item.type);
@@ -143,7 +144,17 @@ export class Game{
         if (mission && mission.current>=mission.count){
             mission.isCompleted = true;
         }
-        this.flyItem(item, {...item.position}, 'storage');
+        this.flyItem(item, {...item.position}, 'storage', delay);
+        //this.onChange();
+    }
+
+    collect(item: Collectable){
+        const closest = this.findClosestCollectables(item);
+        const toCollect = [...closest, item];
+        toCollect.forEach((it, i)=>{
+            this.collectOne(it, i);
+            console.log('collected', it.id, 'len', this.items.length);
+        });
         this.onChange();
     }
 
@@ -189,5 +200,12 @@ export class Game{
         this.factories.forEach(it=>it?.resume());
         this.isPaused = false;
         this.onChange();
+    }
+
+    findClosestCollectables(mainItem: Collectable){
+        return this.items.filter(item=>{
+            const isSameType = mainItem.type == item.type;
+            return mainItem !== item /*&& isSameType*/ && getDist(mainItem.position, item.position) < 30;
+        });
     }
 }

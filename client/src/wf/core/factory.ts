@@ -1,6 +1,7 @@
 import { Collectable, collectables } from "./collectable";
 import { Game } from "./game";
 import { Delay } from "./delay";
+import { IVector } from "./IVector";
 
 interface IFactoryConfig {
     type: string,
@@ -74,6 +75,15 @@ export const factories: Record<string, IFactoryConfig> = {
     },
 }
 
+const slotPositions: IVector[] = [
+    {x: 0, y: 0},
+    {x: 0, y: 150 - 50},
+    {x: 0, y: 300 - 50},
+    {x: 300 - 50, y: 0},
+    {x: 300 - 50, y: 150 - 50},
+    {x: 300 - 50, y: 300 - 50},
+]
+
 export class Factory{
     progress: number = 0;
     isStarted: boolean = false;
@@ -84,6 +94,7 @@ export class Factory{
     level = 0;
     //timerId: ReturnType<typeof setTimeout> = null;
     timer: Delay;
+    radius = 50;
 
     get isPaused(){
         return this.timer && this.timer.isPaused;
@@ -98,7 +109,8 @@ export class Factory{
     protected finish(count: number){
         //todo: use all items to
         for (let i = 0; i<count; i++){
-            this.game.items.push(new Collectable(this.config.to[0], {x: Math.random() * 300, y: Math.random() * 300}));
+            const slotPosition = slotPositions[this.slotIndex];
+            this.game.items.push(new Collectable(this.config.to[0], {x: Math.random() * this.radius + slotPosition.x, y: Math.random() * this.radius + slotPosition.y}));
         }
         this.onFinish?.();
     }

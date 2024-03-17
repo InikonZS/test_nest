@@ -88,6 +88,9 @@ export class Collectable{
     type: keyof typeof collectables;
     price: number;
     size: number;
+    id: number;
+
+    static lastId = 0;
 
     constructor(type: keyof typeof collectables, position: IVector){
         this.position = {...position}
@@ -95,5 +98,8 @@ export class Collectable{
         const config  = collectables[type];
         this.price = config.price;
         this.size = config.size;
+
+        Collectable.lastId +=1;
+        this.id = Collectable.lastId;
     }
 }

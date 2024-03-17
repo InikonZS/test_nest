@@ -8,6 +8,7 @@ import { Plane } from './plane';
 import { Factory, factories} from './factory';
 import { IVector } from './IVector';
 import { getDist } from './utils';
+import { Delay } from './delay';
 
 const defaultFactoriesSlots = [
     ['f_egg0', 'f_milk0'],
@@ -69,6 +70,7 @@ export class Game{
         }
     ];
     onChange: ()=>void;
+    itemsTimer: Delay = null;
     isPaused = false;
 
     constructor(){
@@ -85,6 +87,21 @@ export class Game{
         this.water.onUpdate = ()=>{
             this.onChange();
         }
+
+        this.startItemsTimer();
+    }
+
+    checkItemsTime(){
+        this.items.forEach(it=>it.time -= 0.25);
+        this.items = this.items.filter(it=> it.time > 0);
+        this.onChange();
+    }
+
+    startItemsTimer(){
+        this.itemsTimer = new Delay(()=>{
+            this.checkItemsTime();
+            this.startItemsTimer();
+        }, 500);
     }
 
     getPlaneItems(){
@@ -193,11 +210,13 @@ export class Game{
     pause(){
         this.isPaused = true;
         this.factories.forEach(it=>it?.pause());
+        this.itemsTimer.pause();
         this.onChange();
     }
 
     resume(){
         this.factories.forEach(it=>it?.resume());
+        this.itemsTimer.resume();
         this.isPaused = false;
         this.onChange();
     }

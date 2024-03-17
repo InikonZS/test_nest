@@ -88,6 +88,10 @@ export class Collectable{
     type: keyof typeof collectables;
     price: number;
     size: number;
+    time: number = 10;
+    get isTimeout(){
+        return this.time<3;
+    };
     id: number;
 
     static lastId = 0;

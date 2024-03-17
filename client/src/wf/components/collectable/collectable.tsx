@@ -10,7 +10,7 @@ interface ICollectableProps{
 
 export function Collectable({itemData, onCollect}: ICollectableProps){
     const {assets} =  useContext(AssetsContext);
-    return <div className="wf_collectable"
+    return <div className={`wf_collectable ${itemData.isTimeout ? 'wf_collectable_timeout':''} ${itemData.time <= 0.25 ? 'wf_collectable_remove':''}`}
     onClick={onCollect}
     style={{left: itemData.position.x, top: itemData.position.y, 'background-image': `url(${assets[itemData.type].objectUrl})`}}
     >

@@ -1,5 +1,6 @@
 import { Collectable, collectables } from "./collectable";
 import { Game } from "./game";
+import { Delay } from "./delay";
 
 interface IFactoryConfig {
     type: string,
@@ -81,7 +82,12 @@ export class Factory{
     config:IFactoryConfig;
     slotIndex: number;
     level = 0;
-    timerId: ReturnType<typeof setTimeout> = null;
+    //timerId: ReturnType<typeof setTimeout> = null;
+    timer: Delay;
+
+    get isPaused(){
+        return this.timer && this.timer.isPaused;
+    }
 
     constructor(game: Game, config:IFactoryConfig, slotIndex: number){
         this.game = game;
@@ -98,7 +104,7 @@ export class Factory{
     }
     
     startFactory(){
-        if (this.isStarted) {
+        if (this.isStarted || this.isPaused) {
             return;
         }
         //todo: use all items from
@@ -124,7 +130,7 @@ export class Factory{
     }
 
     protected tick(minCount: number){
-        this.timerId = setTimeout(()=>{
+        this.timer = new Delay(()=>{
             this.progress+=1;
             if (this.progress >=10){
                 this.isStarted = false;
@@ -138,6 +144,9 @@ export class Factory{
     }
 
     upLevel(){
+        if (this.isStarted || this.isPaused) {
+            return;
+        }
         const price = this.config.prices[this.level];
         if (this.game.checkSum(price)){
            this.level +=1; 
@@ -146,7 +155,22 @@ export class Factory{
         this.game.onChange();
     }
 
+    pause(){
+        if (!this.timer){
+            return;
+        }
+        this.timer.pause();
+    }
+
+    resume(){
+        if (!this.timer){
+            return;
+        }
+        this.timer.resume();
+    }
+
     destroy(){
-        clearTimeout(this.timerId);
+        this.timer.cancel();
+        //clearTimeout(this.timerId);
     }
 }

@@ -141,6 +141,7 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameS
             </div>
         </div>
         <div className="wf_missions">
+            <button onClick={()=>gameModel.isPaused ? gameModel.resume() : gameModel.pause()}>{gameModel.isPaused ? 'resume' : 'pause'}</button>
             missions
             {gameModel.missionTasks.map(mission=>{
                 return <div>

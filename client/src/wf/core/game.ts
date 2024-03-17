@@ -68,6 +68,7 @@ export class Game{
         }
     ];
     onChange: ()=>void;
+    isPaused = false;
 
     constructor(){
         this.addAnimal('chicken');
@@ -176,5 +177,17 @@ export class Game{
         this.animals.forEach(animal=>{
             animal.destroy();
         })
+    }
+
+    pause(){
+        this.isPaused = true;
+        this.factories.forEach(it=>it?.pause());
+        this.onChange();
+    }
+
+    resume(){
+        this.factories.forEach(it=>it?.resume());
+        this.isPaused = false;
+        this.onChange();
     }
 }

@@ -201,3 +201,7 @@
         offset-distance: 100%;
     }
 }
+
+.wf_paused{
+     animation-play-state: paused !important;
+}

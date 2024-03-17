@@ -10,7 +10,7 @@ interface IFactoryProps{
 
 export function Factory({onClick, factoryModel}: IFactoryProps){
     const {assets} = useContext(AssetsContext);
-    return <div className={`wf_factory ${factoryModel.isStarted ? 'wf_factory_working' : ''}`} onClick={onClick} style={{backgroundImage: `url(${assets['factory_egg0'].objectUrl})`}}>
+    return <div className={`wf_factory ${factoryModel.isStarted ? 'wf_factory_working' : ''} ${factoryModel.isPaused ? 'wf_paused' : ''}`} onClick={onClick} style={{backgroundImage: `url(${assets['factory_egg0'].objectUrl})`}}>
         <div>level:{factoryModel.level}</div>
         {factoryModel.isStarted ? 'started' + factoryModel.progress: 'run'}
         <div onClick={(e)=>{

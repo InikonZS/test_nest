@@ -107,11 +107,13 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameS
                         {foundFactory ? <Factory factoryModel={foundFactory} onClick={()=>{
                             gameModel.startFactory(foundFactory)
                         }}></Factory> : ''}
-                        {slotVarians.map(variant=>{
-                            return <button onClick={()=>{
-                                gameModel.createFactory(variant, slotIndex);
-                            }}>{variant} {factories[variant].prices[0]}</button>
-                        })}
+                        <div className={`wf_factory_buildButtons ${slotIndex>2 ? 'wf_factory_buildButtons_right':''}`}>
+                            {slotVarians.map(variant=>{
+                                return <button className={`wf_factory_buildButton`} onClick={()=>{
+                                    gameModel.createFactory(variant, slotIndex);
+                                }}>{variant} {factories[variant].prices[0]}</button>
+                            })}
+                        </div>
                     </div>
                 })
             }

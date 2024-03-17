@@ -33,7 +33,7 @@ const storages: Array<IStorageConfig> = [
 export class Storage{
     items: Array<Collectable> = [];
     maxCount = 100;
-    level: 0;
+    level= 0;
     constructor(){
         
     }
@@ -53,7 +53,18 @@ export class Storage{
         return count;
     }
 
+    getConfigByLevel(){
+        return storages[this.level];
+    }
+
+    getUpgradePrice(){
+        return storages[this.level+1]?.price || 0;
+    }
+
     upgrade(){
-        this.level+=1;
+        if (this.level<storages.length-1){
+            this.level+=1;
+        }
+        //this.game.onChange();
     }
 }

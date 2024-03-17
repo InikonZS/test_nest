@@ -87,6 +87,30 @@
     height: 100%;
 }
 
+.wf_factory_buildButtons{
+    position: absolute;
+    left: -10px;
+    right: auto;
+    bottom: 0px;    
+    transform: translate(-100%, 0);
+}
+
+.wf_factory_buildButtons_right{
+    position: absolute;
+    left: auto;
+    right: -10px;  
+    transform: translate(100%, 0);
+}
+
+.wf_factory_buildButton{
+    width: 50px;
+    border-radius: 5px;
+    border: none;
+    background-color: #75a7fd;
+    margin-top: 5px;
+    display: block;
+}
+
 .wf_factorySlot{
     background-color: #a67d36;
     position: absolute;

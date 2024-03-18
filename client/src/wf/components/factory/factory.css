@@ -1,0 +1,54 @@
+.wf_factory_wrapper{
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+.wf_factory{
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+.wf_factory_type{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+.wf_factory_upgrade{
+    margin: 0px;
+    font-size: 10px;
+    display: block;
+    width: 100%;
+}
+
+.wf_factory_working{
+    animation: working 500ms infinite linear;
+    transform-origin: center bottom;
+}
+
+@keyframes working{
+    0%{
+        transform: scale(1, 1);
+    }
+
+    25%{
+        transform: scale(1.1, 0.9);
+    }
+
+    50%{
+        transform: scale(1, 1);
+    }
+
+    75%{
+        transform: scale(0.9, 1.1);
+    }
+
+    100%{
+        transform: scale(1, 1);
+    }
+}

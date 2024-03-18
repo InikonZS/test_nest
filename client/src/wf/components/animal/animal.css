@@ -1,0 +1,13 @@
+.wf_animal{
+    position: absolute;
+    width: 45px;
+    height: 45px;
+    transform: translate(-50%, -50%);
+    background-color: transparent;
+    background-size: contain;
+    background-repeat: no-repeat;
+    transition-property: transform, left, top;
+    z-index: 2;
+    pointer-events: none;
+ }
+ 

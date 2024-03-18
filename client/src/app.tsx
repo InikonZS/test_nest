@@ -6,6 +6,8 @@ import { App as Three } from "./three/app";
 import { App as Pixels } from "./pixels/app";
 import { App as Ani} from "./ani/app";
 import { App as Word} from "./word/app";
+import { App as Ui} from "./ui/app";
+import { App as Wf} from "./wf/app";
 import { NeirView } from './neir/app';
 import  './root.css';
 
@@ -20,6 +22,8 @@ export function App() {
         'generation': NeirView,
         'ani': Ani,
         'word': Word,
+        'ui': Ui,
+        'wf': Wf 
     }
 
     useEffect(()=>{

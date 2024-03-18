@@ -1,0 +1,80 @@
+.wf_carPopup{
+    position: absolute;
+    padding: 10px;
+    background-color: #fff;
+    top: 0px;
+    left: 0px;
+    display: flex;
+    width: 500px;
+    height: 300px;
+}
+
+.wf_carPopup_close{
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.wf_carPopup_storageBlock{
+    width: 100%;
+    padding-right: 5px;
+}
+
+.wf_carPopup_storageList{
+
+}
+
+.wf_carPopup_storageItem{
+    display: flex;
+    background-color: #ccc;
+    padding: 2px;
+    margin: 0px 0px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.wf_carPopup_storageItem:nth-child(2n){
+    background-color: #aaa;
+}
+                    
+.wf_carPopup_carBlock{
+    width: 100%;
+    padding-left: 5px;
+}
+
+.wf_carPopup_carList{
+
+}
+
+.wf_carPopup_carItem{
+    display: flex;
+}
+
+.wf_carPopup_slots{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.wf_carPopup_slot{
+    width: 30px;
+    height: 30px;
+    border: 1px solid;
+}
+
+.wf_carPopup_storageItem_img{
+    width: 32px;
+    height: 32px;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.wf_carPopup_totalSum{
+    display: flex;
+    align-items: center;
+    margin: 5px 0px;
+}
+
+.wf_carPopup_totalSum div{
+    margin-right: 10px;
+}

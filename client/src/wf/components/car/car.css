@@ -1,0 +1,30 @@
+.wf_car_wrapper{
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+.wf_car{
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+.wf_car_hl{
+    position: absolute;
+    opacity: 0;
+}
+
+.wf_car_hl_active{
+    opacity: 1;
+    position: absolute;
+    filter: blur(5px) brightness(12.5);
+}
+
+.wf_car_upgrade{
+    position: absolute;
+    top: 100%;
+    right: 0;
+}

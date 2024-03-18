@@ -204,18 +204,21 @@ export class Game{
     destroy(){
         this.animals.forEach(animal=>{
             animal.destroy();
-        })
+        });
+        this.factories.forEach(it=>it?.destroy());
     }
 
     pause(){
         this.isPaused = true;
         this.factories.forEach(it=>it?.pause());
+        this.animals.forEach(it=>it?.pause());
         this.itemsTimer.pause();
         this.onChange();
     }
 
     resume(){
         this.factories.forEach(it=>it?.resume());
+        this.animals.forEach(it=>it?.resume());
         this.itemsTimer.resume();
         this.isPaused = false;
         this.onChange();

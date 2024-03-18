@@ -1,5 +1,6 @@
 import { IVector } from './IVector';
 import { collectables } from './collectable';
+import { Delay } from './delay';
 import { Game } from './game';
 import { Grass } from './grass';
 import { getDist } from './utils';
@@ -28,11 +29,15 @@ export class Animal{
     onObjectEmit: (index: keyof typeof collectables)=>void;
     totalDist = 0;
     type: keyof typeof animals;
-    timerId: ReturnType<typeof setTimeout> = null;
     grassEat: Grass = null;
     hungry: number = 5;
     private game: Game;
     id: number;
+    timer: Delay = null;
+
+    get isPaused(){
+        return this.timer && this.timer.isPaused;
+    }
 
     constructor(game: Game, type: string){
         this.position = {x: Math.random() * 300, y: Math.random() * 300};
@@ -58,7 +63,6 @@ export class Animal{
     }
 
     startLogicTimer(){
-        let timerId: ReturnType<typeof setTimeout> = null;
         const update = (time: number)=>{
             const lastPosition = {...this.position};
             const randomPosition = {x: Math.random() * 300, y: Math.random() * 300};
@@ -83,7 +87,7 @@ export class Animal{
                 }
             }
 
-            timerId = setTimeout(()=>{
+            this.timer = new Delay(()=>{
                 if (this.grassEat){
                     const foundIndex = this.game.grass.findIndex(it=> it == this.grassEat);
                     if (foundIndex !=-1){
@@ -109,12 +113,25 @@ export class Animal{
                 }
                 update(dist * 5);
             }, time); 
-            this.timerId = timerId; 
         }
         update(1000);
     }
 
+    pause(){
+        if (!this.timer){
+            return;
+        }
+        this.timer.pause();
+    }
+
+    resume(){
+        if (!this.timer){
+            return;
+        }
+        this.timer.resume();
+    }
+
     destroy(){
-        clearInterval(this.timerId);
+        this.timer?.cancel?.();
     }
 }

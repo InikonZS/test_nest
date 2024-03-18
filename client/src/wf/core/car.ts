@@ -125,14 +125,14 @@ export class Car{
             return;
         }
         const totalPrice = this.items.reduce((ac, it)=>ac+it.price, 0);
+        this.items = [];
+        this.initSlots();
         this.isStarted = true;
         this.game.onChange();
 
         setTimeout(()=>{
             this.isStarted = false;
             this.game.money += totalPrice;
-            this.items = [];
-            this.initSlots();
             this.finish();
         }, this.getConfigByLevel().time);
     }

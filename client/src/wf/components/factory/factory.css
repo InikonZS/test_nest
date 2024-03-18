@@ -1,9 +1,29 @@
+.wf_factory_wrapper{
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
 .wf_factory{
     background-size: contain;
     background-repeat: no-repeat;
     height: 100%;
     width: 100%;
     position: relative;
+}
+
+.wf_factory_type{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+.wf_factory_upgrade{
+    margin: 0px;
+    font-size: 10px;
+    display: block;
+    width: 100%;
 }
 
 .wf_factory_working{

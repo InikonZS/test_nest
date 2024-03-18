@@ -103,7 +103,7 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameS
                     const foundFactory = gameModel.factories[slotIndex];
                     const slotVarians = gameModel.getAvailableFactories()[slotIndex];
                     return <div ref={slotRefs[slotIndex]} className={`wf_factorySlot wf_factorySlot_${slotIndex + 1}`}>
-                        factory{slotIndex + 1}
+                        {/*factory{slotIndex + 1}*/}
                         {foundFactory ? <Factory factoryModel={foundFactory} onClick={()=>{
                             gameModel.startFactory(foundFactory)
                         }}></Factory> : ''}
@@ -117,7 +117,8 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameS
                     </div>
                 })
             }
-            <div className={`wf_factorySlot wf_waterSlot`}>water
+            <div className={`wf_factorySlot wf_waterSlot`}>
+                {/*water*/}
                 <Water waterModel={gameModel.water}></Water>
             </div>
             <div className={`wf_factorySlot wf_carSlot`} >

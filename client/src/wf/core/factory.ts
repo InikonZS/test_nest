@@ -114,7 +114,7 @@ export class Factory{
         }
         this.onFinish?.();
     }
-    
+
     startFactory(){
         if (this.isStarted || this.isPaused) {
             return;
@@ -182,7 +182,7 @@ export class Factory{
     }
 
     destroy(){
-        this.timer.cancel();
+        this.timer?.cancel?.();
         //clearTimeout(this.timerId);
     }
 }

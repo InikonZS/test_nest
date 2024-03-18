@@ -52,6 +52,8 @@
 
 .wf_carPopup_slots{
     display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .wf_carPopup_slot{

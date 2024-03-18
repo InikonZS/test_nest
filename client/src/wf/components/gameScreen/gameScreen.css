@@ -168,6 +168,7 @@
     left: 50%;
     top: 140%;
     transform: translate(-50%, -140%);
+    z-index: -1;
 }
 
 .wf_missions_container{

@@ -9,9 +9,12 @@ interface IStorageProps{
 
 export function Storage({storageModel}: IStorageProps){
     const {assets} =  useContext(AssetsContext);
-    return <div className="wf_storage">
-        {storageModel.items.map(item=>{
-            return <div className="wf_storage_item" style={{'background-image': `url(${assets[item.type].objectUrl})`}}></div>
-        })}
+    return <div className="wf_storage_back" style={{'background-image': `url(${assets['storage'+storageModel.level].objectUrl})`}}>
+        <div className="wf_storage">
+            {storageModel.items.map(item=>{
+                return <div className="wf_storage_item" style={{'background-image': `url(${assets[item.type].objectUrl})`}}></div>
+            })}
+        </div>
+        <button onClick={()=>storageModel.upgrade()}>upgrade</button>
     </div>
 }

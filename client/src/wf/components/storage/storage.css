@@ -1,3 +1,13 @@
+.wf_storage_back{
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 170%;
+    height: 170%;
+    position: absolute;
+    top: calc(50% - 10px);
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
 .wf_storage{
     display: flex;
     flex-wrap: wrap;
@@ -6,6 +16,9 @@
     width: fit-content;
     align-items: flex-start;
     justify-content: flex-start;
+    padding: 18px;
+    padding-top: 48px;
+    padding-bottom: 10px;
 }
 
 .wf_storage_item{

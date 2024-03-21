@@ -9,6 +9,7 @@ import { Factory, factories} from './factory';
 import { IVector } from './IVector';
 import { getDist } from './utils';
 import { Delay } from './delay';
+import { ILevelData } from './ILevelData';
 
 const defaultFactoriesSlots = [
     ['f_egg0', 'f_milk0'],
@@ -73,7 +74,7 @@ export class Game{
     itemsTimer: Delay = null;
     isPaused = false;
 
-    constructor(){
+    constructor(levelData: ILevelData){
         this.addAnimal('chicken');
         const factory = new Factory(this, factories['f_egg0'], 0);
         factory.onFinish=()=>{this.onChange()}

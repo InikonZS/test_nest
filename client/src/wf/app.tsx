@@ -8,6 +8,8 @@ import { CarPopup } from "./components/carPopup/carPopup";
 import { PlanePopup } from "./components/planePopup/planePopup";
 import { AssetsLoader, IAssets } from "./assetsLoader";
 import { AssetsContext } from "./assetsContext";
+import { MainMenu } from './components/mainMenu/mainMenu';
+import { levels } from './core/levels';
 
 export function App(){
     const [game, setGame] = useState<Game>(null);
@@ -16,15 +18,22 @@ export function App(){
     const [showPlanePopup, setShowPlanePopup] = useState(false); 
     const [assets, setAssets] = useState<IAssets>({});
     const [isAssetsLoaded, setAssetsLoaded] = useState(false);
+    const [selectedLevelId, setSelectedLevelId] = useState(-1);
 
     useEffect(()=>{
-        const _game = new Game();
+        const levelData = levels[selectedLevelId];
+        if (!levelData){
+            console.log('no level data', selectedLevelId);
+            return;
+        }
+        const _game = new Game(levels[selectedLevelId]);
         _game.onChange=()=>(setFix(last=>last+1));
         setGame(_game);
         return ()=>{
             _game.destroy();
+            setGame(null);
         }
-    }, []);
+    }, [selectedLevelId]);
 
     useEffect(()=>{
         const loader = new AssetsLoader();
@@ -38,12 +47,18 @@ export function App(){
         {!isAssetsLoaded && <div>Loading assets...</div>}
         {isAssetsLoaded && <div className="wf_wrapper">
             {
+                !game && <MainMenu onSelectLevel={(levelId)=>{
+                    setSelectedLevelId(levelId);
+                }}></MainMenu>
+            }
+            {
                 game && <GameScreen gameModel={game}
                     onCarPopupShow={()=>{
                         game.car.resetItems();
                         setShowCarPopup(true);
                     }}
                     onPlanePopupShow={()=>setShowPlanePopup(true)}
+                    onClose={()=>{setSelectedLevelId(-1)}}
                 ></GameScreen>
             }
             {

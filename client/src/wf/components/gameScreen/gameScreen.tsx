@@ -17,9 +17,10 @@ interface IGameScreenProps{
     gameModel: Game;
     onCarPopupShow: ()=>void;
     onPlanePopupShow: ()=>void;
+    onClose: ()=>void;
 }
 
-export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameScreenProps){
+export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow, onClose}: IGameScreenProps){
     const centralZoneRef = useRef<HTMLDivElement>(null);
     const centralRect = useMemo(()=>centralZoneRef.current?.getBoundingClientRect(), [centralZoneRef.current]);
     const animalsZoneRef = useRef<HTMLDivElement>(null);
@@ -143,6 +144,7 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameS
         </div>
         <div className="wf_missions_container">
             <button onClick={()=>gameModel.isPaused ? gameModel.resume() : gameModel.pause()}>{gameModel.isPaused ? 'resume' : 'pause'}</button>
+            <button onClick={onClose}>close</button>
             missions
         <div className="wf_missions">
             {gameModel.missionTasks.map(mission=>{

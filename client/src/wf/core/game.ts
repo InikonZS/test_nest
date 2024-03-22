@@ -73,6 +73,9 @@ export class Game{
     onChange: ()=>void;
     itemsTimer: Delay = null;
     isPaused = false;
+    time: number;
+    timeLimits = [10, 15, 20];
+    lastTick: number;
 
     constructor(levelData: ILevelData){
         this.addAnimal('chicken');
@@ -90,6 +93,8 @@ export class Game{
         }
 
         this.startItemsTimer();
+        this.lastTick = Date.now();
+        this.time = 0;
     }
 
     checkItemsTime(){
@@ -98,8 +103,21 @@ export class Game{
         this.onChange();
     }
 
+    incTime(){
+        const currentTick = Date.now();
+        this.time+= currentTick - this.lastTick;
+        this.lastTick = currentTick;
+    }
+
+    getTimeLimitIndex(){
+        const foundIndex = this.timeLimits.findIndex(it=>(it*1000) > this.time) 
+        const result = foundIndex == -1 ? this.timeLimits.length : foundIndex;
+        return result;
+    }
+
     startItemsTimer(){
         this.itemsTimer = new Delay(()=>{
+            this.incTime();
             this.checkItemsTime();
             this.startItemsTimer();
         }, 500);
@@ -210,6 +228,7 @@ export class Game{
     }
 
     pause(){
+        this.incTime();
         this.isPaused = true;
         this.factories.forEach(it=>it?.pause());
         this.animals.forEach(it=>it?.pause());
@@ -218,6 +237,7 @@ export class Game{
     }
 
     resume(){
+        this.lastTick = Date.now();
         this.factories.forEach(it=>it?.resume());
         this.animals.forEach(it=>it?.resume());
         this.itemsTimer.resume();

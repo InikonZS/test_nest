@@ -70,10 +70,12 @@ const levelButtons = [
 
 interface IMainMenuProps{
     onSelectLevel: (id: number)=>void;
+    levelStatuses: Array<string>;
+    onChangeLevelStatuses: (id: number)=>void;
 }
 
-export function MainMenu({onSelectLevel}: IMainMenuProps){
-    const [levelStatuses, setLevelStatuses] = useState<Array<string>>([]);
+export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: IMainMenuProps){
+    //const [levelStatuses, setLevelStatuses] = useState<Array<string>>([]);
 
     const getActualLevelStatuses = ()=>{
         const newStatuses: Array<string> = [];
@@ -82,6 +84,9 @@ export function MainMenu({onSelectLevel}: IMainMenuProps){
                 newStatuses[i] = it;
             }
         });
+        if (!newStatuses[0]){
+            newStatuses[0] = 'opened';
+        }
         levelButtons.forEach(it=>{
             const status = levelStatuses[it.id];
             if (status == 'completed'){
@@ -98,11 +103,12 @@ export function MainMenu({onSelectLevel}: IMainMenuProps){
     }, [levelStatuses]);
 
     const setCompletedLevel = (id: number)=>{
-        setLevelStatuses(last=>{
+        /*setLevelStatuses(last=>{
             const next = [...last];
             next[id] = 'completed';
             return next;
-        });
+        });*/
+        onChangeLevelStatuses(id);
     }
 
     return <div className="wf_mainMenu_wrapper">

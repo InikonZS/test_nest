@@ -76,6 +76,7 @@ export class Game{
     time: number;
     timeLimits = [10, 15, 20];
     lastTick: number;
+    isWon = false;
 
     constructor(levelData: ILevelData){
         this.addAnimal('chicken');
@@ -117,7 +118,11 @@ export class Game{
 
     startItemsTimer(){
         this.itemsTimer = new Delay(()=>{
-            this.incTime();
+            if (!this.checkMissionTasks()){
+                this.incTime();
+            } else {
+                this.isWon = true;
+            }
             this.checkItemsTime();
             this.startItemsTimer();
         }, 500);

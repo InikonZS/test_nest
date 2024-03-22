@@ -5,6 +5,7 @@ import { Game } from './core/game';
 import { Collectable } from "./core/collectable";
 import { GameScreen } from "./components/gameScreen/gameScreen";
 import { CarPopup } from "./components/carPopup/carPopup";
+import { WinPopup } from "./components/winPopup/winPopup";
 import { PlanePopup } from "./components/planePopup/planePopup";
 import { AssetsLoader, IAssets } from "./assetsLoader";
 import { AssetsContext } from "./assetsContext";
@@ -19,6 +20,7 @@ export function App(){
     const [assets, setAssets] = useState<IAssets>({});
     const [isAssetsLoaded, setAssetsLoaded] = useState(false);
     const [selectedLevelId, setSelectedLevelId] = useState(-1);
+    const [levelStatuses, setLevelStatuses] = useState<Array<string>>([]);
 
     useEffect(()=>{
         const levelData = levels[selectedLevelId];
@@ -49,6 +51,12 @@ export function App(){
             {
                 !game && <MainMenu onSelectLevel={(levelId)=>{
                     setSelectedLevelId(levelId);
+                }} levelStatuses={levelStatuses} onChangeLevelStatuses={(id)=>{
+                    setLevelStatuses(last=>{
+                        const next = [...last];
+                        next[id] = 'completed';
+                        return next;
+                    });
                 }}></MainMenu>
             }
             {
@@ -71,6 +79,16 @@ export function App(){
                 showPlanePopup && <PlanePopup gameModel={game} onClose={()=>{
                     setShowPlanePopup(false);
                 }}></PlanePopup>
+            }
+                        {
+                game && game.isWon && <WinPopup gameModel={game} onClose={()=>{
+                    setLevelStatuses(last=>{
+                        const next = [...last];
+                        next[selectedLevelId] = 'completed';
+                        return next;
+                    });
+                    setSelectedLevelId(-1);
+                }}></WinPopup>
             }
         </div>}
     </AssetsContext.Provider>

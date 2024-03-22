@@ -124,7 +124,8 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
                         }}
                     >
                     {it.id}
-                    <div onClick={()=>{
+                    <div onClick={(e)=>{
+                        e.stopPropagation();
                         setCompletedLevel(it.id);
                     }}>p</div>
                 </div>

@@ -79,13 +79,25 @@ export class Game{
     isWon = false;
 
     constructor(levelData: ILevelData){
-        this.addAnimal('chicken');
-        const factory = new Factory(this, factories['f_egg0'], 0);
+        this.missionTasks = levelData.missions.map(it=> ({...it, current: 0, isCompleted: false}));
+        levelData.startAnimals.forEach(animalType=>{
+            this.addAnimal(animalType);
+        });
+        this.factoriesSlots = levelData.factoriesSlots;
+        levelData.factories.forEach(factoryData=>{
+            const factory = new Factory(this, factories[factoryData.type], factoryData.slotIndex, factoryData.level);
+            this.factories[factoryData.slotIndex] = factory;
+        });
+        this._money = levelData.startMoney;
+        this.timeLimits = levelData.timeLimits;
+        
+
+        /*const factory = new Factory(this, factories['f_egg0'], 0);
         factory.onFinish=()=>{this.onChange()}
         const factory1 = new Factory(this, factories['f_egg1'], 1);
         factory1.onFinish=()=>{this.onChange()}
         this.factories[0] = factory;
-        this.factories[1] = factory1;
+        this.factories[1] = factory1;*/
         this.car = new Car(this);
         this.plane = new Plane(this);
         this.water = new Water(this);
@@ -172,6 +184,13 @@ export class Game{
             this.onChange();
         }
         this.animals.push(animal);
+        const currentMission = this.missionTasks.find(it=>it.type == type);
+        if (currentMission){
+            currentMission.current+=1;
+            if (currentMission.current>=currentMission.count){
+                currentMission.isCompleted = true;
+            }
+        }
         this.onChange?.();
     }
 

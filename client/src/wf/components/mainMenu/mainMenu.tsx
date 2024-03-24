@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import './mainMenu.css';
 import { IVector } from "../../core/IVector";
 
@@ -9,7 +9,7 @@ interface ILevelButtonData {
     closest: number[];
 }
 
-const levelButtons = [
+const _levelButtons = [
     {
         id: 0,
         position: {
@@ -75,7 +75,9 @@ interface IMainMenuProps{
 }
 
 export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: IMainMenuProps){
-    //const [levelStatuses, setLevelStatuses] = useState<Array<string>>([]);
+    const [levelButtons, setLevelButtons] = useState(_levelButtons);
+    const [editorMode, setEditorMode] = useState<boolean>(false);
+    const backRef = useRef<HTMLDivElement>();
 
     const getActualLevelStatuses = ()=>{
         const newStatuses: Array<string> = [];
@@ -111,24 +113,80 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
         onChangeLevelStatuses(id);
     }
 
+    const handleEditorMouse = (downEvt: React.MouseEvent<HTMLDivElement>, buttonIndex: number)=>{
+        const downVector = {x: downEvt.nativeEvent.offsetX, y: downEvt.nativeEvent.offsetY};
+        const bounds = backRef.current.getBoundingClientRect();
+        const handleMove = (moveEvt: MouseEvent)=>{
+            const moveVector = {x: moveEvt.clientX - bounds.left, y: moveEvt.clientY - bounds.top}
+            setLevelButtons(last=>{
+                const newButtons = [...last];
+                const currentButton = newButtons[buttonIndex];
+                currentButton.position.x = (moveVector.x - downVector.x) / bounds.width * 1000;
+                currentButton.position.y = (moveVector.y - downVector.y) / bounds.height * 1000;
+                return newButtons;
+            });
+        }    
+        const handleUp = (moveEvt: MouseEvent)=>{
+            window.removeEventListener('mousemove', handleMove);
+            window.removeEventListener('mouseup', handleUp);   
+        }  
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleUp);                   
+    }
+
     return <div className="wf_mainMenu_wrapper">
-        <div className="wf_mainMenu_back">
-            {levelButtons.map(it=>{
+        <div className="wf_mainMenu_editTools">
+            <button>add/move</button>
+            <button>relations</button>
+        </div>
+        <div className="wf_mainMenu_back" ref={backRef}>
+            {levelButtons.map((it, i)=>{
 
                 const levelStatus = actualLevelStatuses[it.id] || 'locked';
 
-                return <div className={`wf_mainMenu_levelButton wf_mainMenu_levelButton_${levelStatus}`} 
-                        style={{left: `${it.position.x / 10}%`, top: `${it.position.y / 10}%`}}
-                        onClick={()=>{
-                            onSelectLevel(it.id);
-                        }}
-                    >
-                    {it.id}
-                    <div onClick={(e)=>{
-                        e.stopPropagation();
-                        setCompletedLevel(it.id);
-                    }}>p</div>
-                </div>
+                return editorMode ? 
+                (
+                    <div className={`wf_mainMenu_levelButton wf_mainMenu_levelButton_${levelStatus}`} 
+                            style={{left: `${it.position.x / 10}%`, top: `${it.position.y / 10}%`}}
+                            onClick={()=>{
+                                onSelectLevel(it.id);
+                            }}
+                        >
+                        {it.id}
+                        <div onClick={(e)=>{
+                            e.stopPropagation();
+                            setCompletedLevel(it.id);
+                        }}>p</div>
+                    </div>
+                ) : (
+                    <>
+                    <div className={`wf_mainMenu_levelButton wf_mainMenu_levelButton_${levelStatus}`} 
+                            style={{left: `${it.position.x / 10}%`, top: `${it.position.y / 10}%`}}
+                            onMouseDown={(evt)=>handleEditorMouse(evt, i)}
+                        >
+                        {it.id}
+                    </div> 
+                    {
+                        it.closest.map(jt=>{
+                            const itemWidth = 1000 * 35 / backRef.current?.getBoundingClientRect().width || 1;
+                            const itemHeight = 1000 * 35 / backRef.current?.getBoundingClientRect().height || 1;
+                            const closestItem = levelButtons[jt];
+                            const w = Math.abs(closestItem.position.x - it.position.x) / 1000 * (backRef.current?.getBoundingClientRect().width || 1);
+                            const h = Math.abs(closestItem.position.y - it.position.y) / 1000 * (backRef.current?.getBoundingClientRect().height || 1);
+                            return <svg width={w} height={h} style={{
+                                position: 'absolute',
+                                left: (Math.min(closestItem.position.x, it.position.x) + itemWidth / 2) / 10 + '%',
+                                top: (Math.min(closestItem.position.y, it.position.y) + itemHeight / 2) / 10 + '%',
+                                stroke: '#0009',
+                                pointerEvents: 'none',
+                                zIndex: 1,
+                            }}>
+                                <path d={(closestItem.position.y - it.position.y) * (closestItem.position.x - it.position.x) < 0 ? `M ${w} 0 L 0 ${h}`: `M 0 0 L ${w} ${h}`}></path>
+                            </svg>
+                        })
+                    }
+                    </>
+                )
             })}
         </div>
     </div>

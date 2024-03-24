@@ -1,6 +1,15 @@
 .wf_mainMenu_wrapper{
     width: 800px;
     height: 600px;
+    user-select: none;
+    position: relative;
+}
+
+.wf_mainMenu_editTools{
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 1;
 }
 
 .wf_mainMenu_back{

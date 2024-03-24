@@ -253,17 +253,27 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
                             const itemWidth = 1000 * 35 / backRef.current?.getBoundingClientRect().width || 1;
                             const itemHeight = 1000 * 35 / backRef.current?.getBoundingClientRect().height || 1;
                             const closestItem = levelButtons[jt];
-                            const w = Math.abs(closestItem.position.x - it.position.x) / 1000 * (backRef.current?.getBoundingClientRect().width || 1);
-                            const h = Math.abs(closestItem.position.y - it.position.y) / 1000 * (backRef.current?.getBoundingClientRect().height || 1);
-                            return <svg width={Math.max(w, 2)} height={Math.max(h, 2)} style={{
+                            const w = Math.abs(-closestItem.position.x + it.position.x) / 1000 * (backRef.current?.getBoundingClientRect().width || 1);
+                            const h = Math.abs(-closestItem.position.y + it.position.y) / 1000 * (backRef.current?.getBoundingClientRect().height || 1);
+                            const ang = Math.atan2(-closestItem.position.x + it.position.x, -closestItem.position.y + it.position.y);
+                            let arrowAngle = Math.PI / 12;
+                            let arrowLength = 12;
+                            let arrowA = `M 10 10 L ${Math.sin(ang + arrowAngle) * arrowLength +10} ${Math.cos(ang + arrowAngle) * arrowLength +10} L ${Math.sin(ang - arrowAngle) * arrowLength +10} ${Math.cos(ang - arrowAngle) * arrowLength +10} z`;
+                            let arrowDw = `M ${w+10} ${10} L ${Math.sin(ang + arrowAngle) * arrowLength +10 + w} ${Math.cos(ang + arrowAngle) * arrowLength +10} L ${Math.sin(ang - arrowAngle) * arrowLength +10 + w} ${Math.cos(ang - arrowAngle) * arrowLength +10} z`;
+                            let arrowDh = `M ${w+10} ${h+10} L ${Math.sin(ang + arrowAngle) * arrowLength +10 +w } ${Math.cos(ang + arrowAngle) * arrowLength +10 +h} L ${Math.sin(ang - arrowAngle) * arrowLength +10 +w } ${Math.cos(ang - arrowAngle) * arrowLength +10 +h} z`;
+                            let arrowDh0 = `M ${10} ${h+10} L ${Math.sin(ang + arrowAngle) * arrowLength +10 } ${Math.cos(ang + arrowAngle) * arrowLength +10 +h} L ${Math.sin(ang - arrowAngle) * arrowLength +10 } ${Math.cos(ang - arrowAngle) * arrowLength +10 +h} z`;
+                            let arrowD = !(ang>Math.PI /2 && ang<=Math.PI)?arrowDw: arrowDh0;
+                            let arrow = !(ang>-Math.PI && ang<-Math.PI /2) ? arrowA : arrowDh;
+                            
+                            return <svg width={w+20} height={h+20} style={{
                                 position: 'absolute',
-                                left: (Math.min(closestItem.position.x, it.position.x) + itemWidth / 2) / 10 + '%',
-                                top: (Math.min(closestItem.position.y, it.position.y) + itemHeight / 2) / 10 + '%',
+                                left: (Math.min(closestItem.position.x, it.position.x) + itemWidth / 2 -10000 / backRef.current?.getBoundingClientRect().width) / 10  + '%',
+                                top: (Math.min(closestItem.position.y, it.position.y) + itemHeight / 2 -10000 / backRef.current?.getBoundingClientRect().height) / 10  + '%',
                                 stroke: '#0009',
                                 pointerEvents: 'none',
                                 zIndex: 1,
                             }}>
-                                <path d={(closestItem.position.y - it.position.y) * (closestItem.position.x - it.position.x) < 0 ? `M ${w} 0 L 0 ${h}`: `M 0 0 L ${w} ${h}`}></path>
+                                <path d={(-closestItem.position.y + it.position.y) * (-closestItem.position.x + it.position.x) <= 0 ? `M ${w + 10} 10 L 10 ${h + 10} ${arrowD}`: `M 10 10 L ${w + 10} ${h + 10} ${arrow}`}></path>
                             </svg>
                         })
                     }

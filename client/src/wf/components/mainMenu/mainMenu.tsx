@@ -77,6 +77,8 @@ interface IMainMenuProps{
 export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: IMainMenuProps){
     const [levelButtons, setLevelButtons] = useState(_levelButtons);
     const [editorMode, setEditorMode] = useState<boolean>(false);
+    const [editorTool, setEditorTool] = useState<string>('add');
+    const [relationStart, setRelationStart] = useState<number>(-1);
     const backRef = useRef<HTMLDivElement>();
 
     const getActualLevelStatuses = ()=>{
@@ -136,7 +138,7 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
     }
 
     const addItem = (downEvt: React.MouseEvent<HTMLDivElement>)=>{
-        if (!editorMode){
+        if (editorMode){
             setLevelButtons(last=>{
                 const newButtons = [...last];
                 const button: ILevelButtonData = {
@@ -159,19 +161,22 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
 
     return <div className="wf_mainMenu_wrapper">
         <div className="wf_mainMenu_editTools">
-            <button>add/move</button>
-            <button>relations</button>
+            <button onClick={()=>setEditorMode(last=>!last)} className={`wf_editorTool ${editorMode ? 'wf_editorTool_active':''}`}>edit/play</button>
+            {editorMode && <button onClick={()=>setEditorTool('add')} className={`wf_editorTool ${editorTool == 'add'? 'wf_editorTool_active':''}`}>add/move</button>}
+            {editorMode && <button onClick={()=>setEditorTool('rel')} className={`wf_editorTool ${editorTool == 'rel'? 'wf_editorTool_active':''}`}>relations</button>}
         </div>
         <div className="wf_mainMenu_back" ref={backRef}
             onClick={(downEvt)=>{
-                addItem(downEvt) 
+                if (editorTool == 'add'){
+                    addItem(downEvt) 
+                }
             }}
         >
             {levelButtons.map((it, i)=>{
 
                 const levelStatus = actualLevelStatuses[it.id] || 'locked';
 
-                return editorMode ? 
+                return !editorMode ? 
                 (
                     <div className={`wf_mainMenu_levelButton wf_mainMenu_levelButton_${levelStatus}`} 
                             style={{left: `${it.position.x / 10}%`, top: `${it.position.y / 10}%`}}
@@ -189,7 +194,34 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
                     <>
                     <div className={`wf_mainMenu_levelButton wf_mainMenu_levelButton_${levelStatus}`} 
                             style={{left: `${it.position.x / 10}%`, top: `${it.position.y / 10}%`}}
-                            onMouseDown={(evt)=>handleEditorMouse(evt, i)}
+                            onMouseDown={(evt)=>{
+                                if (editorTool == 'add'){
+                                    handleEditorMouse(evt, i)
+                                }
+                                if (editorTool == 'rel'){
+                                    setRelationStart(i);
+                                    const handleUp = ()=>{
+                                        console.log('removed rel start');
+                                        setRelationStart(-1);
+                                        window.removeEventListener('mouseup', handleUp);
+                                    }
+                                    window.addEventListener('mouseup', handleUp);
+                                }
+                            }}
+                            onMouseUp={()=>{
+                                if (editorTool=='rel' && relationStart !=-1){
+                                    setLevelButtons(last=>{
+                                        const newButtons = [...last];
+                                        const currentButton = newButtons[relationStart];
+                                        if (currentButton.closest.includes(i)){
+                                            currentButton.closest = currentButton.closest.filter(it=>it!=i);
+                                        } else {
+                                            currentButton.closest.push(i);
+                                        }
+                                        return newButtons;
+                                    });
+                                }
+                            }}
                             onClick={(evt)=> evt.stopPropagation()}
                         >
                         {it.id}

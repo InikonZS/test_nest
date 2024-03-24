@@ -12,6 +12,14 @@
     z-index: 1;
 }
 
+.wf_editorTool{
+
+}
+
+.wf_editorTool_active{
+    background-color: #9f9;
+}
+
 .wf_mainMenu_back{
     position: relative;
     width: 100%;

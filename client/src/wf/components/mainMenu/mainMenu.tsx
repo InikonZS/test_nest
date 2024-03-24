@@ -114,6 +114,7 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
     }
 
     const handleEditorMouse = (downEvt: React.MouseEvent<HTMLDivElement>, buttonIndex: number)=>{
+        downEvt.stopPropagation();
         const downVector = {x: downEvt.nativeEvent.offsetX, y: downEvt.nativeEvent.offsetY};
         const bounds = backRef.current.getBoundingClientRect();
         const handleMove = (moveEvt: MouseEvent)=>{
@@ -126,7 +127,7 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
                 return newButtons;
             });
         }    
-        const handleUp = (moveEvt: MouseEvent)=>{
+        const handleUp = (upEvt: MouseEvent)=>{
             window.removeEventListener('mousemove', handleMove);
             window.removeEventListener('mouseup', handleUp);   
         }  
@@ -134,12 +135,38 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
         window.addEventListener('mouseup', handleUp);                   
     }
 
+    const addItem = (downEvt: React.MouseEvent<HTMLDivElement>)=>{
+        if (!editorMode){
+            setLevelButtons(last=>{
+                const newButtons = [...last];
+                const button: ILevelButtonData = {
+                    id: last.length,
+                    position: {
+                        x: 100,
+                        y: 300
+                    },
+                    closest: []
+                };
+                const bounds = backRef.current.getBoundingClientRect();
+                const downVector = {x: downEvt.nativeEvent.clientX - bounds.left, y: downEvt.nativeEvent.clientY - bounds.top};
+                button.position.x = (downVector.x - 35 / 2) / bounds.width * 1000;
+                button.position.y = (downVector.y - 35 / 2) / bounds.height * 1000;
+                newButtons.push(button);
+                return newButtons;
+            });
+        }
+    }
+
     return <div className="wf_mainMenu_wrapper">
         <div className="wf_mainMenu_editTools">
             <button>add/move</button>
             <button>relations</button>
         </div>
-        <div className="wf_mainMenu_back" ref={backRef}>
+        <div className="wf_mainMenu_back" ref={backRef}
+            onClick={(downEvt)=>{
+                addItem(downEvt) 
+            }}
+        >
             {levelButtons.map((it, i)=>{
 
                 const levelStatus = actualLevelStatuses[it.id] || 'locked';
@@ -163,6 +190,7 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
                     <div className={`wf_mainMenu_levelButton wf_mainMenu_levelButton_${levelStatus}`} 
                             style={{left: `${it.position.x / 10}%`, top: `${it.position.y / 10}%`}}
                             onMouseDown={(evt)=>handleEditorMouse(evt, i)}
+                            onClick={(evt)=> evt.stopPropagation()}
                         >
                         {it.id}
                     </div> 
@@ -173,7 +201,7 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
                             const closestItem = levelButtons[jt];
                             const w = Math.abs(closestItem.position.x - it.position.x) / 1000 * (backRef.current?.getBoundingClientRect().width || 1);
                             const h = Math.abs(closestItem.position.y - it.position.y) / 1000 * (backRef.current?.getBoundingClientRect().height || 1);
-                            return <svg width={w} height={h} style={{
+                            return <svg width={Math.max(w, 2)} height={Math.max(h, 2)} style={{
                                 position: 'absolute',
                                 left: (Math.min(closestItem.position.x, it.position.x) + itemWidth / 2) / 10 + '%',
                                 top: (Math.min(closestItem.position.y, it.position.y) + itemHeight / 2) / 10 + '%',

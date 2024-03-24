@@ -78,6 +78,7 @@ interface IMainMenuProps{
 export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: IMainMenuProps){
     const [levelButtons, setLevelButtons] = useState(_levelButtons);
     const [editorMode, setEditorMode] = useState<boolean>(false);
+    const [debugMode, setDebugMode] = useState<boolean>(false);
     const [editorTool, setEditorTool] = useState<string>('add');
     const [relationStart, setRelationStart] = useState<number>(-1);
     const backRef = useRef<HTMLDivElement>();
@@ -179,6 +180,7 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
     return <div className="wf_mainMenu_wrapper">
         <div className="wf_mainMenu_editTools">
             <button onClick={()=>setEditorMode(last=>!last)} className={`wf_editorTool ${editorMode ? 'wf_editorTool_active':''}`}>edit/play</button>
+            <button onClick={()=>setDebugMode(last=>!last)} className={`wf_editorTool ${debugMode ? 'wf_editorTool_active':''}`}>debug</button>
             {editorMode && <button onClick={()=>setEditorTool('add')} className={`wf_editorTool ${editorTool == 'add'? 'wf_editorTool_active':''}`}>add/move</button>}
             {editorMode && <button onClick={()=>setEditorTool('rel')} className={`wf_editorTool ${editorTool == 'rel'? 'wf_editorTool_active':''}`}>relations</button>}
             {editorMode && <button onClick={()=>setEditorTool('del')} className={`wf_editorTool ${editorTool == 'del'? 'wf_editorTool_active':''}`}>delete</button>}
@@ -204,10 +206,10 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
                             }}
                         >
                         {it.id}
-                        <div onClick={(e)=>{
+                        {debugMode && <div className="wf_mainMenu_debugPassLevel" onClick={(e)=>{
                             e.stopPropagation();
                             setCompletedLevel(it.id);
-                        }}>p</div>
+                        }}>p</div>}
                     </div>
                 ) : (
                     <>

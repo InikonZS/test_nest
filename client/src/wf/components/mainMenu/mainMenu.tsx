@@ -250,21 +250,23 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
                     </div> 
                     {
                         it.closest.map(jt=>{
-                            const itemWidth = 1000 * 35 / backRef.current?.getBoundingClientRect().width || 1;
-                            const itemHeight = 1000 * 35 / backRef.current?.getBoundingClientRect().height || 1;
+                            const kw = backRef.current?.getBoundingClientRect().width || 1;
+                            const kh = backRef.current?.getBoundingClientRect().height || 1;
+                            const itemWidth = 1000 * 35 / kw;
+                            const itemHeight = 1000 * 35 / kh;
                             const closestItem = levelButtons[jt];
-                            const w = Math.abs(-closestItem.position.x + it.position.x) / 1000 * (backRef.current?.getBoundingClientRect().width || 1);
-                            const h = Math.abs(-closestItem.position.y + it.position.y) / 1000 * (backRef.current?.getBoundingClientRect().height || 1);
-                            const ang = Math.atan2(-closestItem.position.x + it.position.x, -closestItem.position.y + it.position.y);
+                            const w = Math.abs(-closestItem.position.x + it.position.x) / 1000 * kw;
+                            const h = Math.abs(-closestItem.position.y + it.position.y) / 1000 * kh;
+                            const ang = Math.atan2(-closestItem.position.x * kw + it.position.x * kw, -closestItem.position.y *kh + it.position.y*kh);
                             let arrowAngle = Math.PI / 12;
-                            let arrowLength = 12;
+                            let arrowLength = 14;
                             let arrowA = `M 10 10 L ${Math.sin(ang + arrowAngle) * arrowLength +10} ${Math.cos(ang + arrowAngle) * arrowLength +10} L ${Math.sin(ang - arrowAngle) * arrowLength +10} ${Math.cos(ang - arrowAngle) * arrowLength +10} z`;
                             let arrowDw = `M ${w+10} ${10} L ${Math.sin(ang + arrowAngle) * arrowLength +10 + w} ${Math.cos(ang + arrowAngle) * arrowLength +10} L ${Math.sin(ang - arrowAngle) * arrowLength +10 + w} ${Math.cos(ang - arrowAngle) * arrowLength +10} z`;
                             let arrowDh = `M ${w+10} ${h+10} L ${Math.sin(ang + arrowAngle) * arrowLength +10 +w } ${Math.cos(ang + arrowAngle) * arrowLength +10 +h} L ${Math.sin(ang - arrowAngle) * arrowLength +10 +w } ${Math.cos(ang - arrowAngle) * arrowLength +10 +h} z`;
                             let arrowDh0 = `M ${10} ${h+10} L ${Math.sin(ang + arrowAngle) * arrowLength +10 } ${Math.cos(ang + arrowAngle) * arrowLength +10 +h} L ${Math.sin(ang - arrowAngle) * arrowLength +10 } ${Math.cos(ang - arrowAngle) * arrowLength +10 +h} z`;
-                            let arrowD = !(ang>Math.PI /2 && ang<=Math.PI)?arrowDw: arrowDh0;
+                            let arrowD = !(ang>=Math.PI /2 && ang<=Math.PI)?arrowDw: arrowDh0;
                             let arrow = !(ang>-Math.PI && ang<-Math.PI /2) ? arrowA : arrowDh;
-                            
+
                             return <svg width={w+20} height={h+20} style={{
                                 position: 'absolute',
                                 left: (Math.min(closestItem.position.x, it.position.x) + itemWidth / 2 -10000 / backRef.current?.getBoundingClientRect().width) / 10  + '%',

@@ -159,11 +159,28 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
         }
     }
 
+    const deleteItem = (buttonIndex: number)=>{
+        setLevelButtons(last=>{
+            const newButtons = last.map(btn=>{
+                if (btn.id == buttonIndex){
+                    return null;
+                }
+                return {
+                    ...btn,
+                    id: btn.id < buttonIndex ? btn.id : btn.id - 1,
+                    closest: btn.closest.map(cls=> cls < buttonIndex ? cls : cls - 1)
+                }
+            }).filter(it=>it);
+            return newButtons;
+        });
+    }
+
     return <div className="wf_mainMenu_wrapper">
         <div className="wf_mainMenu_editTools">
             <button onClick={()=>setEditorMode(last=>!last)} className={`wf_editorTool ${editorMode ? 'wf_editorTool_active':''}`}>edit/play</button>
             {editorMode && <button onClick={()=>setEditorTool('add')} className={`wf_editorTool ${editorTool == 'add'? 'wf_editorTool_active':''}`}>add/move</button>}
             {editorMode && <button onClick={()=>setEditorTool('rel')} className={`wf_editorTool ${editorTool == 'rel'? 'wf_editorTool_active':''}`}>relations</button>}
+            {editorMode && <button onClick={()=>setEditorTool('del')} className={`wf_editorTool ${editorTool == 'del'? 'wf_editorTool_active':''}`}>delete</button>}
         </div>
         <div className="wf_mainMenu_back" ref={backRef}
             onClick={(downEvt)=>{
@@ -222,7 +239,12 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
                                     });
                                 }
                             }}
-                            onClick={(evt)=> evt.stopPropagation()}
+                            onClick={(evt)=> {
+                                evt.stopPropagation();
+                                if (editorTool == 'del'){
+                                    deleteItem(i)
+                                }
+                            }}
                         >
                         {it.id}
                     </div> 

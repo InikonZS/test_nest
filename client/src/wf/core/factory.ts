@@ -100,10 +100,11 @@ export class Factory{
         return this.timer && this.timer.isPaused;
     }
 
-    constructor(game: Game, config:IFactoryConfig, slotIndex: number){
+    constructor(game: Game, config:IFactoryConfig, slotIndex: number, initialLevel: number = 0){
         this.game = game;
         this.config = config;
         this.slotIndex = slotIndex;
+        this.level = initialLevel;
     }
 
     protected finish(count: number){

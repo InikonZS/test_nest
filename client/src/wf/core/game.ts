@@ -9,6 +9,7 @@ import { Factory, factories} from './factory';
 import { IVector } from './IVector';
 import { getDist } from './utils';
 import { Delay } from './delay';
+import { ILevelData } from './ILevelData';
 
 const defaultFactoriesSlots = [
     ['f_egg0', 'f_milk0'],
@@ -72,15 +73,31 @@ export class Game{
     onChange: ()=>void;
     itemsTimer: Delay = null;
     isPaused = false;
+    time: number;
+    timeLimits = [10, 15, 20];
+    lastTick: number;
+    isWon = false;
 
-    constructor(){
-        this.addAnimal('chicken');
-        const factory = new Factory(this, factories['f_egg0'], 0);
+    constructor(levelData: ILevelData){
+        this.missionTasks = levelData.missions.map(it=> ({...it, current: 0, isCompleted: false}));
+        levelData.startAnimals.forEach(animalType=>{
+            this.addAnimal(animalType);
+        });
+        this.factoriesSlots = levelData.factoriesSlots;
+        levelData.factories.forEach(factoryData=>{
+            const factory = new Factory(this, factories[factoryData.type], factoryData.slotIndex, factoryData.level);
+            this.factories[factoryData.slotIndex] = factory;
+        });
+        this._money = levelData.startMoney;
+        this.timeLimits = levelData.timeLimits;
+        
+
+        /*const factory = new Factory(this, factories['f_egg0'], 0);
         factory.onFinish=()=>{this.onChange()}
         const factory1 = new Factory(this, factories['f_egg1'], 1);
         factory1.onFinish=()=>{this.onChange()}
         this.factories[0] = factory;
-        this.factories[1] = factory1;
+        this.factories[1] = factory1;*/
         this.car = new Car(this);
         this.plane = new Plane(this);
         this.water = new Water(this);
@@ -89,6 +106,8 @@ export class Game{
         }
 
         this.startItemsTimer();
+        this.lastTick = Date.now();
+        this.time = 0;
     }
 
     checkItemsTime(){
@@ -97,8 +116,25 @@ export class Game{
         this.onChange();
     }
 
+    incTime(){
+        const currentTick = Date.now();
+        this.time+= currentTick - this.lastTick;
+        this.lastTick = currentTick;
+    }
+
+    getTimeLimitIndex(){
+        const foundIndex = this.timeLimits.findIndex(it=>(it*1000) > this.time) 
+        const result = foundIndex == -1 ? this.timeLimits.length : foundIndex;
+        return result;
+    }
+
     startItemsTimer(){
         this.itemsTimer = new Delay(()=>{
+            if (!this.checkMissionTasks()){
+                this.incTime();
+            } else {
+                this.isWon = true;
+            }
             this.checkItemsTime();
             this.startItemsTimer();
         }, 500);
@@ -148,6 +184,13 @@ export class Game{
             this.onChange();
         }
         this.animals.push(animal);
+        const currentMission = this.missionTasks.find(it=>it.type == type);
+        if (currentMission){
+            currentMission.current+=1;
+            if (currentMission.current>=currentMission.count){
+                currentMission.isCompleted = true;
+            }
+        }
         this.onChange?.();
     }
 
@@ -209,6 +252,7 @@ export class Game{
     }
 
     pause(){
+        this.incTime();
         this.isPaused = true;
         this.factories.forEach(it=>it?.pause());
         this.animals.forEach(it=>it?.pause());
@@ -217,6 +261,7 @@ export class Game{
     }
 
     resume(){
+        this.lastTick = Date.now();
         this.factories.forEach(it=>it?.resume());
         this.animals.forEach(it=>it?.resume());
         this.itemsTimer.resume();

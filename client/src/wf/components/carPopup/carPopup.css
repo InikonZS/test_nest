@@ -18,6 +18,9 @@
 .wf_carPopup_storageBlock{
     width: 100%;
     padding-right: 5px;
+    padding-top: 30px;
+    background-color: #ffe0b0;
+    overflow-y: auto;
 }
 
 .wf_carPopup_storageList{
@@ -40,6 +43,8 @@
 .wf_carPopup_carBlock{
     width: 100%;
     padding-left: 5px;
+    padding-top: 30px;
+    background-color: #95d898;
 }
 
 .wf_carPopup_carList{
@@ -54,6 +59,10 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    background-color: #936d3b;
+    padding: 20px 0px;
+    border-top-right-radius: 30px;
+    border-top-left-radius: 30px;
 }
 
 .wf_carPopup_slot{
@@ -72,7 +81,17 @@
 .wf_carPopup_totalSum{
     display: flex;
     align-items: center;
-    margin: 5px 0px;
+    background-color: #5e99ff;
+    width: fit-content;
+    margin: 10px auto;
+    padding: 2px 5px;
+    border-radius: 5px;
+    color: #fff;
+}
+
+.wf_carPopup_sellButton{
+    display: block;
+    margin: auto;
 }
 
 .wf_carPopup_totalSum div{

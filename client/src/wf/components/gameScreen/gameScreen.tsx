@@ -17,9 +17,10 @@ interface IGameScreenProps{
     gameModel: Game;
     onCarPopupShow: ()=>void;
     onPlanePopupShow: ()=>void;
+    onClose: ()=>void;
 }
 
-export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameScreenProps){
+export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow, onClose}: IGameScreenProps){
     const centralZoneRef = useRef<HTMLDivElement>(null);
     const centralRect = useMemo(()=>centralZoneRef.current?.getBoundingClientRect(), [centralZoneRef.current]);
     const animalsZoneRef = useRef<HTMLDivElement>(null);
@@ -58,6 +59,13 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameS
         return `path("M${startPos.x + 14},${startPos.y + 14} Q${Math.floor(centralPos.x)},${Math.floor(centralPos.y)} ${Math.floor(end.x)},${Math.floor(end.y)}")`;
     }
     const {assets} =  useContext(AssetsContext);
+   
+    const formatTime = (time: number)=>{
+        const timeObj = new Date(time);
+        const timeString = `${timeObj.getUTCMinutes()} : ${timeObj.getUTCSeconds()}`;
+        return timeString;
+    }
+    
     //console.log(motionPath);
     return <div className="wf_gameScreen">
         <div className="wf_animalsPanel">
@@ -143,6 +151,9 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow}: IGameS
         </div>
         <div className="wf_missions_container">
             <button onClick={()=>gameModel.isPaused ? gameModel.resume() : gameModel.pause()}>{gameModel.isPaused ? 'resume' : 'pause'}</button>
+            <button onClick={onClose}>close</button>
+            <div>{formatTime(gameModel.time)}</div>
+            <div>{gameModel.getTimeLimitIndex() <gameModel.timeLimits.length ? formatTime(gameModel.timeLimits[gameModel.getTimeLimitIndex()] * 1000): ' - '} ind:{gameModel.getTimeLimitIndex()}</div>
             missions
         <div className="wf_missions">
             {gameModel.missionTasks.map(mission=>{

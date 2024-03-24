@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useState } from "react";
 import './mainMenu.css';
 import { IVector } from "../../core/IVector";
+import { levelButtons as _levelButtons} from "./levelButtons";
 
 interface ILevelButtonData {
     id: number;
@@ -9,7 +10,7 @@ interface ILevelButtonData {
     closest: number[];
 }
 
-const _levelButtons = [
+const _levelButtons_test = [
     {
         id: 0,
         position: {
@@ -168,7 +169,7 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
                 return {
                     ...btn,
                     id: btn.id < buttonIndex ? btn.id : btn.id - 1,
-                    closest: btn.closest.map(cls=> cls < buttonIndex ? cls : cls - 1)
+                    closest: btn.closest.filter(cls=>cls != buttonIndex).map(cls=> cls < buttonIndex ? cls : cls - 1)
                 }
             }).filter(it=>it);
             return newButtons;
@@ -181,6 +182,7 @@ export function MainMenu({onSelectLevel, levelStatuses, onChangeLevelStatuses}: 
             {editorMode && <button onClick={()=>setEditorTool('add')} className={`wf_editorTool ${editorTool == 'add'? 'wf_editorTool_active':''}`}>add/move</button>}
             {editorMode && <button onClick={()=>setEditorTool('rel')} className={`wf_editorTool ${editorTool == 'rel'? 'wf_editorTool_active':''}`}>relations</button>}
             {editorMode && <button onClick={()=>setEditorTool('del')} className={`wf_editorTool ${editorTool == 'del'? 'wf_editorTool_active':''}`}>delete</button>}
+            {editorMode && <button onClick={()=>console.log(levelButtons, JSON.stringify(levelButtons))} className={`wf_editorTool`}>save</button>}
         </div>
         <div className="wf_mainMenu_back" ref={backRef}
             onClick={(downEvt)=>{

@@ -16,3 +16,7 @@ export function countItems(items: Array< Collectable >): Record<string, number>{
 export function getDist(a: IVector, b: IVector){
     return Math.hypot(a.x - b.x, a.y - b.y);
 }
+
+export function randomKey(){
+    return Date.now() + Math.random();
+}

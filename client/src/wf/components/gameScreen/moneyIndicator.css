@@ -1,0 +1,50 @@
+.wf_moneyIndicator_wrapper {
+    position: relative;
+    z-index: 2;
+}
+
+.wf_moneyIndicator_baseSum {
+
+}
+
+.wf_transaction {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.wf_transaction_negative {
+    color: #f00;
+    text-shadow: #fff 0px 0px 3px;
+    animation: transactionNeg 2s forwards;
+}
+
+.wf_transaction_positive {
+    color: #0f0;
+    text-shadow: #000000 0px 0px 3px;
+    animation: transactionPos 2s forwards;
+}
+
+@keyframes transactionPos{
+    0%{
+        opacity: 1;
+        transform: translate(-20px, 50px);
+    }
+
+    100%{
+        opacity: 1;
+        transform: translate(0, 0);
+    }
+}
+
+@keyframes transactionNeg{
+    0%{
+        opacity: 1;
+        transform: translate(0, 0);
+    }
+
+    100%{
+        opacity: 1;
+        transform: translate(20px, 50px);
+    }
+}

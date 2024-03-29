@@ -12,6 +12,7 @@ import { Grass } from "../grass/grass";
 import { factories } from "../../core/factory";
 import { IVector } from "../../core/IVector";
 import { AssetsContext } from "../../assetsContext";
+import { MoneyIndicator } from "./moneyIndicator";
 
 interface IGameScreenProps{
     gameModel: Game;
@@ -81,7 +82,7 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow, onClose
             }
         </div>
         <div className="wf_movingPanel">
-            <div>money: {gameModel.money}</div>
+            <MoneyIndicator money={gameModel.money}/>
             <div className={`wf_movingCar ${gameModel.plane.isStarted ? 'wf_movingCar_active':''} wf_plane`} style={{animationDuration: /*gameModel.plane.getConfigByLevel().time*/1000 + 'ms'}}>
                 pln
             </div>

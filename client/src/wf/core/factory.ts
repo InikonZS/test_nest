@@ -161,9 +161,8 @@ export class Factory{
             return;
         }
         const price = this.config.prices[this.level];
-        if (this.game.checkSum(price)){
+        if (this.game.paySum(price)){
            this.level +=1; 
-           this.game.money -= price;
         }
         this.game.onChange();
     }

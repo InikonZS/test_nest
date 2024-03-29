@@ -1,0 +1,17 @@
+.wf_winPopup{
+    display: block;
+}
+
+.wf_winPopup_header{
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    -webkit-text-stroke: 1px;
+    -webkit-text-stroke-color: #c2811a;
+    color: transparent;
+    background-clip: text;
+    background-image: linear-gradient(45deg, #ffa03f 40%, #fff4e3 50%, #ffa03f 60%);
+}

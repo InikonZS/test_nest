@@ -1,4 +1,5 @@
 import { Collectable } from "./collectable";
+import { Game } from "./game";
 
 class StorageItem{
     constructor(){
@@ -17,25 +18,34 @@ const storages: Array<IStorageConfig> = [
         price: 0
     },
     {
-        maxCount: 100,
+        maxCount: 200,
         price: 100
     },
     {
-        maxCount: 100,
+        maxCount: 400,
         price: 500
     },
     {
-        maxCount: 100,
+        maxCount: 800,
         price: 2000
     },
 ];
 
 export class Storage{
     items: Array<Collectable> = [];
-    maxCount = 100;
     level= 0;
-    constructor(){
-        
+    game: Game;
+
+    get maxCount(){
+        return storages[this.level].maxCount
+    }
+
+    get upgradePrice(){
+        return storages[this.level + 1].price | 0;
+    }
+
+    constructor(game: Game){
+        this.game = game;
     }
 
     addItem(item: Collectable){
@@ -62,9 +72,14 @@ export class Storage{
     }
 
     upgrade(){
+        const isPaid = this.game.paySum(this.upgradePrice);
+        if (!isPaid){
+            return false;
+        };
         if (this.level<storages.length-1){
             this.level+=1;
         }
-        //this.game.onChange();
+        this.game.onChange();
+        return true;
     }
 }

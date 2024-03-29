@@ -22,10 +22,10 @@ export function WinPopup({ onClose, gameModel }: IWinPopupProps) {
         onClose();
     }, []);
 
-    return <div className="wf_basePopup wf_planePopup">
-        <div>win</div>
-            <div>your time: {formatTime(gameModel.time)}</div>
-            <div>ind: {gameModel.getTimeLimitIndex()}</div>
+    return <div className="wf_basePopup wf_winPopup">
+        <div className="wf_winPopup_header">win</div>
+        <div>your time: {formatTime(gameModel.time)}</div>
+        <div>ind: {gameModel.getTimeLimitIndex()}</div>
         <button onClick={handleClose}>close</button>
     </div>
 }

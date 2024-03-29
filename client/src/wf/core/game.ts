@@ -24,7 +24,7 @@ export class Game{
     animals: Array<Animal> = [];
     items: Array<Collectable> = [];
     grass: Array<Grass> = [];
-    storage: Storage = new Storage();
+    storage: Storage = new Storage(this);
     factories: Array<Factory> = new Array(6).fill(null);
     factoriesSlots: Array<Array<keyof typeof factories>> = defaultFactoriesSlots;
     flyingItems: Array<{flyingId: number, type: string, pathType: string, startPos: IVector | string, endPos: IVector | string, delay: number}> = [];
@@ -71,6 +71,7 @@ export class Game{
         }
     ];
     onChange: ()=>void;
+    onMessage: (message: string)=>void;
     itemsTimer: Delay = null;
     isPaused = false;
     time: number;
@@ -149,7 +150,17 @@ export class Game{
     }
 
     checkSum(sum: number){
-        return sum<=this.money;
+        const result = sum<=this.money;
+        return result;
+    }
+
+    paySum(sum: number){        
+        if (!this.checkSum(sum)){
+            this.onMessage('not enough money');
+            return false;
+        }
+        this.money-=sum;
+        return true;
     }
 
     createFactory(variant: string, slotIndex: number){
@@ -194,9 +205,12 @@ export class Game{
         this.onChange?.();
     }
 
-    collectOne(item: Collectable, delay: number){
+    protected collectOne(item: Collectable, delay: number){
+        const isAdded = this.storage.addItem(item);
+        if (!isAdded){
+            return false;
+        }
         this.items.splice(this.items.findIndex(it=>it==item), 1);
-        this.storage.items.push(item);
         const mission = this.missionTasks.find(it=>it.type == item.type);
         if (mission){
             mission.current+=1;
@@ -205,6 +219,7 @@ export class Game{
             mission.isCompleted = true;
         }
         this.flyItem(item, {...item.position}, 'storage', delay);
+        return true;
         //this.onChange();
     }
 

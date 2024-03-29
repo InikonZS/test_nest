@@ -14,15 +14,15 @@ interface IStorageConfig {
 
 const storages: Array<IStorageConfig> = [
     {
-        maxCount: 100,
+        maxCount: 10,
         price: 0
     },
     {
-        maxCount: 200,
+        maxCount: 40,
         price: 100
     },
     {
-        maxCount: 400,
+        maxCount: 160,
         price: 500
     },
     {
@@ -49,7 +49,7 @@ export class Storage{
     }
 
     addItem(item: Collectable){
-        if ((this.getCount() + item.size) < this.maxCount){
+        if ((this.getCount() + item.size) <= this.maxCount){
             this.items.push(item);
             console.log('storage pushed', item);
             return true;

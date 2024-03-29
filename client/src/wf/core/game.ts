@@ -226,10 +226,17 @@ export class Game{
     collect(item: Collectable){
         const closest = this.findClosestCollectables(item);
         const toCollect = [...closest, item];
+        let isNotCollected = false;
         toCollect.forEach((it, i)=>{
-            this.collectOne(it, i);
+            const collectResult = this.collectOne(it, i);
+            if(!collectResult){
+                isNotCollected = true;
+            }
             console.log('collected', it.id, 'len', this.items.length);
         });
+        if (isNotCollected){
+            this.onMessage('storage is full');
+        }
         this.onChange();
     }
 

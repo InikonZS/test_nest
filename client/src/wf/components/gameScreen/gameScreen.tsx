@@ -84,7 +84,7 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow, onClose
         </div>
         <div className="wf_movingPanel">
             <MoneyIndicator money={gameModel.money}/>
-            <div className={`wf_movingCar ${gameModel.plane.isStarted ? 'wf_movingCar_active':''} wf_movingPlane`} style={{animationDuration: /*gameModel.plane.getConfigByLevel().time*/1000 + 'ms'}}>
+            <div className={`wf_movingCar ${gameModel.plane.isStarted ? 'wf_movingCar_active':''} wf_movingPlane`} style={{animationDuration: gameModel.plane.time + 'ms'}}>
                 pln
             </div>
             <div className={`wf_movingCar ${gameModel.car.isStarted ? 'wf_movingCar_active':''}`} style={{animationDuration: gameModel.car.getConfigByLevel().time + 'ms'}}>

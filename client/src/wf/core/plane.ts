@@ -1,5 +1,6 @@
 import { Collectable, collectables } from "./collectable";
 import { Game } from "./game";
+import { Slots } from "./slots";
 
 interface IPlaneConfig {
     slotCount: number,
@@ -33,43 +34,73 @@ const planes: Array<IPlaneConfig> = [
 export class Plane{
     game: Game;
     isStarted = false;
-    items: Array<string> = [];
+    //items: Array<string> = [];
     level = 0;
+    slots: Slots;
+
+    get items(){
+        return this.slots.items;
+    }
 
     get upgradePrice(){
         return planes[this.level + 1].price || 0;
     }
+
+    get time(){
+        return this.getConfigByLevel().time;
+    }
     
     constructor(game: Game){
         this.game = game;
+        this.slots = new Slots();
+        this.slots.onChange = ()=>{
+            this.game.onChange();
+        }
+        this.slots.initSlots();
     }
 
     addItems(type: string, count: number){
+        const items: Array<Collectable> = [];
         for (let i=0; i< count; i++){
-            this.items.push(type);
+            items.push(new Collectable(type as keyof typeof collectables));
+        }
+        const accepted = this.slots.addItems(items);
+        if (!accepted.length){
+            console.log('plane is full');
         }
         this.game.onChange();
     }
 
     removeSlotItem(slot: number){
-
+        this.slots.removeSlot(slot);
         this.game.onChange();
     }
 
+    resetItems(){
+        this.slots.resetItems();
+    }
+
     buy(){
+        const buyedItems = [...this.items];
+        const sum = this.getTotalSum();
+        const isPaid = this.game.paySum(sum);
+        if (!isPaid){
+            return;
+        } 
         this.isStarted = true;
+        this.slots.resetItems();
         setTimeout(()=>{
             this.isStarted = false;
-            this.items.forEach(type=>{
-                this.game.items.push(new Collectable(type as keyof typeof collectables, {x: Math.random() * 300, y: Math.random() * 300}));
+            buyedItems.forEach(item=>{
+                this.game.items.push(new Collectable(item.type, {x: Math.random() * 300, y: Math.random() * 300}));
             })
-            this.items = [];
-        }, this.getConfigByLevel().time);
+            //this.items = [];
+        }, this.time);
         this.game.onChange();
     }
 
     getTotalSum(){
-        return this.items.reduce((ac, it)=> ac + collectables[it as keyof typeof collectables].price, 0);
+        return this.items.reduce((ac, it)=> ac + it.price, 0);
     }
 
     getConfigByLevel(){
@@ -88,6 +119,9 @@ export class Plane{
             };
         
             this.level+=1;
+            this.slots.resetItems();
+            this.slots.slotCount = this.getConfigByLevel().slotCount;
+            this.slots.initSlots();
         }
         this.game.onChange();
         return true;

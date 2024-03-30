@@ -1,7 +1,8 @@
-import React from "react"
+import React, { useContext } from "react"
 import { Game } from "../../core/game"
 import { formatTime } from "../../core/utils";
 import "./missionsContainer.css"
+import { AssetsContext } from "../../assetsContext";
 
 interface IMissionsContainerProps{
     gameModel: Game;
@@ -11,6 +12,7 @@ interface IMissionsContainerProps{
 export function MissionsContainer({gameModel, onClose}: IMissionsContainerProps){
     const timeIndex = gameModel.getTimeLimitIndex();
     const timeLimit = timeIndex < gameModel.timeLimits.length ? formatTime(gameModel.timeLimits[timeIndex] * 1000): ' - ';
+    const {assets} =  useContext(AssetsContext);
     
     return <div className="wf_missions_container">
         <div>
@@ -28,8 +30,10 @@ export function MissionsContainer({gameModel, onClose}: IMissionsContainerProps)
         <div className="wf_missions">
             {gameModel.missionTasks.map(mission=>{
                 return <div className={`wf_missionItem ${mission.isCompleted ? 'wf_missionItem_complete' : ''}`}>
-                    {mission.type+' - '}
-                    {!mission.isCompleted ? (mission.current +' / '+ mission.count) : 'ok'}
+                    {/*mission.type*/}
+                    <div className="wf_missionItem_img" style={{backgroundImage: `url(${assets[mission.type]?.objectUrl})`}}></div>
+                    <div className="wf_missionItem_value">{!mission.isCompleted ? (mission.current +' / '+ mission.count) : 'ok'}</div>
+                    {mission.isCompleted && <div className="wf_missionItem_ok" style={{backgroundImage: `url(${assets['ok'].objectUrl})`}}></div>}
                 </div>
             })}
         </div>

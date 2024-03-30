@@ -20,3 +20,9 @@ export function getDist(a: IVector, b: IVector){
 export function randomKey(){
     return Date.now() + Math.random();
 }
+
+export const formatTime = (time: number)=>{
+    const timeObj = new Date(time);
+    const timeString = `${timeObj.getUTCMinutes()} : ${timeObj.getUTCSeconds()}`;
+    return timeString;
+}

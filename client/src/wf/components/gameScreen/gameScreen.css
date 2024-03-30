@@ -6,69 +6,6 @@
     user-select: none;
 }
 
-.wf_animalsPanel{
-    background-color: #6e92ff;
-    display: flex;
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 50px;
-}
-.wf_addAnimal_item{
-    margin: 5px;
-    padding: 5px;
-    background-color: #0040ff;
-}
-.wf_addAnimal_item_disabled{
-    background-color: #afc2ff;
-}
-.wf_movingPanel{
-    background-color: #6e92ff;
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 200px;
-    height: 50px;
-}
-.wf_movingCar{
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background-color: #0040ff;
-    bottom: 5px;
-    left: 0px;
-}
-.wf_movingCar_active{
-    animation: moveCarAni 1s forwards linear;
-}
-
-.wf_movingPlane{
-    bottom: 25px;
-}
-
-@keyframes moveCarAni{
-    0%{
-        left: 0%;
-        transform: translate(0, 0);
-    }
-    40%{
-        left: 100%;
-        transform: translate(-100%, 0);
-    }
-    50%{
-        left: 100%;
-        transform: translate(-100%, 0) rotateY(180deg);
-    }
-    90%{
-        left: 0%;
-        transform: translate(0, 0) rotateY(180deg);
-    }
-    100%{
-        left: 0%;
-        transform: translate(0, 0);
-    }
-}
-
 .wf_centralZone{
     position: absolute;
     left: 50%;
@@ -190,28 +127,6 @@
     top: 140%;
     transform: translate(-50%, -140%);
     z-index: -1;
-}
-
-.wf_missions_container{
-    position: absolute;
-    right: 0;
-    bottom: 0;
-}
-
-.wf_missions{
-    display: flex;
-}
-
-.wf_missionItem{
-    background-color: #75a7fd;
-    margin: 2px;
-    padding: 5px;
-}
-
-.wf_missionItem_complete{
-    background-color: #00b463;
-    margin: 2px;
-    padding: 5px;
 }
 
 .wf_flying_container{

@@ -1,0 +1,18 @@
+.wf_animalsPanel{
+    background-color: #6e92ff;
+    display: flex;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 50px;
+}
+
+.wf_addAnimal_item{
+    margin: 5px;
+    padding: 5px;
+    background-color: #0040ff;
+}
+
+.wf_addAnimal_item_disabled{
+    background-color: #afc2ff;
+}

@@ -1,0 +1,48 @@
+.wf_movingPanel{
+    background-color: #6e92ff;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 200px;
+    height: 50px;
+}
+
+.wf_movingCar{
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #0040ff;
+    bottom: 5px;
+    left: 0px;
+}
+
+.wf_movingCar_active{
+    animation: moveCarAni 1s forwards linear;
+}
+
+.wf_movingPlane{
+    bottom: 25px;
+}
+
+@keyframes moveCarAni{
+    0%{
+        left: 0%;
+        transform: translate(0, 0);
+    }
+    40%{
+        left: 100%;
+        transform: translate(-100%, 0);
+    }
+    50%{
+        left: 100%;
+        transform: translate(-100%, 0) rotateY(180deg);
+    }
+    90%{
+        left: 0%;
+        transform: translate(0, 0) rotateY(180deg);
+    }
+    100%{
+        left: 0%;
+        transform: translate(0, 0);
+    }
+}

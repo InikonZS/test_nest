@@ -50,6 +50,10 @@ export class Car{
         return this.getConfigByLevel().slotCount;
     }
 
+    get upgradePrice(){
+        return cars[this.level + 1].price || 0;
+    }
+
     constructor(game: Game){
         this.game = game;
     }
@@ -146,9 +150,15 @@ export class Car{
     }
 
     upgrade(){
-        if (this.level<3){
+        if (this.level<cars.length-1){
+            const isPaid = this.game.paySum(this.upgradePrice);
+            if (!isPaid){
+                return false;
+            };
+        
             this.level+=1;
         }
         this.game.onChange();
+        return true;
     }
 }

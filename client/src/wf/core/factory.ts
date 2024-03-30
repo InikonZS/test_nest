@@ -160,7 +160,7 @@ export class Factory{
         if (this.isStarted || this.isPaused) {
             return;
         }
-        const price = this.config.prices[this.level];
+        const price = this.config.prices[this.level + 1] || 0;
         if (this.game.paySum(price)){
            this.level +=1; 
         }

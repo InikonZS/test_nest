@@ -35,6 +35,10 @@ export class Plane{
     isStarted = false;
     items: Array<string> = [];
     level = 0;
+
+    get upgradePrice(){
+        return planes[this.level + 1].price || 0;
+    }
     
     constructor(game: Game){
         this.game = game;
@@ -78,8 +82,14 @@ export class Plane{
 
     upgrade(){
         if (this.level<planes.length-1){
+            const isPaid = this.game.paySum(this.upgradePrice);
+            if (!isPaid){
+                return false;
+            };
+        
             this.level+=1;
         }
         this.game.onChange();
+        return true;
     }
 }

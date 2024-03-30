@@ -42,7 +42,7 @@
     animation: moveCarAni 1s forwards linear;
 }
 
-.wf_plane{
+.wf_movingPlane{
     bottom: 25px;
 }
 

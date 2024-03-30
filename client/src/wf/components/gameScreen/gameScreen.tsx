@@ -6,6 +6,7 @@ import { Collectable } from "../collectable/collectable";
 import { Factory } from "../factory/factory";
 import { Water } from "../water/water";
 import { Car } from "../car/car";
+import { Plane } from "../plane/plane";
 import { Storage } from "../storage/storage";
 import { CarPopup } from "../carPopup/carPopup";
 import { Grass } from "../grass/grass";
@@ -83,7 +84,7 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow, onClose
         </div>
         <div className="wf_movingPanel">
             <MoneyIndicator money={gameModel.money}/>
-            <div className={`wf_movingCar ${gameModel.plane.isStarted ? 'wf_movingCar_active':''} wf_plane`} style={{animationDuration: /*gameModel.plane.getConfigByLevel().time*/1000 + 'ms'}}>
+            <div className={`wf_movingCar ${gameModel.plane.isStarted ? 'wf_movingCar_active':''} wf_movingPlane`} style={{animationDuration: /*gameModel.plane.getConfigByLevel().time*/1000 + 'ms'}}>
                 pln
             </div>
             <div className={`wf_movingCar ${gameModel.car.isStarted ? 'wf_movingCar_active':''}`} style={{animationDuration: gameModel.car.getConfigByLevel().time + 'ms'}}>
@@ -139,9 +140,12 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow, onClose
                     gameModel.car.upgrade();
                 }}></Car>
             </div>
-            <div className={`wf_factorySlot wf_planeSlot`} onClick={()=>{
-                onPlanePopupShow();
-            }}>plane
+            <div className={`wf_factorySlot wf_planeSlot`}>
+                <Plane planeModel={gameModel.plane} onPlaneClick={
+                    ()=>{
+                        onPlanePopupShow();
+                    }
+                }/>
             </div>
             <div ref={storageRef} className={`wf_factorySlot wf_storageSlot`}>
                 <Storage storageModel={gameModel.storage}></Storage>

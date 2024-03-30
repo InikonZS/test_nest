@@ -49,6 +49,10 @@ export class Water{
         return this.getConfigByLevel().price
     }
 
+    get upgradePrice(){
+        return waters[this.level + 1].price || 0;
+    }
+
     get maxCount(){
         return this.getConfigByLevel().maxCount
     }
@@ -90,8 +94,14 @@ export class Water{
 
     upgrade(){
         if (this.level<waters.length-1){
+            const isPaid = this.game.paySum(this.upgradePrice);
+            if (!isPaid){
+                return false;
+            };
+        
             this.level+=1;
         }
         this.game.onChange();
+        return true;
     }
 }

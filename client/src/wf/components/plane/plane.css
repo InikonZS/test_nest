@@ -1,0 +1,13 @@
+.wf_plane_wrapper{
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+.wf_plane{
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 100%;
+    width: 100%;
+    position: relative;
+}

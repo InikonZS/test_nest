@@ -41,7 +41,7 @@ export class Storage{
     }
 
     get upgradePrice(){
-        return storages[this.level + 1].price | 0;
+        return storages[this.level + 1].price || 0;
     }
 
     constructor(game: Game){
@@ -72,11 +72,12 @@ export class Storage{
     }
 
     upgrade(){
-        const isPaid = this.game.paySum(this.upgradePrice);
-        if (!isPaid){
-            return false;
-        };
         if (this.level<storages.length-1){
+            const isPaid = this.game.paySum(this.upgradePrice);
+            if (!isPaid){
+                return false;
+            };
+        
             this.level+=1;
         }
         this.game.onChange();

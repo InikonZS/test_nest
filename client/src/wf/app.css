@@ -1,6 +1,6 @@
 .wf_wrapper{
-    width: 100%;
-    height: 100%;
+    width: 800px;
+    height: 600px;
     position: relative;
     overflow: hidden;
 }
@@ -35,6 +35,11 @@
     display: flex;
     width: 500px;
     height: 300px;
+}
+
+.wf_basePopup_shade{
+    width: 100%;
+    height: 100%;
 }
 
 .wf_basePopup_close{

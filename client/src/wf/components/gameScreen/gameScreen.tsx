@@ -6,12 +6,16 @@ import { Collectable } from "../collectable/collectable";
 import { Factory } from "../factory/factory";
 import { Water } from "../water/water";
 import { Car } from "../car/car";
+import { Plane } from "../plane/plane";
 import { Storage } from "../storage/storage";
 import { CarPopup } from "../carPopup/carPopup";
 import { Grass } from "../grass/grass";
 import { factories } from "../../core/factory";
 import { IVector } from "../../core/IVector";
 import { AssetsContext } from "../../assetsContext";
+import { MovingPanel } from "./movingPanel";
+import { MissionsContainer } from "./missionsContainer";
+import { AnimalsPanel } from "./animalsPanel";
 
 interface IGameScreenProps{
     gameModel: Game;
@@ -59,36 +63,10 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow, onClose
         return `path("M${startPos.x + 14},${startPos.y + 14} Q${Math.floor(centralPos.x)},${Math.floor(centralPos.y)} ${Math.floor(end.x)},${Math.floor(end.y)}")`;
     }
     const {assets} =  useContext(AssetsContext);
-   
-    const formatTime = (time: number)=>{
-        const timeObj = new Date(time);
-        const timeString = `${timeObj.getUTCMinutes()} : ${timeObj.getUTCSeconds()}`;
-        return timeString;
-    }
-    
-    //console.log(motionPath);
+
     return <div className="wf_gameScreen">
-        <div className="wf_animalsPanel">
-            {
-                Object.keys(gameModel.availableAnimals).map((id: keyof typeof gameModel.availableAnimals)=>{
-                    return <div className={`wf_addAnimal_item ${gameModel.checkSum(gameModel.availableAnimals[id].price) ? '' : 'wf_addAnimal_item_disabled'}`} onClick={()=>{
-                        gameModel.addAnimal(id);
-                    }}>
-                        <div> add {id}</div> 
-                        <div> price: {gameModel.availableAnimals[id].price}</div>
-                    </div>
-                })
-            }
-        </div>
-        <div className="wf_movingPanel">
-            <div>money: {gameModel.money}</div>
-            <div className={`wf_movingCar ${gameModel.plane.isStarted ? 'wf_movingCar_active':''} wf_plane`} style={{animationDuration: /*gameModel.plane.getConfigByLevel().time*/1000 + 'ms'}}>
-                pln
-            </div>
-            <div className={`wf_movingCar ${gameModel.car.isStarted ? 'wf_movingCar_active':''}`} style={{animationDuration: gameModel.car.getConfigByLevel().time + 'ms'}}>
-                car
-            </div>
-        </div>
+        <AnimalsPanel gameModel={gameModel}/>
+        <MovingPanel gameModel={gameModel}/>
         <div ref={centralZoneRef} className="wf_centralZone">
             <div ref={animalsZoneRef} className="wf_animalsZone" onClick={(e)=>{
                 if ((e.target as HTMLElement).className == 'wf_animalsZone'){
@@ -138,31 +116,29 @@ export function GameScreen({gameModel, onCarPopupShow, onPlanePopupShow, onClose
                     gameModel.car.upgrade();
                 }}></Car>
             </div>
-            <div className={`wf_factorySlot wf_planeSlot`} onClick={()=>{
-                onPlanePopupShow();
-            }}>plane
+            <div className={`wf_factorySlot wf_planeSlot`}>
+                <Plane planeModel={gameModel.plane} onPlaneClick={
+                    ()=>{
+                        onPlanePopupShow();
+                    }
+                }/>
             </div>
             <div ref={storageRef} className={`wf_factorySlot wf_storageSlot`}>
                 <Storage storageModel={gameModel.storage}></Storage>
             </div>
             <div className="wf_flying_container">
-                {gameModel.flyingItems.map((item)=>{ console.log(item.delay); return <div key={item.flyingId} className={`wf_collectable wf_flying_item wf_flying_item_${item.pathType}`} style={{offsetPath: getMotionPath(item.startPos, item.endPos), 'animation-delay': item.delay*100+'ms', 'background-image': `url(${assets[item.type].objectUrl})`}}></div>})}
+                {gameModel.flyingItems.map((item)=>{ 
+                    console.log(item.delay); 
+                    return <div key={item.flyingId} 
+                        className={`wf_collectable wf_flying_item wf_flying_item_${item.pathType}`} 
+                        style={{offsetPath: getMotionPath(item.startPos, item.endPos), 
+                            'animation-delay': item.delay*100+'ms', 
+                            'background-image': `url(${assets[item.type].objectUrl})`
+                        }}>
+                    </div>
+                })}
             </div>
         </div>
-        <div className="wf_missions_container">
-            <button onClick={()=>gameModel.isPaused ? gameModel.resume() : gameModel.pause()}>{gameModel.isPaused ? 'resume' : 'pause'}</button>
-            <button onClick={onClose}>close</button>
-            <div>{formatTime(gameModel.time)}</div>
-            <div>{gameModel.getTimeLimitIndex() <gameModel.timeLimits.length ? formatTime(gameModel.timeLimits[gameModel.getTimeLimitIndex()] * 1000): ' - '} ind:{gameModel.getTimeLimitIndex()}</div>
-            missions
-        <div className="wf_missions">
-            {gameModel.missionTasks.map(mission=>{
-                return <div className={`wf_missionItem ${mission.isCompleted ? 'wf_missionItem_complete' : ''}`}>
-                    {mission.type+' - '}
-                    {!mission.isCompleted ? (mission.current +' / '+ mission.count) : 'ok'}
-                </div>
-            })}
-        </div>
-        </div>
+        <MissionsContainer onClose={onClose} gameModel={gameModel}/>
     </div>
 }

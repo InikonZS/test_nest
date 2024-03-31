@@ -1,7 +1,18 @@
+.wf_water_wrapper{
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
 .wf_water{
     background-size: contain;
     background-repeat: no-repeat;
     height: 100%;
     width: 100%;
     position: relative;
+}
+
+.wf_water_upgradeButton{
+    position: absolute;
+    transform: translate(0px, -100%);
 }

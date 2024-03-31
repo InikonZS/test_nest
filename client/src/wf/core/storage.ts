@@ -1,4 +1,5 @@
 import { Collectable } from "./collectable";
+import { Game } from "./game";
 
 class StorageItem{
     constructor(){
@@ -13,33 +14,42 @@ interface IStorageConfig {
 
 const storages: Array<IStorageConfig> = [
     {
-        maxCount: 100,
+        maxCount: 10,
         price: 0
     },
     {
-        maxCount: 100,
+        maxCount: 40,
         price: 100
     },
     {
-        maxCount: 100,
+        maxCount: 160,
         price: 500
     },
     {
-        maxCount: 100,
+        maxCount: 800,
         price: 2000
     },
 ];
 
 export class Storage{
     items: Array<Collectable> = [];
-    maxCount = 100;
     level= 0;
-    constructor(){
-        
+    game: Game;
+
+    get maxCount(){
+        return storages[this.level].maxCount
+    }
+
+    get upgradePrice(){
+        return storages[this.level + 1].price || 0;
+    }
+
+    constructor(game: Game){
+        this.game = game;
     }
 
     addItem(item: Collectable){
-        if ((this.getCount() + item.size) < this.maxCount){
+        if ((this.getCount() + item.size) <= this.maxCount){
             this.items.push(item);
             console.log('storage pushed', item);
             return true;
@@ -63,8 +73,14 @@ export class Storage{
 
     upgrade(){
         if (this.level<storages.length-1){
+            const isPaid = this.game.paySum(this.upgradePrice);
+            if (!isPaid){
+                return false;
+            };
+        
             this.level+=1;
         }
-        //this.game.onChange();
+        this.game.onChange();
+        return true;
     }
 }

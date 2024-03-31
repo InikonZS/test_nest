@@ -96,8 +96,8 @@ export class Collectable{
 
     static lastId = 0;
 
-    constructor(type: keyof typeof collectables, position: IVector){
-        this.position = {...position}
+    constructor(type: keyof typeof collectables, position?: IVector){
+        this.position = {...position} || {x:0, y:0}
         this.type = type;
         const config  = collectables[type];
         this.price = config.price;

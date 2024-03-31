@@ -1,0 +1,58 @@
+.wf_movingPanel{
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 200px;
+    height: 80px;
+    background-color: #ffd874;
+    margin: 2px;
+    padding: 0px;
+    border-radius: 5px;
+    border: 3px solid #c0730e;
+    color: #955e16;
+    font-weight: bold;
+}
+
+.wf_movingCar{
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #20b85a;
+    bottom: 5px;
+    left: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 11px;
+}
+
+.wf_movingCar_active{
+    animation: moveCarAni 1s forwards linear;
+}
+
+.wf_movingPlane{
+    bottom: 27px;
+}
+
+@keyframes moveCarAni{
+    0%{
+        left: 0%;
+        transform: translate(0, 0);
+    }
+    40%{
+        left: 100%;
+        transform: translate(-100%, 0);
+    }
+    50%{
+        left: 100%;
+        transform: translate(-100%, 0) rotateY(180deg);
+    }
+    90%{
+        left: 0%;
+        transform: translate(0, 0) rotateY(180deg);
+    }
+    100%{
+        left: 0%;
+        transform: translate(0, 0);
+    }
+}

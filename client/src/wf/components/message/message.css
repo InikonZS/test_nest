@@ -1,0 +1,33 @@
+.message_wrapper{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    color: #fff;
+    font-size: 20px;
+    text-shadow: #000 0px 0px 10px;
+    pointer-events: none;
+    animation: messageAni 2s forwards linear;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes messageAni{
+    0% {
+        top: 100%;
+        transform: translate(-50%, 0%);
+    }
+
+    20% {
+        top: 60%;
+        transform: translate(-50%, -50%);
+    }
+
+    80% {
+        top: 40%;
+        transform: translate(-50%, -50%);
+    }
+
+    100% {
+        top: 0%;
+        transform: translate(-50%, -100%);
+    }
+}

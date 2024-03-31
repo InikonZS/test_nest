@@ -11,6 +11,8 @@ import { AssetsLoader, IAssets } from "./assetsLoader";
 import { AssetsContext } from "./assetsContext";
 import { MainMenu } from './components/mainMenu/mainMenu';
 import { levels } from './core/levels';
+import { MessageView } from './components/message/message';
+import { IMessageData } from "./components/message/IMessageData";
 
 export function App(){
     const [game, setGame] = useState<Game>(null);
@@ -21,6 +23,7 @@ export function App(){
     const [isAssetsLoaded, setAssetsLoaded] = useState(false);
     const [selectedLevelId, setSelectedLevelId] = useState(-1);
     const [levelStatuses, setLevelStatuses] = useState<Array<string>>([]);
+    const [messages, setMessages] = useState<Array<IMessageData>>([]);
 
     useEffect(()=>{
         const levelData = levels[selectedLevelId];
@@ -30,6 +33,9 @@ export function App(){
         }
         const _game = new Game(levels[selectedLevelId]);
         _game.onChange=()=>(setFix(last=>last+1));
+        _game.onMessage=(message)=>{
+            setMessages(last=> ([...last, {id: Date.now()+Math.random(), message}]));
+        };
         setGame(_game);
         return ()=>{
             _game.destroy();
@@ -89,6 +95,13 @@ export function App(){
                     });
                     setSelectedLevelId(-1);
                 }}></WinPopup>
+            }
+            {
+                messages.map(it=>{
+                    return <MessageView key={it.id} data={it} onClosed={()=>{
+                        setMessages(last=> last.filter(jt=>jt.id != it.id));
+                    }}></MessageView>
+                })
             }
         </div>}
     </AssetsContext.Provider>

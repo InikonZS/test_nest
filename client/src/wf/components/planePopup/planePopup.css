@@ -1,7 +1,11 @@
 .wf_planePopup{
-
+    position: relative;
 }
 
-.wf_basePopup_close{
-    
+.wf_planePopup_planePanel{
+    width: 100%;
+}
+
+.wf_planePopup_storePanel{
+    width: 100%;
 }

@@ -25,7 +25,8 @@ export function PlanePopup({ onClose, gameModel }: IPlanePopupProps) {
         game.plane.addItems(itemType, 5);
     };
 
-    return <div className="wf_basePopup wf_planePopup">
+    return <div className="wf_basePopup_shade">
+    <div className="wf_basePopup wf_planePopup">
         <button className="wf_basePopup_close wf_planePopup_close" onClick={onClose}>close</button>
         <div className="wf_planePopup_storePanel">
             {game.getPlaneItems().map((item, index)=>{
@@ -47,7 +48,9 @@ export function PlanePopup({ onClose, gameModel }: IPlanePopupProps) {
                 <div className="wf_icon" style={{'background-image': `url(${assets['coin'].objectUrl})`}}></div>
                 <div>{game.plane.getTotalSum()}</div>
             </div>
+            <button onClick={handleBuy}>buy</button>
         </div>
-        <button onClick={handleBuy}>buy</button>
+        
+    </div>
     </div>
 }

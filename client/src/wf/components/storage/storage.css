@@ -29,3 +29,12 @@
     background-repeat: no-repeat;
     margin: 2px;
 }
+
+.wf_storage_upgradeButton_wrapper{
+    width: 100%;
+}
+
+.wf_storage_upgradeButton{
+    display: flex;
+    margin: auto;
+}

@@ -30,6 +30,8 @@ export function Storage({storageModel}: IStorageProps){
                 return <div className="wf_storage_item" style={{'background-image': `url(${assets[item].objectUrl})`}}></div>
             })}
         </div>
-        <button onClick={()=>storageModel.upgrade()}>upgrade {storageModel.upgradePrice}</button>
+        <div className="wf_storage_upgradeButton_wrapper">
+            <button className="wf_storage_upgradeButton" onClick={()=>storageModel.upgrade()}>upgrade {storageModel.upgradePrice}</button>
+        </div>
     </div>
 }

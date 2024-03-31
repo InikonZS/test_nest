@@ -1,8 +1,9 @@
 .wf_wrapper{
     width: 800px;
-    height: 600px;
+    height: 565px;
     position: relative;
     overflow: hidden;
+    margin: auto;
 }
 
 .wf_field{

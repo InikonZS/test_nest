@@ -22,6 +22,7 @@ export function MissionsContainer({gameModel, onClose}: IMissionsContainerProps)
                 {gameModel.isPaused ? 'resume' : 'pause'}
             </button> 
             <button onClick={onClose}>close</button>
+            <button className={`${gameModel.useBot ? 'wf_editorTool_active' : ''}`} onClick={() => gameModel.useBot = !gameModel.useBot}>bot</button>
         </div>
         
         <div>{formatTime(gameModel.time)}</div>

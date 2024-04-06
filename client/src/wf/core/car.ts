@@ -88,7 +88,9 @@ export class Car{
         const accepted = this.itemsToSlots(list);
         this.items = [...this.items, ...accepted];
         this.game.storage.items = this.game.storage.items.filter(jt => !accepted.includes(jt));
-        this.game.onChange?.();
+        if (accepted.length){
+            this.game.onChange?.();
+        }
     }
 
     initSlots(){

@@ -21,6 +21,7 @@ const defaultFactoriesSlots = [
 ];
 
 export class Game{
+    useBot = false;
     animals: Array<Animal> = [];
     items: Array<Collectable> = [];
     grass: Array<Grass> = [];
@@ -257,8 +258,10 @@ export class Game{
     }
 
     startFactory(factory: Factory){
-        factory.startFactory();
-        this.onChange();
+        const startResult = factory.startFactory();
+        if (startResult){
+            this.onChange();
+        }
     }
 
     makeGrass(x: number, y: number){

@@ -16,7 +16,7 @@ export function AniSlider(){
                 let nextOffset = offset - e.movementX;
                 let fullSlides = Math.floor(Math.abs(nextOffset) / slideWidth) * Math.sign(nextOffset);
                 if ((Math.abs(fullSlides))){
-                    setPosition(last=> last+fullSlides);
+                    setPosition(last=> cycle(last+fullSlides, allSlides.length));
                     nextOffset = Math.abs(nextOffset) % slideWidth * Math.sign(nextOffset);
                     setOffset(nextOffset);
                 } else {
@@ -26,7 +26,7 @@ export function AniSlider(){
             const handleUp = ()=>{
                 const slideWidth = slidesRef.current.getBoundingClientRect().width / showCount;              
                 if (Math.abs(offset) > slideWidth / 2){
-                    setPosition(last=> last + Math.sign(offset));
+                    setPosition(last=> cycle(last + Math.sign(offset), allSlides.length));
                     setStartPoint(null);
                     setOffset(last=>last -Math.sign(offset) * slideWidth);
                     requestAnimationFrame(()=>{

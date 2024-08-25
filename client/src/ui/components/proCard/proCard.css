@@ -17,16 +17,26 @@
     padding: 10px 10px;
 }
 
-.proCard_technology{
+.proCard_technology_1{
     padding: 5px 10px;
     border: 1px solid #ccc;
     border-radius: 18px;
     line-height: 16px;
-
+}
+.proCard_technology{
+    font-family: arial;
+    font-size: 12px;
+    padding: 1px 10px;
+    border: 1px solid #3eac3c;
+    border-radius: 18px;
+    color: #5fe55d;
+    line-height: 16px;
+    background: linear-gradient(45deg, #00600b80, transparent);
+    box-shadow: #000 1px 1px 4px;
 }
 
 .proCard_text{
-    width: 100%;
+    width: 50%;
 }
 
 .proCard_links{
@@ -45,11 +55,76 @@
 .proCard_img{
     width: 100%;
     background-color: #4a75cc;
+    position: relative;
 }
+
+.proCard_img_unwrapped{
+    height: 100%;
+    width: 100%;
+    left: 0;
+    top: 0;
+    position: fixed;
+    z-index: 1;
+}
+
+.proCard_full_exit{
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+}
+.proCard_runDemo{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    border: 15px #0006 solid;
+    background: transparent;
+    height: 100px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.proCard_runDemo:hover{
+    border: 15px #0009 solid;
+    background: #fff6;
+}
+
 .proCard_img::before{
     content: "";
     display: block;
     padding-bottom: 70%;
+}
+
+.proCard_img_content{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+}
+
+.proCard_img_ext{
+    object-fit: contain;
+    object-position: center;
+    position: relative;
+    display: block;
+    transform: translate(-50%, -50%);
+    left: 50%;
+    top: 50%;
+    height: 100%;
+}
+
+.demo_iframe{
+    display: block;
+    border: none;
+    height: 100%;
+    width: 100%;
 }
 
 .proCard_link{

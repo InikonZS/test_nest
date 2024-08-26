@@ -4,6 +4,7 @@ import { Sparkle } from "./components/sparkle/sparkle";
 import { AniSlider } from "./components/aniSlider/aniSlider";
 import { ProCard } from "./components/proCard/proCard";
 import { Wheel } from "./components/wheel/wheel";
+import { Slot } from "./slot/slot";
 
 const gameExample = {
     title: 'Project Title',
@@ -29,5 +30,6 @@ export function App(){
         <ProCard {...gameExample} ></ProCard>
         <ProCard {...gameExample1} ></ProCard>
         <Wheel></Wheel>
+        <Slot></Slot>
     </div>
 }

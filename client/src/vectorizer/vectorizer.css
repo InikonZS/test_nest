@@ -1,0 +1,24 @@
+.vectorizer_images{
+    display: flex;
+    width: 100%;
+    gap: 10px;
+}
+.vectorizer_dest{
+    width: 100%;
+}
+
+.vectorizer_dest-svg{
+    width: 100%;
+}
+
+.vectorizer_source{
+    width: 100%;
+}
+
+.vectorizer_source-canvas{
+    width: 100%;
+}
+
+.vectorizer_top{
+    overflow: hidden;
+}

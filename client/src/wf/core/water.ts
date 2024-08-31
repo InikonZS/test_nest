@@ -50,7 +50,7 @@ export class Water{
     }
 
     get upgradePrice(){
-        return waters[this.level + 1].price || 0;
+        return waters[this.level + 1]?.price || 0;
     }
 
     get maxCount(){

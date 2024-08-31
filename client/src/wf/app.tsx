@@ -13,6 +13,7 @@ import { MainMenu } from './components/mainMenu/mainMenu';
 import { levels } from './core/levels';
 import { MessageView } from './components/message/message';
 import { IMessageData } from "./components/message/IMessageData";
+import { Bot } from "./core/bot";
 
 export function App(){
     const [game, setGame] = useState<Game>(null);
@@ -32,13 +33,20 @@ export function App(){
             return;
         }
         const _game = new Game(levels[selectedLevelId]);
-        _game.onChange=()=>(setFix(last=>last+1));
+        _game.onChange=()=>{
+            setFix(last=>last+1);
+            bot.handleChanges();
+        };
         _game.onMessage=(message)=>{
             setMessages(last=> ([...last, {id: Date.now()+Math.random(), message}]));
         };
+
+        const bot = new Bot(_game);
+        bot.handleChanges();
         setGame(_game);
         return ()=>{
             _game.destroy();
+            bot.destroy();
             setGame(null);
         }
     }, [selectedLevelId]);

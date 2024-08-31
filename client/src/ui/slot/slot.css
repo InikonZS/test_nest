@@ -1,0 +1,56 @@
+.slot_wrapper{
+    overflow: hidden;
+    width: 800px;
+    height: 600px;
+    display: flex;
+}
+
+.slot_reel{
+    height: 100%;
+    width: calc(100% / 5);
+    display: flex;
+    flex-direction: column;
+}
+
+.slot_symbol{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ff0;
+    font-size: 50px;
+    border-radius: 20px;
+}
+
+.slot_symbol_animation{
+    height: calc(100% / 3);
+    width: 100%;
+    flex-shrink: 0;
+    padding: 10px;
+}
+
+.slot_symbol_a{
+    background-color: rgb(188, 77, 77);
+}
+
+.slot_symbol_b{
+    background-color: rgb(73, 76, 184);
+}
+
+.slot_symbol_c{
+    background-color: rgb(181, 73, 182);
+}
+
+.slot_symbol_move{
+    animation: move_down 100ms forwards linear;
+}
+
+@keyframes move_down{
+    0%{
+        transform: translateY(-200%);
+    }
+    100%{
+        transform: translateY(-100%);
+    }
+}

@@ -1,0 +1,75 @@
+.wheel_section{
+
+}
+
+.wheel_text_container{
+    position: relative;
+}
+
+.wheel_text{
+    position: absolute;   
+    font-weight: 900;
+    font-size: 65px;
+}
+
+.wheel_text_0{
+    position: relative;
+    color: transparent;
+    background-image: linear-gradient(yellow, orange);
+    background-clip: text;
+}
+
+.wheel_text_1{
+    color: transparent;
+    text-shadow: brown 0px 1px 2px, brown 1px 1px 1px, brown 1px 2px 1px, brown 2px 2px 1px, brown 2px 3px 0px, brown 3px 3px 0px, brown 4px 3px 0px , brown 5px 3px 0px,
+    black 5px 5px 8px, black 5px 5px 7px, black 5px 5px 3px;
+    user-select: none;
+}
+
+.wheel_text_2{
+    position: relative;
+    color: transparent;
+    background-image: linear-gradient(rgb(73, 140, 255), rgb(18, 18, 119));
+    background-clip: text;
+}
+
+.wheel_text_3{
+    --sh: rgb(144 123 163);
+    color: transparent;
+    text-shadow: var(--sh) 0px 1px 2px, var(--sh) 1px 1px 1px, var(--sh) 1px 2px 1px, var(--sh) 2px 2px 1px, var(--sh) 2px 3px 0px, var(--sh) 3px 3px 0px, var(--sh) 4px 3px 0px , var(--sh) 5px 3px 0px,
+    black 5px 5px 8px, black 5px 5px 7px, black 5px 5px 3px;
+    user-select: none;
+}
+
+.wheel_rotate{
+    transform: rotate(1645deg);
+    transition-duration: 3s;
+    transition-property: transform;
+    border-radius: 100%;
+    border: 3px solid brown;
+    width: 300px;
+    height: 300px;
+    /*background: conic-gradient( 
+     red 0deg 36deg, 
+     orange 36deg calc(36deg * 2), 
+     yellow calc(36deg * 2) calc(36deg * 3), 
+     green calc(36deg * 3) calc(36deg * 4), 
+     blue calc(36deg * 4) calc(36deg * 5), 
+     purple calc(36deg * 5) calc(36deg * 6),
+     red calc(36deg * 6) calc(36deg * 7), 
+     orange calc(36deg * 7) calc(36deg * 8), 
+     yellow calc(36deg * 8) calc(36deg * 9), 
+     green calc(36deg * 9) calc(36deg * 10)
+     );*/
+     --sector: 18deg;
+     background: radial-gradient(white 0% 30%, transparent 30% calc(90% / 1.41), rgb(255, 162, 0) calc(90% / 1.41), rgb(255, 187, 86) calc(100% / 1.41)), repeating-conic-gradient( 
+        rgb(206, 50, 50) 0deg,
+        rgb(127, 36, 36) calc(var(--sector) - 1deg),
+        rgb(196, 196, 196) calc(var(--sector) - 1deg),
+        rgb(110, 110, 110) calc(var(--sector)),
+        rgb(45, 36, 95) var(--sector), 
+        rgb(26, 20, 55) calc(var(--sector) * 2 - 1deg), 
+        rgb(196, 196, 196) calc(var(--sector) * 2 - 1deg),
+        rgb(110, 110, 110) calc(var(--sector) * 2)
+    );
+}

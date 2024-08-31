@@ -140,6 +140,7 @@ export class Factory{
             this.isStarted = true;
             this.tick(minCount);
         }
+        return this.isStarted;
     }
 
     protected tick(minCount: number){

@@ -13,7 +13,7 @@ export function Water({waterModel}: IWaterProps){
         <button className="wf_water_upgradeButton" onClick={()=>{
             waterModel.upgrade();
         }}>upgrade: {waterModel.upgradePrice}</button>
-        <div className="wf_water" style={{backgroundImage: `url(${assets['water'+waterModel.level].objectUrl})`}}>
+        <div className="wf_water" style={{backgroundImage: `url(${assets['water'+waterModel.level]?.objectUrl})`}}>
             {waterModel.count} / {waterModel.maxCount}
             {waterModel.count == 0 && waterModel.isReloading == false && <button onClick={()=>{
                 waterModel.reload();

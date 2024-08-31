@@ -1,10 +1,6 @@
 import React from "react";
-import { AvatarEditor } from "./components/avatarEditor/avatarEditor";
-import { Sparkle } from "./components/sparkle/sparkle";
-import { AniSlider } from "./components/aniSlider/aniSlider";
-import { ProCard } from "./components/proCard/proCard";
-import { Wheel } from "./components/wheel/wheel";
-import { Slot } from "./slot/slot";
+import { ProCard } from "../ui/components/proCard/proCard";
+import { Views } from "../cards/views";
 
 const bricksProject = {
     title: 'Bricks game',
@@ -25,29 +21,28 @@ const bricksProject = {
     )
 }
 
-const gameExample1 = {
-    title: 'Project Title',
-    technologies: ['Pixi'],
-    imgs: ['https://inikonzs.github.io/no_build_demos/index_assets/xo_screen1.png', 'https://inikonzs.github.io/no_build_demos/index_assets/bricks_screen1.png'],
-    gameUrl: 'https://fabulous-fox-7b966d.netlify.app/',
-    gameText: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Obcaecati cum, eveniet facere magnam ullam iusto esse, voluptatem pariatur illum soluta, fugit eligendi excepturi molestias ab temporibus doloribus officia at exercitationem?'
+const gamePoker = {
+    title: 'Texas Holdem Poker',
+    technologies: ['Game', 'React'],
+    imgs: ['https://inikonzs.github.io/no_build_demos/index_assets/poker_screen1.png', 'https://inikonzs.github.io/no_build_demos/index_assets/poker_screen2.png'],
+    gameUrl: 'https://poker-game-online.netlify.app/',
+    sourceUrl: 'https://github.com/sleepyComrade/Poker',
+    gameText: 'Multiplayer and single poker game. Written with React, Typescript for client and Node, Websocket for server'
 }
 
-const gameExampleFunc = {
-    title: 'Project Title',
-    technologies: ['Pixi'],
-    GameComponent: Slot,
-    gameText: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Obcaecati cum, eveniet facere magnam ullam iusto esse, voluptatem pariatur illum soluta, fugit eligendi excepturi molestias ab temporibus doloribus officia at exercitationem?'
+const gameCards = {
+    title: 'Cards',
+    technologies: ['Game', 'React'],
+    GameComponent: Views,
+    gameUrl: '#cards', 
+    gameText: 'Card game implementation. Available to play with bots, number of bots can be selected from 1 to 5'
 }
 
 export function App(){
     return <div>
-        <AvatarEditor></AvatarEditor>
-        {/*<Sparkle></Sparkle>*/}
-        <AniSlider></AniSlider>
         <ProCard {...bricksProject} ></ProCard>
-        <ProCard {...gameExample1} ></ProCard>
-        <ProCard {...gameExampleFunc} ></ProCard>
+        <ProCard {...gamePoker} ></ProCard>
+        <ProCard {...gameCards} ></ProCard>
         <ProCard 
             title="Walk around 3d cubes" 
             technologies={['JavaScript', 'Canvas']} 
@@ -60,7 +55,6 @@ export function App(){
             gameUrl="https://inikonzs.github.io/no_build_demos/blink_trace/index.html" 
             gameText="Demo shows synchronized diagonal blinking for many elements on the page with different sizes and positions. Demo uses css animation and linear gradient for blinking effect. Range input allows to change angle of blinking ray for next iteration."
         />
-        <Wheel></Wheel>
         {/*<Slot></Slot>*/}
     </div>
 }

@@ -8,7 +8,9 @@ import { App as Ani} from "./ani/app";
 import { App as Word} from "./word/app";
 import { App as Ui} from "./ui/app";
 import { App as Wf} from "./wf/app";
+import { Vectorizer } from "./vectorizer/vectorizer";
 import { NeirView } from './neir/app';
+import { App as MainPage} from "./pg/app";
 import  './root.css';
 
 export function App() {
@@ -23,7 +25,9 @@ export function App() {
         'ani': Ani,
         'word': Word,
         'ui': Ui,
-        'wf': Wf 
+        'wf': Wf,
+        'vectorizer': Vectorizer,
+        'main': MainPage
     }
 
     useEffect(()=>{
@@ -32,7 +36,7 @@ export function App() {
             if (games[page as keyof typeof games]){
                 setCurrentGame(page);
             } else {
-                location.hash = 'cards';
+                location.hash = 'main';
             }
         }
         window.addEventListener('popstate', handlePop);
@@ -117,7 +121,7 @@ export function App() {
         {/*<CardsView></CardsView>*/}
         {<div className="header_menu">
             <div className="logo"><span className="logo_s">De</span>mo</div>
-            {Object.keys(games).map((it)=> <button className={'header_button' +  (currentGame == it? ' header_button_selected': '')} onClick={()=> /*setCurrentGame(it)*/ location.hash = it}>{it}</button>)}
+            {currentGame !='main' && Object.keys(games).map((it)=> <button className={'header_button' +  (currentGame == it? ' header_button_selected': '')} onClick={()=> /*setCurrentGame(it)*/ location.hash = it}>{it}</button>)}
         </div>}
         {/*<Views></Views>*/}
         {/*<Three></Three>*/}

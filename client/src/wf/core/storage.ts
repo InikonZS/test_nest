@@ -41,7 +41,7 @@ export class Storage{
     }
 
     get upgradePrice(){
-        return storages[this.level + 1].price || 0;
+        return storages[this.level + 1]?.price || 0;
     }
 
     constructor(game: Game){

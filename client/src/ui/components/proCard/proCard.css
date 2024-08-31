@@ -149,6 +149,16 @@
     height: 100%;
 }
 
+.proCard .aniSlider_wrapper{
+    height: 100%;
+    padding: 0px;
+}
+
+.proCard .aniSlider_slide{
+    overflow: hidden;
+    padding: 0px 5px;
+}
+
 .proCard .aniSlider_slide_content{
     height: 100%;
     left: unset;
@@ -157,6 +167,7 @@
 
 .proCard .aniSlider_slides_rescaler{
     height: 100%;
+
 }
 
 .proCard_img_slide {

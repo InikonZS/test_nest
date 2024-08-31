@@ -1,6 +1,11 @@
 import React from "react";
 import { ProCard } from "../ui/components/proCard/proCard";
 import { Views } from "../cards/views";
+import { App as Three } from "../three/app";
+//import { App as Pixels } from "../pixels/app";
+//import { App as Ani} from "./ani/app";
+import { App as Word} from "../word/app";
+import { App as Wf} from "../wf/app";
 
 const bricksProject = {
     title: 'Bricks game',
@@ -35,6 +40,8 @@ const gameCards = {
     technologies: ['Game', 'React'],
     GameComponent: Views,
     gameUrl: '#cards', 
+    imgs: ["https://inikonzs.github.io/no_build_demos/index_assets/cards.png"],
+    sourceUrl: "https://github.com/InikonZS/test_nest/tree/master/client/src/cards",
     gameText: 'Card game implementation. Available to play with bots, number of bots can be selected from 1 to 5'
 }
 
@@ -42,7 +49,70 @@ export function App(){
     return <div>
         <ProCard {...bricksProject} ></ProCard>
         <ProCard {...gamePoker} ></ProCard>
+        <ProCard 
+            title="Farm Simulator" 
+            technologies={['Game', 'React']}
+            imgs={['https://inikonzs.github.io/no_build_demos/index_assets/wf1.png',
+                'https://inikonzs.github.io/no_build_demos/index_assets/wf2.png',
+                'https://inikonzs.github.io/no_build_demos/index_assets/wf3.png'
+            ]}
+            gameUrl="#wf" 
+            sourceUrl="https://github.com/InikonZS/test_nest/tree/master/client/src/wf"
+            GameComponent={Wf}
+            gameText="Single player game. Build factories, buy animals, sell products"
+        />
         <ProCard {...gameCards} ></ProCard>
+        <ProCard 
+            title="Word Field" 
+            technologies={['Game', 'React']}
+            imgs={['https://inikonzs.github.io/no_build_demos/index_assets/wordfield.png',
+            ]}
+            gameUrl="#word" 
+            sourceUrl="https://github.com/InikonZS/test_nest/tree/master/client/src/word"
+            GameComponent={Word}
+            gameText="Single player word field game. Collect longest word having 7 letters on hand vs perfect bot"
+        />
+        <ProCard 
+            title="Fruit Three" 
+            technologies={['Game', 'React']}
+            imgs={['https://inikonzs.github.io/no_build_demos/index_assets/fruitthree.png']}
+            gameUrl="#three" 
+            sourceUrl="https://github.com/InikonZS/test_nest/tree/master/client/src/three"
+            GameComponent={Three}
+            gameText="Three in row implementation"
+        />
+        <ProCard 
+            title="Words game" 
+            technologies={['Game', 'React']}
+            imgs={['https://inikonzs.github.io/no_build_demos/index_assets/words_screen1.png']}
+            gameUrl="https://words-game-online.netlify.app/" 
+            sourceUrl="https://github.com/InikonZS/words"
+            gameText="Multiplayer and single words game. Written with React, Typescript for client and Node, Websocket for server. Find words at 10x10 field in English, Russian, Belorussian and Polish languages with bot of friends."
+        />
+        <ProCard 
+            title="XO Game" 
+            technologies={['Game', 'Pixi', 'Spine']}
+            imgs={['https://inikonzs.github.io/no_build_demos/index_assets/xo_screen1.png']}
+            gameUrl="https://fabulous-fox-7b966d.netlify.app/" 
+            sourceUrl="https://github.com/InikonZS/xo_game"
+            gameText="Single player Pixi.js example cross-circles game"
+        />
+        <ProCard 
+            title="Horns" 
+            technologies={['Game', 'TypeScript', 'Canvas']}
+            imgs={['https://inikonzs.github.io/no_build_demos/index_assets/horns_screen1.png', 'https://inikonzs.github.io/no_build_demos/index_assets/horns_screen2.png']}
+            gameUrl="https://inikonzs-rs-clone-horns.netlify.app/" 
+            sourceUrl="https://github.com/InikonZS/Horns"
+            gameText="Worms clone written with TypeScript for RSClone task."
+        />
+        <ProCard 
+            title="Star Fighter" 
+            technologies={['Game', 'TypeScript', 'Canvas', 'WebGL']}
+            imgs={['https://inikonzs.github.io/no_build_demos/index_assets/star_screen1.png']}
+            gameUrl="https://inikon-ragneda-star-fighter.netlify.app/" 
+            sourceUrl="https://github.com/InikonZS/star-fighter"
+            gameText="3d space shooter, written with pure javascript and webgl."
+        />
         <ProCard 
             title="Walk around 3d cubes" 
             technologies={['JavaScript', 'Canvas']} 

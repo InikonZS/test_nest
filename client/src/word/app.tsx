@@ -54,13 +54,22 @@ export function App(){
             _game.destroy();
         }
     }, [gameOptions]);
+
+    
     const letterMap = useMemo(()=>game?.lettersToMap(), [game?.inputLetters.length, game?.letters.length]);
     const boosterMap = useMemo(()=>game?.boosterToMap(), [game?.inputLetters.length, game?.letters.length]);
     const fieldScroll = useRef<HTMLDivElement>();
+    const fieldContent = useRef<HTMLDivElement>();
+
+    useEffect(()=>{
+        if (fieldScroll.current && game){
+            setScrollPos({x:(fieldScroll.current.clientWidth - fieldContent.current.clientWidth) / 2, y: (fieldScroll.current.clientHeight - fieldContent.current.clientHeight) / 2});
+        }
+    }, [fieldScroll.current, game])
     return (
         <>  <div className="field_scroll" ref={fieldScroll}>
             {selected && !playerLetterMove && ghostPosition && <div className="cell cell_ghost" style={{top: ghostPosition.y - fieldScroll.current.getBoundingClientRect().top - 15, left: ghostPosition.x - fieldScroll.current.getBoundingClientRect().left - 15}}>{selected.text}</div>}
-            <div className="field_content" style={{transform: `translate(${scrollPos.x}px, ${scrollPos.y}px)`}} 
+            <div ref={fieldContent} className="field_content" style={{transform: `translate(${scrollPos.x}px, ${scrollPos.y}px)`}} 
             onMouseDown={(e)=>{
                 if (!selected){
                     setScrollStart({x: e.clientX, y: e.clientY});

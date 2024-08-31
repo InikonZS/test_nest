@@ -17,8 +17,15 @@ const gameExample = {
 const gameExample1 = {
     title: 'Project Title',
     technologies: ['Pixi'],
-    imgs: ['https://inikonzs.github.io/no_build_demos/index_assets/xo_screen1.png'],
+    imgs: ['https://inikonzs.github.io/no_build_demos/index_assets/xo_screen1.png', 'https://inikonzs.github.io/no_build_demos/index_assets/bricks_screen1.png'],
     gameUrl: 'https://fabulous-fox-7b966d.netlify.app/',
+    gameText: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Obcaecati cum, eveniet facere magnam ullam iusto esse, voluptatem pariatur illum soluta, fugit eligendi excepturi molestias ab temporibus doloribus officia at exercitationem?'
+}
+
+const gameExampleFunc = {
+    title: 'Project Title',
+    technologies: ['Pixi'],
+    GameComponent: Slot,
     gameText: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Obcaecati cum, eveniet facere magnam ullam iusto esse, voluptatem pariatur illum soluta, fugit eligendi excepturi molestias ab temporibus doloribus officia at exercitationem?'
 }
 
@@ -29,7 +36,8 @@ export function App(){
         <AniSlider></AniSlider>
         <ProCard {...gameExample} ></ProCard>
         <ProCard {...gameExample1} ></ProCard>
+        <ProCard {...gameExampleFunc} ></ProCard>
         <Wheel></Wheel>
-        <Slot></Slot>
+        {/*<Slot></Slot>*/}
     </div>
 }

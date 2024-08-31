@@ -1,7 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import './aniSlider.css';
 
-export function AniSlider(){
+interface IAniSliderProps extends React.PropsWithChildren{
+    showCount?: number
+}
+
+export function AniSlider({children, showCount = 4}: IAniSliderProps){
     const [position, setPosition] = useState(0);
     const [moveDir, setMoveDir] = useState('');
     const [startPoint, setStartPoint] = useState(null);
@@ -48,13 +52,14 @@ export function AniSlider(){
     const cycle = (a: number, am: number)=>{
         return a>=0?a%am:am-(1+ -(a+1)%am)
     }      
-    const showCount = 4;
-    const allSlides = useMemo(()=>[
+    //const showCount = 4;
+    const fixedChildren = Array.isArray(children) ? children : [children];
+    const allSlides = useMemo(()=>children ? fixedChildren : [
         <div className="aniSlider_slide_content">1</div>,
         <div className="aniSlider_slide_content aniSlider_slide_content1">2</div>,
         <div className="aniSlider_slide_content aniSlider_slide_content2">3</div>,
         <div className="aniSlider_slide_content aniSlider_slide_content3">4</div>
-    ], []);
+    ], [fixedChildren]);
     const realSlides = new Array(showCount).fill(null).map((item, index)=>allSlides[cycle(position + index, allSlides.length)]);
     const actualSlides = [allSlides[cycle(position - 1, allSlides.length)], ...realSlides , allSlides[cycle(position + realSlides.length, allSlides.length)]];
 

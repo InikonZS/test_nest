@@ -144,3 +144,25 @@
 .proCard_link:hover{
     background-color: #7fe7c6;
 }
+
+.proCard .aniSlider{
+    height: 100%;
+}
+
+.proCard .aniSlider_slide_content{
+    height: 100%;
+    left: unset;
+    top: unset;
+}
+
+.proCard .aniSlider_slides_rescaler{
+    height: 100%;
+}
+
+.proCard_img_slide {
+    object-fit: contain;
+    object-position: center;
+    position: relative;
+    display: block;
+    height: 100%;
+}

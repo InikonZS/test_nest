@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import './proCard.css';
+import { AniSlider } from "../aniSlider/aniSlider";
 
 interface IProCardProps{
     title: string,
     technologies: string[],
-    imgs: string[],
-    gameUrl: string,
-    gameText: string
+    imgs?: string[],
+    gameUrl?: string,
+    gameText: string,
+    GameComponent?: React.FunctionComponent,
 }
 
 const gameExample: IProCardProps = {
@@ -17,7 +19,7 @@ const gameExample: IProCardProps = {
     gameText: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Obcaecati cum, eveniet facere magnam ullam iusto esse, voluptatem pariatur illum soluta, fugit eligendi excepturi molestias ab temporibus doloribus officia at exercitationem?'
 }
 
-export function ProCard({title, technologies, imgs, gameUrl, gameText}: IProCardProps){
+export function ProCard({title, technologies, imgs, gameUrl, gameText, GameComponent}: IProCardProps){
     const [isUnwrapped, setUnwrapped] = useState(false);
     const [isRunned, setRunned] = useState(false);
 
@@ -32,7 +34,20 @@ export function ProCard({title, technologies, imgs, gameUrl, gameText}: IProCard
         }
     }, [isUnwrapped]);
 
-    return <div className="proCard_wrapper">
+    let imgsBlock: React.ReactElement | string;
+    if (!imgs){
+        imgsBlock = '';
+    } else if (imgs && imgs.length == 1){
+        imgsBlock = <img className="proCard_img_ext" src={imgs[0]} />
+    } else {
+        imgsBlock = <AniSlider showCount={1}>
+            {imgs.map(it=>{
+                return <div className="aniSlider_slide_content"><img className="proCard_img_slide" src={it} /></div>
+            })}
+        </AniSlider>
+    }
+
+    return <div className="proCard proCard_wrapper">
         <div className="proCard_title">{title}</div>
         <div className="proCard_technologies">
             {technologies.map(tech=>{
@@ -44,9 +59,10 @@ export function ProCard({title, technologies, imgs, gameUrl, gameText}: IProCard
                 {isUnwrapped && <button className='proCard_full_exit' onClick={()=>{setUnwrapped(false)}}>exit</button>}
                 {!isUnwrapped && isRunned && <button className='proCard_full_exit' onClick={()=>{setUnwrapped(true)}}>fullscreen</button>}
                 <div className="proCard_img_content">
-                    {!isRunned && <img className="proCard_img_ext" src={imgs[0]} />}
+                    {!isRunned && imgsBlock}
                     {!isRunned && <button className="proCard_runDemo" onClick={()=>setRunned(true)}>Load demo</button>}
-                    {isRunned && <iframe className="demo_iframe" src={gameUrl}></iframe>}
+                    {isRunned && gameUrl && <iframe className="demo_iframe" src={gameUrl}></iframe>}
+                    {isRunned && GameComponent && <GameComponent /> }
                 </div>
             </div>
             <div className="proCard_text">

@@ -7,7 +7,8 @@ interface IProCardProps{
     technologies: string[],
     imgs?: string[],
     gameUrl?: string,
-    gameText: string,
+    sourceUrl?: string,
+    gameText: React.ReactNode,
     GameComponent?: React.FunctionComponent,
 }
 
@@ -19,7 +20,7 @@ const gameExample: IProCardProps = {
     gameText: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Obcaecati cum, eveniet facere magnam ullam iusto esse, voluptatem pariatur illum soluta, fugit eligendi excepturi molestias ab temporibus doloribus officia at exercitationem?'
 }
 
-export function ProCard({title, technologies, imgs, gameUrl, gameText, GameComponent}: IProCardProps){
+export function ProCard({title, technologies, imgs, gameUrl, gameText, sourceUrl, GameComponent}: IProCardProps){
     const [isUnwrapped, setUnwrapped] = useState(false);
     const [isRunned, setRunned] = useState(false);
 
@@ -61,7 +62,7 @@ export function ProCard({title, technologies, imgs, gameUrl, gameText, GameCompo
                 <div className="proCard_img_content">
                     {!isRunned && imgsBlock}
                     {!isRunned && <button className="proCard_runDemo" onClick={()=>setRunned(true)}>Load demo</button>}
-                    {isRunned && gameUrl && <iframe className="demo_iframe" src={gameUrl}></iframe>}
+                    {isRunned && gameUrl && !GameComponent && <iframe className="demo_iframe" src={gameUrl}></iframe>}
                     {isRunned && GameComponent && <GameComponent /> }
                 </div>
             </div>
@@ -73,8 +74,8 @@ export function ProCard({title, technologies, imgs, gameUrl, gameText, GameCompo
             {/*<div className="proCard_link" onClick={()=>{
                 setUnwrapped(true);
             }}>Fullscreen</div>*/}
-            <div className="proCard_link">Play original</div>
-            <div className="proCard_link">Source</div>
+            {gameUrl && <a className="proCard_link" target="_blank" href={gameUrl}>Play original</a>}
+            {sourceUrl && <a className="proCard_link" target="_blank" href={sourceUrl}>Source</a>}
         </div>
     </div>
 }

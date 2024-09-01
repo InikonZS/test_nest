@@ -99,7 +99,7 @@ export class Game{
     constructor(options: IGameOptions){
         this.bank = new Bank(options.letters);
         this.wordTools = new WordTools();
-        this.players = new Array(options.players).fill(null).map(() =>new Player());
+        this.players = new Array(options.players).fill(null).map((it, i) =>new Player(['player', 'bot'][i]));
         this.addLetters();
     }
 

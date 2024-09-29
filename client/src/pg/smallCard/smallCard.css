@@ -4,11 +4,21 @@
     border-radius: 5px;
     padding: 10px;
     width: calc((100% - (var(--cols) - 1)* var(--gap)) / var(--cols));
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap:5px;
+}
+
+.smallCard_button{
+    border: none;
 }
 
 .smallCard_title{
     margin-bottom: 10px;
-    font-size: 36px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #ddd;
 }
 
 .smallCard_text{
@@ -17,6 +27,18 @@
 
 .smallCard_preview{
     margin-bottom: 10px;
+    display: flex;
+    gap: 5px;
+}
+
+.smallCard_preview_item{
+    width: 100%;
+    display: block;
+}
+
+.smallCard_preview img{
+    width: 100%;
+    display: block;
 }
 
 .smallCard_links{

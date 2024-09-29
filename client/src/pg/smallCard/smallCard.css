@@ -1,0 +1,24 @@
+.smallCard{
+    border: 1px solid #384a89;
+    background-color: #354062;
+    border-radius: 5px;
+    padding: 10px;
+    width: calc((100% - (var(--cols) - 1)* var(--gap)) / var(--cols));
+}
+
+.smallCard_title{
+    margin-bottom: 10px;
+    font-size: 36px;
+}
+
+.smallCard_text{
+    margin-bottom: 10px;
+}
+
+.smallCard_preview{
+    margin-bottom: 10px;
+}
+
+.smallCard_links{
+
+}

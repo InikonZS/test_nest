@@ -1,5 +1,9 @@
 import React from "react";
+import './app.css';
 import { ProCard } from "../ui/components/proCard/proCard";
+import { SmallCard } from "./smallCard/smallCard";
+import { Footer } from "./footer/footer";
+import { TopSection } from "./topSection/topSection";
 import { Views } from "../cards/views";
 import { App as Three } from "../three/app";
 //import { App as Pixels } from "../pixels/app";
@@ -46,7 +50,8 @@ const gameCards = {
 }
 
 export function App(){
-    return <div>
+    return <div className="pg_page">
+        <TopSection></TopSection>
         <ProCard {...bricksProject} ></ProCard>
         <ProCard {...gamePoker} ></ProCard>
         <ProCard 
@@ -125,6 +130,20 @@ export function App(){
             gameUrl="https://inikonzs.github.io/no_build_demos/blink_trace/index.html" 
             gameText="Demo shows synchronized diagonal blinking for many elements on the page with different sizes and positions. Demo uses css animation and linear gradient for blinking effect. Range input allows to change angle of blinking ray for next iteration."
         />
+
+        <div className="pg_other_projects">
+            <div className="pg_other_projects_wrapper">
+                <div className="pg_other_projects_title">There are some of undone and unsorted examples</div>
+                <div className="pg_other_projects_text">Maybe code of these can be usefull or later something will become a base for real project.</div>
+                <div className="pg_other_projects_list">
+                    <SmallCard></SmallCard>
+                    <SmallCard></SmallCard>
+                    <SmallCard></SmallCard>
+                </div>
+            </div>
+            
+        </div>
+        <Footer></Footer>
         {/*<Slot></Slot>*/}
     </div>
 }

@@ -110,10 +110,12 @@
 .topSection_text_title{
     font-size: 22px;
     font-weight: bold;
+    max-width: 320px;
 }
 
 .topSection_text{
     font-size: 11px;
+    max-width: 320px;
 }
 
 .wheel_section{

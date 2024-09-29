@@ -39,7 +39,7 @@ export function TopSection(){
                 
                 <div className='topSection_text_wrapper'>
                     <div className='topSection_text_title'>Something about this project</div>
-                    <div className='topSection_text'>someth dfsf fsdf s gsfds fdds f ing about this project</div>
+                    <div className='topSection_text'>There are should be written something smart, but there are nothing - just look at demos below.</div>
                 </div>
             </div>
         </div>

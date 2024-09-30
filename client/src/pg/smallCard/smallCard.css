@@ -12,6 +12,7 @@
 
 .smallCard_button{
     border: none;
+    text-decoration: none;
 }
 
 .smallCard_title{
@@ -42,5 +43,5 @@
 }
 
 .smallCard_links{
-
+    display: flex;
 }

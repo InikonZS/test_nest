@@ -1,0 +1,73 @@
+.pg_footer{
+    background-color: #222;
+    border-top: #ccc 1px solid;
+    color: #ccc;
+    padding: 10px 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.pg_footer_left{
+    display: flex;
+    gap: 20px;
+}
+
+.pg_footer_hire_text{
+    max-width: 240px;
+    font-size: 12px;
+    margin-bottom: 15px;
+}
+
+.pg_footer_hire_list{
+    font-size: 12px;
+}
+
+.pg_footer_corner{
+    align-self: flex-end;
+}
+
+.pg_footer_section_title{
+    font-size: 18px;
+    color: #ddd;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.pg_footer_contacts_block{
+    border-left: #ccc 1px dashed;
+    padding-left: 10px;
+}
+
+.pg_footer_contacts_title{
+
+}
+
+.pg_footer_contact{
+    display: flex;
+    gap: 10px;
+    padding: 5px 0px;
+    align-items: center;
+    font-size: 14px;
+}
+
+.pg_footer_contact_logo{
+
+}
+
+.ico_github{
+    background-image: url(../assets/github.svg);
+    background-repeat: no-repeat;
+    background-size: 56px;
+    background-position: center;
+    width: 32px;
+    height: 32px;
+}
+
+.ico_linkedin{
+    background-image: url(../assets/linkedin.svg);
+    background-repeat: no-repeat;
+    background-size: 32px;
+    background-position: center;
+    width: 32px;
+    height: 32px;
+}

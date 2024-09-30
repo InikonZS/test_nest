@@ -68,30 +68,71 @@
 }
 
 .proCard_full_exit{
+    border: none;
+    font-size: 0px;
+    border-radius: 5px;
+    background-color: #fff9;
+    background-image: url('./arrows.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    width: 32px;
+    height: 32px;
     position: absolute;
     top: 0;
     right: 0;
     z-index: 1;
 }
 .proCard_runDemo{
-    position: absolute;
-    top: 50%;
-    left: 50%;
     border-radius: 50%;
-    transform: translate(-50%, -50%);
     width: 100px;
-    border: 15px #0006 solid;
+    border: 15px #0009 solid;
     background: transparent;
     height: 100px;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
+    background-image: url(./triangle.svg);
+    background-size: 48px;
+    color: #fff;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 0;
+}
+
+.proCard_runDemo_out{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px #fff solid;
+}
+
+.proCard_runDemo_in{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 1px #fff solid;
+    display: flex;
+    flex-shrink: 0;
+}
+
+
+.proCard_runDemo span{
+    max-width: 13px;
+    margin-left: -10px;
+    line-height: 6px;
+    font-size: 8px;
 }
 
 .proCard_runDemo:hover{
     border: 15px #0009 solid;
-    background: #fff6;
+    background-color: #fff6;
 }
 
 .proCard_img::before{

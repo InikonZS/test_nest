@@ -70,7 +70,7 @@ const testLetters = [
 
 export class Game{
     players: Array<Player> = [];
-    letters: Array<FieldLetter> = [...testLetters];
+    letters: Array<FieldLetter> = [/*...testLetters*/];
     currentPlayerIndex: number = 0;
     inputLetters: Array<FieldLetter> = [];
     bank: Bank;
@@ -99,7 +99,7 @@ export class Game{
     constructor(options: IGameOptions){
         this.bank = new Bank(options.letters);
         this.wordTools = new WordTools();
-        this.players = new Array(options.players).fill(null).map(() =>new Player());
+        this.players = new Array(options.players).fill(null).map((it, i) =>new Player(['player', 'bot'][i]));
         this.addLetters();
     }
 
@@ -413,7 +413,13 @@ export class Game{
         const ay = vertical ? 'x' : 'y';
         const ax = vertical ? 'y' : 'x';
         const fieldRow = this.letters.filter(it=>it[ay] == row).sort((a, b)=>a[ax] - b[ax]);
-        if (!fieldRow.length) return [];
+        if (!fieldRow.length) {
+            if (row == 0){
+                fieldRow.push({x:null, y:null, id: null, text: null, value: null, [ax]: 0, [ay]: 0});
+            } else {
+               return []; 
+            }
+        }
 
         //optimization with only separated letters check
         const separatedLetters: Array<FieldLetter> = [];
@@ -599,6 +605,13 @@ export class Game{
                 maxY = it.y;
             }
         });
+
+        if (this.letters.length == 0){
+            minX = 0;
+            maxX = 0;
+            minY = 0;
+            maxY = 0;
+        }
         
         return {
             left: minX - 7,

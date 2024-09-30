@@ -1,0 +1,129 @@
+.topSection{
+  
+}
+
+.topSection_wrapper{
+    /*background-color: #224;*/
+    color: #ccc;
+    display: flex;
+    gap: 0px;
+    overflow: hidden;
+    position: relative;
+    border-bottom: 1px solid #ccc;
+}
+
+.topSection_left{
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    position: relative;
+    padding: 10px 10px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    background-color: #224;
+}
+
+.topSection_mid1{
+    background-color: #224;
+    clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+    width: 50px;
+    transform: scale(1.05);
+    height: 100%;
+}
+
+.topSection_mid2{
+    background-color: #224;
+    clip-path: polygon(0 0, 100% 0, 0% 100%, 0% 100%);
+    width: 50px;
+    transform: scale(1.05);
+    height: 100%;
+}
+
+.topSection_midcp1{
+    clip-path: polygon(100% 0, 0% 100%, 52% 100%);
+}
+
+.topSection_midcp2{
+    clip-path: polygon(50% 0, 100% 0, 0% 100%, -50% 100%);
+}
+.topSection_mid_group{
+    position: relative;
+    flex-shrink: 0;
+}
+
+.topSection_mid2_op{
+    opacity: 0.7;
+    position: absolute;
+    top: 0;
+    left: 5px;
+    background-color: #000;
+}
+
+
+.topSection_mid1_op{
+    opacity: 1;
+    position: absolute;
+    top: 0;
+    left: -1px;
+    background-color: #ffffff;
+}
+
+
+
+
+.topSection_right{
+    position: relative;
+    padding: 10px 10px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    background-color: #224;
+}
+
+.topSection_back{
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 100%;
+}
+
+.topSection_name{
+    font-size: 11px;
+}
+
+.topSection_title{
+    font-size: 50px;
+    color: #ccc;
+    text-transform: uppercase;
+    font-weight: 600;
+    line-height: 42px;
+    position: relative;
+    left: -3px;
+    max-width: 300px;
+}
+
+.topSection_text_wrapper{
+    position: relative;
+    text-shadow: #000 1px 1px 5px;
+}
+
+.topSection_text_title{
+    font-size: 22px;
+    font-weight: bold;
+    max-width: 320px;
+}
+
+.topSection_text{
+    font-size: 11px;
+    max-width: 320px;
+}
+
+.wheel_section{
+    transform: scale(1.3);
+}
+
+.topSection_bg{
+    position: absolute;
+    top: 0;
+    right: 0;
+}

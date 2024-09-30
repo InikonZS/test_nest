@@ -7,7 +7,8 @@ export class Player{
     ava = 'A';
     isLastMove = false;
     isFinished = false;
-    constructor(){
-
+    constructor(name: string){
+        this.name = name;
+        this.ava = name.slice(0, 2).toUpperCase();
     }
 }

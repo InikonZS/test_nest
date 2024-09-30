@@ -1,5 +1,9 @@
 import React from "react";
+import './app.css';
 import { ProCard } from "../ui/components/proCard/proCard";
+import { SmallCard } from "./smallCard/smallCard";
+import { Footer } from "./footer/footer";
+import { TopSection } from "./topSection/topSection";
 import { Views } from "../cards/views";
 import { App as Three } from "../three/app";
 //import { App as Pixels } from "../pixels/app";
@@ -46,7 +50,8 @@ const gameCards = {
 }
 
 export function App(){
-    return <div>
+    return <div className="pg_page">
+        <TopSection></TopSection>
         <ProCard {...bricksProject} ></ProCard>
         <ProCard {...gamePoker} ></ProCard>
         <ProCard 
@@ -125,6 +130,47 @@ export function App(){
             gameUrl="https://inikonzs.github.io/no_build_demos/blink_trace/index.html" 
             gameText="Demo shows synchronized diagonal blinking for many elements on the page with different sizes and positions. Demo uses css animation and linear gradient for blinking effect. Range input allows to change angle of blinking ray for next iteration."
         />
+
+        <div className="pg_other_projects">
+            <div className="pg_other_projects_wrapper">
+                <div className="pg_other_projects_title">There are some of undone and unsorted examples</div>
+                <div className="pg_other_projects_text">Maybe code of these can be usefull or later something will become a base for real project.</div>
+                <div className="pg_other_projects_list">
+                    <SmallCard {...{
+                        title: 'Tracers',
+                        gameText: 'Big collection of math demos, at first about tracing optimization and logics of real time strategy games, and some other math demos. Of course it almost impossible to undestand easy, so this big repo isn\'t placed among main projects.',
+                        imgs: [
+                            'https://inikonzs.github.io/no_build_demos/index_assets/math_screen1.png', 
+                            'https://inikonzs.github.io/no_build_demos/index_assets/math_screen2.png'
+                        ],
+                        gameUrl: 'https://inspiring-cocada-97ef0e11.netlify.app/',
+                        sourceUrl: 'https://github.com/InikonZS/tracer'
+                    }}></SmallCard>
+                    <SmallCard
+                    {...{
+                        title: 'Splayer SVG Editor',
+                        gameText: 'One of my first web projects, originaly it should be a tools to light-weight manual tracer for electronic boards, but later changed to svg editor with strict grid. Quite useless and undone, but presented as is.',
+                        imgs: [
+                            'https://inikonzs.github.io/no_build_demos/index_assets/splayer_screen1.png'
+                        ],
+                        gameUrl: '',
+                        sourceUrl: 'https://github.com/InikonZS/splayer'
+                    }}></SmallCard>
+                    <SmallCard
+                    {...{
+                        title: 'Chess Multiplayer',
+                        gameText: 'Single and multiplayer chess game. It was one of RS-Clone project written with students team. Currently there are no any deployed demo. It was builded with old architecture and impossible to run it client-only, but sources can be upped locally.',
+                        imgs: [
+                            'https://inikonzs.github.io/no_build_demos/index_assets/chess_screen1.png'
+                        ],
+                        gameUrl: '',
+                        sourceUrl: 'https://github.com/InikonZS/gameserv/tree/new-view6'
+                    }}></SmallCard>
+                </div>
+            </div>
+            
+        </div>
+        <Footer></Footer>
         {/*<Slot></Slot>*/}
     </div>
 }

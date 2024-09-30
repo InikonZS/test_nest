@@ -61,7 +61,7 @@ export function ProCard({title, technologies, imgs, gameUrl, gameText, sourceUrl
                 {!isUnwrapped && isRunned && <button className='proCard_full_exit' onClick={()=>{setUnwrapped(true)}}>fullscreen</button>}
                 <div className="proCard_img_content">
                     {!isRunned && imgsBlock}
-                    {!isRunned && <button className="proCard_runDemo" onClick={()=>setRunned(true)}>Load demo</button>}
+                    {!isRunned && <div className="proCard_runDemo_out"><button className="proCard_runDemo" onClick={()=>setRunned(true)}><div className="proCard_runDemo_in"><span>Load demo</span></div></button></div>}
                     {isRunned && gameUrl && !GameComponent && <iframe className="demo_iframe" src={gameUrl}></iframe>}
                     {isRunned && GameComponent && <GameComponent /> }
                 </div>

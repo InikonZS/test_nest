@@ -11,6 +11,10 @@ import { App as Three } from "../three/app";
 import { App as Word} from "../word/app";
 import { App as Wf} from "../wf/app";
 
+import xone3d from './assets/screens/xone3d.png';
+import xone from './assets/screens/xone.png';
+import bridge from './assets/screens/bridge.png';
+
 const bricksProject = {
     title: 'Bricks game',
     technologies: ['Released Game', 'React', 'TypeScript'],
@@ -136,6 +140,33 @@ export function App(){
                 <div className="pg_other_projects_title">There are some of undone and unsorted examples</div>
                 <div className="pg_other_projects_text">Maybe code of these can be usefull or later something will become a base for real project.</div>
                 <div className="pg_other_projects_list">
+                    <SmallCard {...{
+                        title: 'Jelly Bridge',
+                        gameText: 'Rigid bodies physics example, a small editor allows to draw some lines connected by joints and run sumulate. All written with pure js and canvas render, there are no any ready physical engines.',
+                        imgs: [
+                            bridge, 
+                        ],
+                        gameUrl: 'https://beamish-platypus-d36c02.netlify.app/',
+                        sourceUrl: 'https://github.com/InikonZS/demo-bridge'
+                    }}></SmallCard>
+                    <SmallCard {...{
+                        title: 'Xone 3d',
+                        gameText: 'Another xonix game, don\'t touch enemy balls and cut 3d terrain. Vector shapes cutting logic rendered with Babylon.',
+                        imgs: [
+                            xone3d, 
+                        ],
+                        gameUrl: 'https://xone.inikon.online',
+                        sourceUrl: 'https://github.com/InikonZS/xone'
+                    }}></SmallCard>
+                    <SmallCard {...{
+                        title: 'Xone',
+                        gameText: 'Implementation of xonix game, avoid enemy points and cut terrain. Render written with canvas and logic is based on vector shapes cutted by boolean operations.',
+                        imgs: [
+                            xone, 
+                        ],
+                        gameUrl: 'https://inikonzs.github.io/no_build_demos/xone/xone.html',
+                        sourceUrl: 'https://github.com/InikonZS/no_build_demos/tree/master/xone'
+                    }}></SmallCard>
                     <SmallCard {...{
                         title: 'Tracers',
                         gameText: 'Big collection of math demos, at first about tracing optimization and logics of real time strategy games, and some other math demos. Of course it almost impossible to undestand easy, so this big repo isn\'t placed among main projects.',

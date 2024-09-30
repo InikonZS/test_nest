@@ -29,8 +29,8 @@ export function SmallCard(data: ISmallCardProps){
             </div>
         </div>
         <div className='smallCard_links'>
-            {data.gameUrl && <button className='proCard_link smallCard_button'>Demo</button>}
-            {data.sourceUrl && <button className='proCard_link smallCard_button'>Source</button>}
+            {data.gameUrl && <a href={data.gameUrl} target='_blank' className='proCard_link smallCard_button'>Demo</a>}
+            {data.sourceUrl && <a href={data.sourceUrl} target='_blank' className='proCard_link smallCard_button'>Source</a>}
         </div>
     </div>
 }

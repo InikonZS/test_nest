@@ -2,12 +2,33 @@
     background-color: #224;
     padding: 10px 0px;
     color: #ccc;
+    width: calc((100% - (var(--cols) - 1)* var(--gap)) / var(--cols));
+    display: flex;
+    flex-direction: column;
 }
 
 .proCard_title{
-    padding: 10px 10px;
-    font-size: 36px;
-    background: linear-gradient(0deg, transparent, #191738);
+    padding: 0px 0px;
+    font-size: 31px;
+    line-height: 33px;
+    display: flex;
+    border-bottom: 1px #ccc solid;
+}
+.proCard_title_border{
+    clip-path: polygon(0 10px, 10px 0, calc(100% - 40px) 0, 100% 40px, 0 40px);
+    background-color: #ccc;
+    border: 1px transparent solid;
+    border-bottom: none;
+    position: relative;
+    top:1px;
+}
+
+.proCard_title_back{
+    background: linear-gradient(0deg, #224, #191738);
+    clip-path: polygon(0 10px, 10px 0, calc(100% - 40px) 0, 100% 40px, 0 40px);
+    padding: 0px 10px;
+    padding-right: 40px;
+    padding-top:5px;
 }
 
 .proCard_technologies{
@@ -15,6 +36,8 @@
     flex-wrap: wrap;
     gap: 10px;
     padding: 10px 10px;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
 }
 
 .proCard_technology_1{
@@ -43,6 +66,9 @@
     display: flex;
     gap:10px;
     padding: 10px 10px;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
 }
 
 .proCard_center{
@@ -50,6 +76,9 @@
     gap: 30px;    
     padding: 10px 10px;
     align-items: flex-start;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    height: 100%;
 }
 
 .proCard_img{

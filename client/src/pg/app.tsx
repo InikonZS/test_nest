@@ -56,7 +56,8 @@ const gameCards = {
 export function App(){
     return <div className="pg_page">
         <TopSection></TopSection>
-        <ProCard {...bricksProject} ></ProCard>
+        <div className="pg_main_projects_list">
+        <div style={{'--cols':1}}><ProCard {...bricksProject} ></ProCard></div>
         <ProCard {...gamePoker} ></ProCard>
         <ProCard 
             title="Farm Simulator" 
@@ -91,14 +92,6 @@ export function App(){
             gameText="Three in row implementation"
         />
         <ProCard 
-            title="Words game" 
-            technologies={['Game', 'React']}
-            imgs={['https://inikonzs.github.io/no_build_demos/index_assets/words_screen1.png']}
-            gameUrl="https://words-game-online.netlify.app/" 
-            sourceUrl="https://github.com/InikonZS/words"
-            gameText="Multiplayer and single words game. Written with React, Typescript for client and Node, Websocket for server. Find words at 10x10 field in English, Russian, Belorussian and Polish languages with bot of friends."
-        />
-        <ProCard 
             title="XO Game" 
             technologies={['Game', 'Pixi', 'Spine']}
             imgs={['https://inikonzs.github.io/no_build_demos/index_assets/xo_screen1.png']}
@@ -106,6 +99,15 @@ export function App(){
             sourceUrl="https://github.com/InikonZS/xo_game"
             gameText="Single player Pixi.js example cross-circles game"
         />
+        <div style={{'--cols':1}}>
+        <ProCard 
+            title="Words game" 
+            technologies={['Game', 'React']}
+            imgs={['https://inikonzs.github.io/no_build_demos/index_assets/words_screen1.png']}
+            gameUrl="https://words-game-online.netlify.app/" 
+            sourceUrl="https://github.com/InikonZS/words"
+            gameText="Multiplayer and single words game. Written with React, Typescript for client and Node, Websocket for server. Find words at 10x10 field in English, Russian, Belorussian and Polish languages with bot of friends."
+        /></div>
         <ProCard 
             title="Horns" 
             technologies={['Game', 'TypeScript', 'Canvas']}
@@ -134,7 +136,7 @@ export function App(){
             gameUrl="https://inikonzs.github.io/no_build_demos/blink_trace/index.html" 
             gameText="Demo shows synchronized diagonal blinking for many elements on the page with different sizes and positions. Demo uses css animation and linear gradient for blinking effect. Range input allows to change angle of blinking ray for next iteration."
         />
-
+        </div>
         <div className="pg_other_projects">
             <div className="pg_other_projects_wrapper">
                 <div className="pg_other_projects_title">There are some of undone and unsorted examples</div>

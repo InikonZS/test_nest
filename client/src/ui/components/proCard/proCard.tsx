@@ -49,7 +49,13 @@ export function ProCard({title, technologies, imgs, gameUrl, gameText, sourceUrl
     }
 
     return <div className="proCard proCard_wrapper">
-        <div className="proCard_title">{title}</div>
+        <div className="proCard_title">
+            <div className="proCard_title_border">
+                <div className="proCard_title_back">
+                    {title}
+                </div>
+            </div>
+        </div>
         <div className="proCard_technologies">
             {technologies.map(tech=>{
                 return <div className="proCard_technology">{tech}</div>

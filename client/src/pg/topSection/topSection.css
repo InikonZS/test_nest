@@ -68,9 +68,6 @@
     background-color: #ffffff;
 }
 
-
-
-
 .topSection_right{
     position: relative;
     padding: 10px 10px;
@@ -92,6 +89,7 @@
 }
 
 .topSection_title{
+    z-index: 1;
     font-size: 50px;
     color: #ccc;
     text-transform: uppercase;
@@ -126,4 +124,21 @@
     position: absolute;
     top: 0;
     right: 0;
+}
+
+@media (max-width: 600px) {
+    .topSection_wrapper{
+        flex-direction: column;
+    }
+
+    .topSection_title{
+        z-index: 1;
+        text-shadow: #000 1px 1px 5px;
+    }
+
+    .topSection_name{
+        z-index: 1;
+        position: relative;
+        text-shadow: #000 1px 1px 5px;
+    }
 }

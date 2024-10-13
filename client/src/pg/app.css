@@ -6,6 +6,16 @@
  
 }
 
+.pg_main_projects_list{
+    display: flex;
+    flex-wrap: wrap;
+    --cols: 2;
+    --gap: 10px;
+    gap: var(--gap);
+    background-color: #224;
+    padding: 0px 10px;
+}
+
 .pg_other_projects_wrapper{
     background-color: #224;
     padding: 10px 10px;
@@ -28,4 +38,19 @@
     --cols: 3;
     --gap: 10px; 
     gap: var(--gap);
+}
+
+@media (max-width: 1000px) {
+    .pg_main_projects_list{
+        --cols:1;
+    }
+    .pg_other_projects_list{
+        --cols:2;
+    }
+}
+
+@media (max-width: 600px) {
+    .pg_other_projects_list{
+        --cols:1;
+    }
 }

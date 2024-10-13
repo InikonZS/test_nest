@@ -62,7 +62,7 @@
      green calc(36deg * 9) calc(36deg * 10)
      );*/
      --sector: 18deg;
-     background: radial-gradient(white 0% 30%, transparent 30% calc(90% / 1.41), rgb(255, 162, 0) calc(90% / 1.41), rgb(255, 187, 86) calc(100% / 1.41)), repeating-conic-gradient( 
+     background: radial-gradient(#224 0% 30%, transparent 30% calc(90% / 1.41), rgb(255, 162, 0) calc(90% / 1.41), rgb(255, 187, 86) calc(100% / 1.41)), repeating-conic-gradient( 
         rgb(206, 50, 50) 0deg,
         rgb(127, 36, 36) calc(var(--sector) - 1deg),
         rgb(196, 196, 196) calc(var(--sector) - 1deg),

@@ -25,6 +25,7 @@ const run = async (file)=>{
         
     }
     console.log(fileData);
+    fs.writeFile(file, fileData);
 }
 
 const runDir = async(dir)=>{

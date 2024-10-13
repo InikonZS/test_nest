@@ -5,11 +5,11 @@
 }
 
 .wf_moneyIndicator_baseSum {
-    border: 3px solid #c0730e;
+    border:calc(var(--base) * 3) solid #c0730e;
     border-left: none;
     border-top: none;
-    border-bottom-right-radius: 5px;
-    padding: 2px 5px;
+    border-bottom-right-radius:calc(var(--base) * 5);
+    padding:calc(var(--base) * 2)calc(var(--base) * 5);
 }
 
 .wf_transaction {
@@ -20,20 +20,20 @@
 
 .wf_transaction_negative {
     color: #f00;
-    text-shadow: #fff 0px 0px 3px;
+    text-shadow: #fff calc(var(--base) * 0)calc(var(--base) * 0)calc(var(--base) * 3);
     animation: transactionNeg 2s forwards;
 }
 
 .wf_transaction_positive {
     color: #0f0;
-    text-shadow: #000000 0px 0px 3px;
+    text-shadow: #000000 calc(var(--base) * 0)calc(var(--base) * 0)calc(var(--base) * 3);
     animation: transactionPos 2s forwards;
 }
 
 @keyframes transactionPos{
     0%{
         opacity: 1;
-        transform: translate(-20px, 50px);
+        transform: translate(-2calc(var(--base) * 0), calc(var(--base) * 50));
     }
 
     100%{
@@ -50,6 +50,6 @@
 
     100%{
         opacity: 1;
-        transform: translate(20px, 50px);
+        transform: translate(calc(var(--base) * 20), calc(var(--base) * 50));
     }
 }

@@ -1,12 +1,12 @@
 .wf_carPopup{
     position: relative;
-    padding: 10px;
+    padding:calc(var(--base) * 10);
     background-color: #fff;
-    top: 0px;
-    left: 0px;
+    top:calc(var(--base) * 0);
+    left:calc(var(--base) * 0);
     display: flex;
-    width: 500px;
-    height: 300px;
+    width:calc(var(--base) * 500);
+    height:calc(var(--base) * 300);
 }
 
 .wf_carPopup_close{
@@ -17,8 +17,8 @@
 
 .wf_carPopup_storageBlock{
     width: 100%;
-    padding-right: 5px;
-    padding-top: 30px;
+    padding-right:calc(var(--base) * 5);
+    padding-top:calc(var(--base) * 30);
     background-color: #ffe0b0;
     overflow-y: auto;
 }
@@ -30,8 +30,8 @@
 .wf_carPopup_storageItem{
     display: flex;
     background-color: #ccc;
-    padding: 2px;
-    margin: 0px 0px;
+    padding:calc(var(--base) * 2);
+    margin:calc(var(--base) * 0)calc(var(--base) * 0);
     align-items: center;
     justify-content: space-between;
 }
@@ -42,8 +42,8 @@
                     
 .wf_carPopup_carBlock{
     width: 100%;
-    padding-left: 5px;
-    padding-top: 30px;
+    padding-left:calc(var(--base) * 5);
+    padding-top:calc(var(--base) * 30);
     background-color: #95d898;
 }
 
@@ -60,20 +60,20 @@
     flex-wrap: wrap;
     justify-content: center;
     background-color: #936d3b;
-    padding: 20px 0px;
-    border-top-right-radius: 30px;
-    border-top-left-radius: 30px;
+    padding:calc(var(--base) * 20)calc(var(--base) * 0);
+    border-top-right-radius:calc(var(--base) * 30);
+    border-top-left-radius:calc(var(--base) * 30);
 }
 
 .wf_carPopup_slot{
-    width: 30px;
-    height: 30px;
-    border: 1px solid;
+    width:calc(var(--base) * 30);
+    height:calc(var(--base) * 30);
+    border:calc(var(--base) * 1) solid;
 }
 
 .wf_carPopup_storageItem_img{
-    width: 32px;
-    height: 32px;
+    width:calc(var(--base) * 32);
+    height:calc(var(--base) * 32);
     background-repeat: no-repeat;
     background-size: contain;
 }
@@ -83,9 +83,9 @@
     align-items: center;
     background-color: #5e99ff;
     width: fit-content;
-    margin: 10px auto;
-    padding: 2px 5px;
-    border-radius: 5px;
+    margin:calc(var(--base) * 10) auto;
+    padding:calc(var(--base) * 2)calc(var(--base) * 5);
+    border-radius:calc(var(--base) * 5);
     color: #fff;
 }
 
@@ -95,5 +95,5 @@
 }
 
 .wf_carPopup_totalSum div{
-    margin-right: 10px;
+    margin-right:calc(var(--base) * 10);
 }

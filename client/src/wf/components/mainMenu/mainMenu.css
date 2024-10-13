@@ -1,6 +1,6 @@
 .wf_mainMenu_wrapper{
-    width: 800px;
-    height: 600px;
+    width:calc(var(--base) * 800);
+    height:calc(var(--base) * 600);
     user-select: none;
     position: relative;
 }
@@ -31,26 +31,26 @@
 
 .wf_mainMenu_levelButton{
     position: absolute;
-    width: 35px;
-    height: 35px;
+    width:calc(var(--base) * 35);
+    height:calc(var(--base) * 35);
     background-color: rgba(211, 205, 28, 0.866);
     border-radius: 100%;
-    border: 2px solid rgb(144, 120, 14);
+    border:calc(var(--base) * 2) solid rgb(144, 120, 14);
     display: flex;
     justify-content: center;
     align-items: center;
-    text-shadow: #000 1px 1px 1px;
+    text-shadow: #000 calc(var(--base) * 1)calc(var(--base) * 1)calc(var(--base) * 1);
     color: #fff;
 }
 
 .wf_mainMenu_levelButton_completed{
     background-color: rgba(9, 213, 40, 0.866);
-    border: 2px solid rgb(35, 119, 17);
+    border:calc(var(--base) * 2) solid rgb(35, 119, 17);
 }
 
 .wf_mainMenu_levelButton_locked{
     background-color: rgba(145, 145, 145, 0.866);
-    border: 2px solid rgb(59, 59, 59);
+    border:calc(var(--base) * 2) solid rgb(59, 59, 59);
 }
 
 .wf_mainMenu_debugPassLevel{
@@ -59,12 +59,12 @@
     left: 0;
     border-radius: 100%;
     background: #909;
-    width: 12px;
-    height: 12px;
+    width:calc(var(--base) * 12);
+    height:calc(var(--base) * 12);
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 8px;
-    border: 2px solid #515;
+    font-size:calc(var(--base) * 8);
+    border:calc(var(--base) * 2) solid #515;
     color: #ccc;
 }

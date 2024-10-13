@@ -4,7 +4,7 @@
     width: 170%;
     height: 170%;
     position: absolute;
-    top: calc(50% - 10px);
+    top: calc(50% - calc(var(--base) * 10));
     left: 50%;
     transform: translate(-50%, -50%);
 }
@@ -16,18 +16,18 @@
     width: fit-content;
     align-items: flex-start;
     justify-content: flex-start;
-    padding: 18px;
-    padding-top: 48px;
-    padding-bottom: 10px;
+    padding:calc(var(--base) * 18);
+    padding-top:calc(var(--base) * 48);
+    padding-bottom:calc(var(--base) * 10);
 }
 
 .wf_storage_item{
-    width: 10px;
-    height: 10px;
+    width:calc(var(--base) * 10);
+    height:calc(var(--base) * 10);
     background-color: #0009;
     background-size: contain;
     background-repeat: no-repeat;
-    margin: 2px;
+    margin:calc(var(--base) * 2);
 }
 
 .wf_storage_upgradeButton_wrapper{

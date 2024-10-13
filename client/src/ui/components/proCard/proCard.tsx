@@ -30,6 +30,7 @@ export function ProCard({title, technologies, imgs, gameUrl, gameText, sourceUrl
         } else {
             window.document.documentElement.style.overflow = '';
         }
+        window.dispatchEvent(new CustomEvent('resize'));
         return ()=>{
             window.document.documentElement.style.overflow = '';
         }

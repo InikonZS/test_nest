@@ -1,7 +1,7 @@
 .wf_grass{
     border-radius: 100%;
-    width: 16px;
-    height: 16px;
+    width:calc(var(--base) * 16);
+    height:calc(var(--base) * 16);
     background-color: #0f00;
     opacity: 0.5;
     position: absolute;

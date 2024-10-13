@@ -20,7 +20,7 @@
 .wf_car_hl_active{
     opacity: 1;
     position: absolute;
-    filter: blur(5px) brightness(12.5);
+    filter: blur(calc(var(--base) * 5)) brightness(12.5);
 }
 
 .wf_car_upgrade{

@@ -11,8 +11,8 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 500px;
-    height: 300px;
+    width:calc(var(--base) * 500);
+    height:calc(var(--base) * 300);
 }
 
 .wf_animalsZone{
@@ -21,40 +21,40 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: calc(100% - 2 * 80px);
+    width: calc(100% - 2 * calc(var(--base) * 80));
     height: 100%;
 }
 
 .wf_factory_buildButtons{
     position: absolute;
-    left: -10px;
+    left: -1calc(var(--base) * 0);
     right: auto;
-    bottom: 0px;    
+    bottom:calc(var(--base) * 0);    
     transform: translate(-100%, 0);
 }
 
 .wf_factory_buildButtons_right{
     position: absolute;
     left: auto;
-    right: -10px;  
+    right: -1calc(var(--base) * 0);  
     transform: translate(100%, 0);
 }
 
 .wf_factory_buildButton{
-    width: 50px;
-    border-radius: 5px;
+    width:calc(var(--base) * 50);
+    border-radius:calc(var(--base) * 5);
     border: none;
     background-color: #75a7fd;
-    margin-top: 5px;
+    margin-top:calc(var(--base) * 5);
     display: block;
 }
 
 .wf_factorySlot{
     background-color: #ba9658;
     position: absolute;
-    width: 81px;
-    height: 80px;
-    --br:20px;
+    width:calc(var(--base) * 81);
+    height:calc(var(--base) * 80);
+    --br:calc(var(--base) * 20);
     z-index: -1;
 }
 
@@ -140,8 +140,8 @@
 
 .wf_flying_item{
     position: absolute;
-    width: 24px;
-    height: 24px;
+    width:calc(var(--base) * 24);
+    height:calc(var(--base) * 24);
     animation: flying 1s forwards linear;
     offset-rotate: 0deg;
 }
@@ -162,15 +162,15 @@
 .wf_icon{
     background-size: cover;
     background-repeat: no-repeat;
-    width: 24px;
-    height: 24px;
+    width:calc(var(--base) * 24);
+    height:calc(var(--base) * 24);
 }
 
 .wf_progress_wrapper{
     width: 100%;
-    height: 6px;
-    border-radius: 3px;
-    border: 1px solid #999;
+    height:calc(var(--base) * 6);
+    border-radius:calc(var(--base) * 3);
+    border:calc(var(--base) * 1) solid #999;
     background-color: #fff;
 }
 

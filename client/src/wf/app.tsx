@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { IVector } from "./core/IVector";
 import './app.css';
 import { Game } from './core/game';
@@ -25,6 +25,8 @@ export function App(){
     const [selectedLevelId, setSelectedLevelId] = useState(-1);
     const [levelStatuses, setLevelStatuses] = useState<Array<string>>([]);
     const [messages, setMessages] = useState<Array<IMessageData>>([]);
+
+    const wrapRef = useRef<HTMLDivElement>();
 
     useEffect(()=>{
         const levelData = levels[selectedLevelId];
@@ -59,9 +61,48 @@ export function App(){
         });
     }, []);
 
+    const [scale, setScale] = useState(1);
+
+    useEffect(() => {
+        console.log(wrapRef.current);
+        if (!wrapRef.current?.parentElement){
+            setFix(last=>last+1);
+            return;
+        }
+        const resize = () => {
+          const width = wrapRef.current.parentElement.getBoundingClientRect().width;//window.innerWidth;
+          const height = wrapRef.current.parentElement.getBoundingClientRect().height;//window.innerHeight;
+          let w = 800;
+          let h = 565;
+          //always use MAX-, not MIN- its important for == state
+          /*if (matchMedia('(max-aspect-ratio: 1/1)').matches){
+            w = 780;
+            h = 1130;
+          }*/
+          const aspect = h / w;
+          const size = Math.min(height / aspect, width);
+          setScale(size / w);
+          console.log(size / w);
+        }
+        window.addEventListener('resize', resize);
+        //window.onresize = resize;
+        resize();
+        return () => {
+          window.removeEventListener('resize', resize);
+        }
+      }, [wrapRef.current, isAssetsLoaded]);
+    
+      useEffect(() => {
+        const parent = wrapRef.current;
+        if (!parent){
+            return;
+        }
+        parent.style.setProperty('--base', scale.toString() + 'px');
+      }, [scale, wrapRef.current]);
+
     return <AssetsContext.Provider value={{assets}}>
         {!isAssetsLoaded && <div>Loading assets...</div>}
-        {isAssetsLoaded && <div className="wf_wrapper">
+        {isAssetsLoaded && <div ref={wrapRef} className="wf_wrapper">
             {
                 !game && <MainMenu onSelectLevel={(levelId)=>{
                     setSelectedLevelId(levelId);

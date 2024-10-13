@@ -20,8 +20,8 @@
 }
 
 .wf_factory_upgrade{
-    margin: 0px;
-    font-size: 10px;
+    margin:calc(var(--base) * 0);
+    font-size:calc(var(--base) * 10);
     display: block;
     width: 100%;
 }

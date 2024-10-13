@@ -14,5 +14,5 @@
 
 .wf_water_upgradeButton{
     position: absolute;
-    transform: translate(0px, -100%);
+    transform: translate(calc(var(--base) * 0), -100%);
 }

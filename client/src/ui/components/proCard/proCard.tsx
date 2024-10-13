@@ -30,6 +30,7 @@ export function ProCard({title, technologies, imgs, gameUrl, gameText, sourceUrl
         } else {
             window.document.documentElement.style.overflow = '';
         }
+        window.dispatchEvent(new CustomEvent('resize'));
         return ()=>{
             window.document.documentElement.style.overflow = '';
         }
@@ -52,7 +53,15 @@ export function ProCard({title, technologies, imgs, gameUrl, gameText, sourceUrl
         <div className="proCard_title">
             <div className="proCard_title_border">
                 <div className="proCard_title_back">
-                    {title}
+                    <div className="thick_font_wrapper"> 
+                        <div className="thick_font_border">
+                            {title}
+                        </div>
+                        <div className="thick_font_top">
+                            {title}
+                        </div>
+                    
+                    </div>
                 </div>
             </div>
         </div>

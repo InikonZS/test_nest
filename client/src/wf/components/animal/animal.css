@@ -1,7 +1,7 @@
 .wf_animal{
     position: absolute;
-    width: 45px;
-    height: 45px;
+    width:calc(var(--base) * 45);
+    height:calc(var(--base) * 45);
     transform: translate(-50%, -50%);
     background-color: transparent;
     background-size: contain;

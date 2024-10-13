@@ -3,8 +3,8 @@
     left: 50%;
     top: 50%;
     color: #fff;
-    font-size: 20px;
-    text-shadow: #000 0px 0px 10px;
+    font-size:calc(var(--base) * 20);
+    text-shadow: #000 calc(var(--base) * 0)calc(var(--base) * 0)calc(var(--base) * 10);
     pointer-events: none;
     animation: messageAni 2s forwards linear;
     transform: translate(-50%, -50%);

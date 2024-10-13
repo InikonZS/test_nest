@@ -247,3 +247,12 @@
     display: block;
     height: 100%;
 }
+
+@media (max-width: 600px) {
+    .proCard_center{
+        flex-direction: column;
+    }
+    .proCard_text{
+        width: 100%;
+    }
+}

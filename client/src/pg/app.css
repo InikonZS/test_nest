@@ -39,3 +39,18 @@
     --gap: 10px; 
     gap: var(--gap);
 }
+
+@media (max-width: 1000px) {
+    .pg_main_projects_list{
+        --cols:1;
+    }
+    .pg_other_projects_list{
+        --cols:2;
+    }
+}
+
+@media (max-width: 600px) {
+    .pg_other_projects_list{
+        --cols:1;
+    }
+}

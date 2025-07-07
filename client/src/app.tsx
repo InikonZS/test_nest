@@ -11,6 +11,7 @@ import { App as Wf} from "./wf/app";
 import { Vectorizer } from "./vectorizer/vectorizer";
 import { NeirView } from './neir/app';
 import { App as MainPage} from "./pg/app";
+import { App as GlPage} from "./gl/app";
 import  './root.css';
 
 export function App() {
@@ -27,6 +28,7 @@ export function App() {
         'ui': Ui,
         'wf': Wf,
         'vectorizer': Vectorizer,
+        'gl': GlPage,
         'main': MainPage
     }
 

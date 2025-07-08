@@ -13,6 +13,7 @@ export class AABB{
   color: { r: number; g: number; b: number; a: number; };
   glPositionBuffer: any;
   normBuffer: any;
+  uvList: number[];
 
   constructor(gl: WebGLRenderingContext, aVector3d: Vector, bVector3d: Vector, color: { r: number; g: number; b: number; a: number; }) {
     this.aVector3d = aVector3d;
@@ -35,6 +36,7 @@ export class AABB{
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normList), gl.STATIC_DRAW); 
     
     this.normBuffer = normBuffer;*/
+    this.uvList = setTexcoords();
   }
   
   inside(vector3d: any){
@@ -44,13 +46,13 @@ export class AABB{
     return inQube(a.x, a.y, b.x, b.y, v.x, v.y, v.z, a.z, b.z);
   }
 
-  render(gl: any, positionAttributeLocation: any, positionNormLocation: any, colorLocation: any){
-    renderModel(gl, this.glPositionBuffer, this.normBuffer, 36, positionAttributeLocation, positionNormLocation, this.color, colorLocation);
+  render(gl: any, positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, colorLocation: any){
+    renderModel(gl, this.glPositionBuffer, this.normBuffer, this.uvList, 36, positionAttributeLocation, positionNormLocation, texcoordLocation, this.color, colorLocation);
   }
 
 }
 
-export function renderModel(gl: WebGLRenderingContext, glBuffer: any, normBuffer: any, bufLength: number, positionAttributeLocation: any, positionNormLocation: any, color: { r: number; g: number; b: number; a: number; }, colorLocation: any){
+export function renderModel(gl: WebGLRenderingContext, glBuffer: any, normBuffer: any, uvBuffer: any, bufLength: number, positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, color: { r: number; g: number; b: number; a: number; }, colorLocation: any){
 
   gl.uniform4f(colorLocation, color.r/255, color.g/255, color.b/255, color.a/255);
   gl.bindBuffer(gl.ARRAY_BUFFER, glBuffer);
@@ -62,7 +64,7 @@ export function renderModel(gl: WebGLRenderingContext, glBuffer: any, normBuffer
   var stride = 0;        // 0 = перемещаться на size * sizeof(type) каждую итерацию для получения следующего положения
   var offset = 0;        // начинать с начала буфера
   gl.vertexAttribPointer(
-  positionAttributeLocation, size, type, normalize, stride, offset);
+  positionAttributeLocation, size + 1, type, normalize, stride, offset);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, normBuffer);
 
@@ -79,7 +81,35 @@ export function renderModel(gl: WebGLRenderingContext, glBuffer: any, normBuffer
   var offset = 0;
   //var count = positions.length / size;
   var count = bufLength; 
+ 
+  gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+  // текстурные координаты - числа с плавающей точкой
+  gl.vertexAttribPointer(texcoordLocation, 2, gl.FLOAT, false, 0, 0);
+  
+
   gl.drawArrays(primitiveType, offset, count); 
+}
+
+export function setTexcoords() {
+  const buf: Array<number> = [];
+  for (let i =0; i< 6; i++){
+    [
+        0, 0,
+        1, 0,
+        1, 1,
+        1, 1,
+        0, 1,
+        0, 0,
+       ].forEach(j=>{
+          buf.push(j)
+       });
+  }
+  return buf;
+  /*gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array(buf),
+       gl.STATIC_DRAW);*/
+       
 }
 
 
@@ -166,48 +196,49 @@ function makeBoxNormalsFromVertexList(){
 
 
 function makeBoxModelFromVertexList(va: any[]){
+  const w = 1;
   var positions = [
-    va[0].x, va[0].y, va[0].z,
-    va[1].x, va[1].y, va[1].z,
-    va[2].x, va[2].y, va[2].z,
-    va[2].x, va[2].y, va[2].z,
-    va[3].x, va[3].y, va[3].z,
-    va[0].x, va[0].y, va[0].z,
+    va[0].x, va[0].y, va[0].z, w,
+    va[1].x, va[1].y, va[1].z, w,
+    va[2].x, va[2].y, va[2].z, w,
+    va[2].x, va[2].y, va[2].z, w,
+    va[3].x, va[3].y, va[3].z, w,
+    va[0].x, va[0].y, va[0].z, w,
 
-    va[4].x, va[4].y, va[4].z,
-    va[5].x, va[5].y, va[5].z,
-    va[6].x, va[6].y, va[6].z,
-    va[6].x, va[6].y, va[6].z,
-    va[7].x, va[7].y, va[7].z,
-    va[4].x, va[4].y, va[4].z,
+    va[4].x, va[4].y, va[4].z, w,
+    va[5].x, va[5].y, va[5].z, w,
+    va[6].x, va[6].y, va[6].z, w,
+    va[6].x, va[6].y, va[6].z, w,
+    va[7].x, va[7].y, va[7].z, w,
+    va[4].x, va[4].y, va[4].z, w,
 
-    va[0].x, va[0].y, va[0].z,
-    va[1].x, va[1].y, va[1].z,
-    va[1+4].x, va[1+4].y, va[1+4].z,
-    va[0].x, va[0].y, va[0].z,
-    va[1+4].x, va[1+4].y, va[1+4].z,
-    va[0+4].x, va[0+4].y, va[0+4].z,
+    va[0].x, va[0].y, va[0].z, w,
+    va[1].x, va[1].y, va[1].z, w,
+    va[1+4].x, va[1+4].y, va[1+4].z, w,
+    va[1+4].x, va[1+4].y, va[1+4].z, w,
+    va[0+4].x, va[0+4].y, va[0+4].z, w,
+    va[0].x, va[0].y, va[0].z, w,
 
-    va[1].x, va[1].y, va[1].z,
-    va[2].x, va[2].y, va[2].z,
-    va[2+4].x, va[2+4].y, va[2+4].z,
-    va[1].x, va[1].y, va[1].z,
-    va[2+4].x, va[2+4].y, va[2+4].z,
-    va[1+4].x, va[1+4].y, va[1+4].z,
+    va[1].x, va[1].y, va[1].z, w,
+    va[2].x, va[2].y, va[2].z, w,
+    va[2+4].x, va[2+4].y, va[2+4].z, w,
+    va[2+4].x, va[2+4].y, va[2+4].z, w,
+    va[1+4].x, va[1+4].y, va[1+4].z, w,
+    va[1].x, va[1].y, va[1].z, w,
 
-    va[2].x, va[2].y, va[2].z,
-    va[3].x, va[3].y, va[3].z,
-    va[3+4].x, va[3+4].y, va[3+4].z,
-    va[2].x, va[2].y, va[2].z,
-    va[3+4].x, va[3+4].y, va[3+4].z,
-    va[2+4].x, va[2+4].y, va[2+4].z,
+    va[2].x, va[2].y, va[2].z, w,
+    va[3].x, va[3].y, va[3].z, w,
+    va[3+4].x, va[3+4].y, va[3+4].z, w,
+    va[3+4].x, va[3+4].y, va[3+4].z, w,
+    va[2+4].x, va[2+4].y, va[2+4].z, w,
+    va[2].x, va[2].y, va[2].z, w,
 
-    va[3].x, va[3].y, va[3].z,
-    va[0].x, va[0].y, va[0].z,
-    va[0+4].x, va[0+4].y, va[0+4].z,
-    va[3].x, va[3].y, va[3].z,
-    va[0+4].x, va[0+4].y, va[0+4].z,
-    va[3+4].x, va[3+4].y, va[3+4].z,
+    va[3].x, va[3].y, va[3].z, w,
+    va[0].x, va[0].y, va[0].z, w,
+    va[0+4].x, va[0+4].y, va[0+4].z, w,
+    va[0+4].x, va[0+4].y, va[0+4].z, w,
+    va[3+4].x, va[3+4].y, va[3+4].z, w,
+    va[3].x, va[3].y, va[3].z, w,
   ]; 
   return positions;  
 }

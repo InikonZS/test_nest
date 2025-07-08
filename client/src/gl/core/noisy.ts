@@ -16,10 +16,10 @@ export class Noisy{
     this.gl = gl;
   }
   
-  render(gl: WebGLRenderingContext, positionAttributeLocation: number, normAttributeLocation: number, colorLocation: WebGLUniformLocation){
+  render(gl: WebGLRenderingContext, positionAttributeLocation: number, normAttributeLocation: number, texcoordLocation: number, colorLocation: WebGLUniformLocation){
     this.gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     this.chunkList.forEach(chunk=>{
-      chunk.group.render(gl, positionAttributeLocation, normAttributeLocation, colorLocation);
+      chunk.group.render(gl, positionAttributeLocation, normAttributeLocation, texcoordLocation, colorLocation);
       //chunk.models.forEach(it=>it.render(this.gl, positionAttributeLocation, normAttributeLocation, colorLocation));
     });
   }
@@ -32,14 +32,15 @@ export class Noisy{
     //return intersect(this.modelList, v.x, v.y, v.z);
   }
 
-  loadChunk(gl: WebGLRenderingContext, position: { x: number; y: number; }){
+  loadChunk(gl: WebGLRenderingContext, position: { x: number; y: number; }, lod = 2){
     const chunkSize = this.chunkSize;
-    if (this.loadedList.find(it=> `${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}` == it) == undefined){
-        this.loadedList.push(`${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}`);
+    if (this.loadedList.find(it=> `${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}_${lod}` == it) == undefined){
+        this.loadedList.push(`${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}_${lod}`);
         this.chunkList.push(
             generateChunk(gl, 
                 Math.floor(position.x / 2 /chunkSize)*chunkSize, 
-                Math.floor(position.y / 2 /chunkSize)*chunkSize, chunkSize
+                Math.floor(position.y / 2 /chunkSize)*chunkSize, chunkSize,
+                lod
             )
         );
     }
@@ -56,7 +57,7 @@ let intersect = (modelList: any[], px: number, py: number, pz: number): {stat: b
   return inb;
 }
 
-const generateChunk = (gl: WebGLRenderingContext, ox: number, oy: number, chunkSize: number)=>{
+const generateChunk = (gl: WebGLRenderingContext, ox: number, oy: number, chunkSize: number, lod: number)=>{
     //console.log('generating', ox, oy)
     const canvas = document.createElement('canvas');
     canvas.width = chunkSize;
@@ -73,14 +74,16 @@ const generateChunk = (gl: WebGLRenderingContext, ox: number, oy: number, chunkS
                 noiseValue = (noiseValue + (noise((x + ox) / 2 ** k, (y + oy) / 2 ** k)) /((octas-k) ** 1.2));
             }
             //if (noiseValue){
+            if (x % lod ==0 &&  y % lod == 0){
             const blockSize = 2;
             const blockZ = Math.floor(noiseValue*50 / blockSize) * blockSize;
                 let ob = new AABB(gl, 
-                    new Vector((x + ox)*blockSize, (y+oy)*blockSize, -blockSize + blockZ), 
-                    new Vector(((x+ox)+1)*blockSize, ((y+oy)+1)*blockSize, + blockZ), 
+                    new Vector((x + ox)*blockSize, (y+oy)*blockSize, -blockSize*lod + blockZ), 
+                    new Vector(((x+ox)+lod)*blockSize, ((y+oy)+lod)*blockSize, + blockZ), 
                 {r:Math.random()*100+100, g:Math.random()*100+100, b:Math.random()*100+100, a:255}
                 );
                 list.push(ob);
+              }
            // }
            
             //ctx.fillStyle = noiseValue > 0 ? grey(0) : grey(255); 
@@ -94,7 +97,8 @@ const generateChunk = (gl: WebGLRenderingContext, ox: number, oy: number, chunkS
             models: list,
             group: new ABChunk(gl, list),
             position: {x: ox, y: oy},
-            map: canvas
+            map: canvas,
+            lod
           }
     //return list;
 }

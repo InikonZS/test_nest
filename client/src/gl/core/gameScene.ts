@@ -34,15 +34,21 @@ export class GameScene {
       init(){
     let vertexShaderSource = `
       attribute vec4 a_position;
-      attribute vec4 n_position;
+      attribute vec3 n_position;  
+      attribute vec2 a_texcoord;
       uniform mat4 u_matrix;
 
       varying vec4 pos;
-      varying vec4 nos;
+      varying vec3 nos;
+
+    
+    varying vec2 v_texcoord;
+
       void main() {
         gl_Position = u_matrix *  a_position;
         pos = gl_Position;
         nos = n_position;
+        v_texcoord = a_texcoord;
       }
     `;    
     //u_matrix_world *
@@ -52,11 +58,19 @@ export class GameScene {
       precision mediump float;
       uniform vec4 u_color;
       varying vec4 pos;
-      varying vec4 nos;
+      varying vec3 nos;
+    varying vec2 v_texcoord;       
+    uniform sampler2D u_texture;
+
       void main() {
-        gl_FragColor = clamp(vec4(0.0, 0.0, 0.0, 1.0) + max(min(0.8, (1.3 / sqrt(pos.z))), 0.15) * dot(normalize(vec3(1.0, 0.7, 0.3)), normalize(vec3(nos.x + 1.0, nos.y + 1.0, nos.z + 1.0))), 0.0, 1.0);
+      gl_FragColor = texture2D(u_texture, v_texcoord) / 5.0 * 4.0 + texture2D(u_texture, v_texcoord)/5.0 * abs(dot(normalize(vec3(1.0, 0.5, 0.25)), normalize(nos)));
       }
-    `;
+    `; 
+    //clamp(dot(normalize(vec3(1.0, 1.0, 1.0)), normalize(nos)), 0.1, 0.9);
+    //gl_FragColor.rgb = clamp(texture2D(u_texture, v_texcoord) + dot(normalize(vec3(1.0, 1.0, 1.0)), normalize(nos)), 0.0, 1.0) ;
+    //gl_FragColor = clamp(texture2D(u_texture, v_texcoord) + max(min(0.8, (0.01 * 1.3 / sqrt(pos.z))), 0.15) * dot(normalize(vec3(1.0, 0.7, 0.3)), normalize(vec3(nos.x + 1.0, nos.y + 1.0, nos.z + 1.0))), 0.0, 1.0);
+    // gl_FragColor = texture2D(u_texture, v_texcoord);
+    // gl_FragColor = clamp(vec4(0.0, 0.0, 0.0, 1.0) + max(min(0.8, (1.3 / sqrt(pos.z))), 0.15) * dot(normalize(vec3(1.0, 0.7, 0.3)), normalize(vec3(nos.x + 1.0, nos.y + 1.0, nos.z + 1.0))), 0.0, 1.0);
     //  gl_FragColor = u_color;
     //gl_FragColor = normalize(vec4(nos.x, nos.y, nos.z, 1));
     let gl = this.context;
@@ -65,6 +79,7 @@ export class GameScene {
     let program = makeShader(gl, vertexShaderSource, fragmentShaderSource);
     var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
     var positionNormLocation = gl.getAttribLocation(program, "n_position");
+    var texcoordLocation = gl.getAttribLocation(program, "a_texcoord");
     var colorLocation = gl.getUniformLocation(program, "u_color");
     var matrixLocation = gl.getUniformLocation(program, "u_matrix");
     //var worldLocation = gl.getUniformLocation(program, "u_matrix_world");
@@ -79,6 +94,7 @@ export class GameScene {
     gl.useProgram(program);
     gl.enableVertexAttribArray(positionAttributeLocation);
     gl.enableVertexAttribArray(positionNormLocation);
+    gl.enableVertexAttribArray(texcoordLocation);
 
     //let world = new World (gl, mapa);
     //this.world=world;
@@ -100,7 +116,7 @@ export class GameScene {
         this.player.spawn();
       } 
 
-      [
+      /*[
        { x: 1, y: 0 },
        { x: -1, y: 0 },
        { x: 0, y: 1 },
@@ -112,7 +128,16 @@ export class GameScene {
        { x: -1, y: -1 },
     ].forEach(it=>{
       this.world.loadChunk(gl, {x: -this.player.posX + it.x * 10, y: -this.player.posY + it.y * 10});
-      });
+      });*/
+
+      const loadDistance = 12;
+        const lodPoint = 4;
+              const lodPoint2 = 8;
+      for (let px = -loadDistance; px<loadDistance; px++){
+           for (let py = -loadDistance; py<loadDistance; py++){
+        this.world.loadChunk(gl, {x: -this.player.posX + px* this.chunkSize, y: -this.player.posY + py* this.chunkSize}, (Math.abs(px) < lodPoint2 && Math.abs(py) < lodPoint2) ? ((Math.abs(px) < lodPoint && Math.abs(py) < lodPoint) ? 1 : 2) : 4 );
+        }
+      }
 
       var aspect = this.canvas.clientWidth / this.canvas.clientHeight;
       var matrix = makeCameraMatrix(aspect, this.player.camRX, this.player.camRY, this.player.posX, this.player.posY, this.player.posZ);
@@ -127,7 +152,7 @@ export class GameScene {
       
       //gl.uniformMatrix4fv(worldLocation, false, wmat);
 
-      world.render(gl, positionAttributeLocation, positionNormLocation, colorLocation);
+      world.render(gl, positionAttributeLocation, positionNormLocation, texcoordLocation, colorLocation);
 
       const ctx = this.mapContext;
       ctx.fillStyle = '#fff';

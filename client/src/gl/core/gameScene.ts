@@ -4,6 +4,8 @@ import { Noisy } from "./noisy";
 import {createShader, createProgram} from "./gl-utils";
 import m4 from './m4';
 import dirt from "../assets/dirt.png";
+import dirt_top from "../assets/dirt_top.png";
+import dirt_side from "../assets/dirt_side.png";
 
 export class GameScene {
     canvas: HTMLCanvasElement;
@@ -88,28 +90,9 @@ export class GameScene {
 
     //console.log(m4.identity());
 
-        // создаём текстуру
-        var texture = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        
-        // заполняем текстуру голубым пикселем 1x1
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-                    new Uint8Array([0, 0, 255, 255]));
-        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
- // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-        
-        // асинхронная загрузка изображения
-        var image = new Image();
-        image.src = dirt;
-        image.addEventListener('load', () => {
-            // теперь, когда изображение загрузилось, копируем его в текстуру
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, image);
-            gl.generateMipmap(gl.TEXTURE_2D);
-        });
-
+    const texture = this.createTexture(dirt);
+    const texture_top = this.createTexture(dirt_top);
+    const texture_side = this.createTexture(dirt_side);
 
     gl.clearColor(0, 0, 0, 0);
     gl.enable(gl.DEPTH_TEST);
@@ -123,7 +106,7 @@ export class GameScene {
     //let world = new World (gl, mapa);
     //this.world=world;
 
-    let world = new Noisy(gl, this.chunkSize);
+    let world = new Noisy(gl, this.chunkSize, {texture_top, texture, texture_side});
     this.world=world;
     
     var then = 0;
@@ -196,6 +179,32 @@ export class GameScene {
     }
     requestAnimationFrame(drawScene);
     
+  }
+
+  createTexture(src: string){
+    const gl = this.context;
+            // создаём текстуру
+        var texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        
+        // заполняем текстуру голубым пикселем 1x1
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                    new Uint8Array([0, 0, 255, 255]));
+        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+ // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+        
+        // асинхронная загрузка изображения
+        var image = new Image();
+        image.src = src;
+        image.addEventListener('load', () => {
+            // теперь, когда изображение загрузилось, копируем его в текстуру
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, image);
+            gl.generateMipmap(gl.TEXTURE_2D);
+        });
+        return texture;
   }
 
     destroy(){

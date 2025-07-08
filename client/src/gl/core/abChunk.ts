@@ -6,13 +6,17 @@ export class ABChunk{
     normBuffer: WebGLBuffer;
     listLength: number;
     uvBuffer: WebGLBuffer;
+    texture: WebGLTexture;
 
-    constructor(gl: WebGLRenderingContext, list: AABB[]) {
-
+    constructor(gl: WebGLRenderingContext, list: AABB[], texture: WebGLTexture, plane?: number) {
+        this.texture = texture;
         const vertexList: Array<number> = [];
         list.forEach(it=>{
-            it.vertexList.forEach(jt=>{
-                vertexList.push(jt);
+            it.vertexList.forEach((jt, j)=>{
+                const _plane = Math.floor(j/(6*4));
+                if (plane == undefined || plane == _plane){
+                    vertexList.push(jt);
+                }
             })
         });
         this.listLength = list.length;
@@ -23,8 +27,11 @@ export class ABChunk{
 
         const normList: Array<number> = [];
         list.forEach(it=>{
-            it.normList.forEach(jt=>{
-                normList.push(jt);
+            it.normList.forEach((jt, j)=>{
+                const _plane = Math.floor(j/(6* 3));
+                if (plane == undefined || plane == _plane){
+                    normList.push(jt);
+                }
             })
         });
         var normBuffer = gl.createBuffer();
@@ -35,8 +42,11 @@ export class ABChunk{
 
         const uvList: Array<number> = [];
         list.forEach(it=>{
-            it.uvList.forEach(jt=>{
-                uvList.push(jt);
+            it.uvList.forEach((jt, j)=>{
+                const _plane = Math.floor(j/(6* 2));
+                if (plane == undefined || plane == _plane){
+                    uvList.push(jt);
+                }
             })
         });
         var uvBuffer = gl.createBuffer();
@@ -47,6 +57,6 @@ export class ABChunk{
     }
 
     render(gl: any, positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, colorLocation: any){
-        renderModel(gl, this.glPositionBuffer, this.normBuffer, this.uvBuffer, (12 * (3)) * this.listLength, positionAttributeLocation, positionNormLocation, texcoordLocation, {r:0, g:0, b:0, a:0}, colorLocation);
+        renderModel(gl, this.glPositionBuffer, this.normBuffer, this.uvBuffer, (12 * (3)) * this.listLength, positionAttributeLocation, positionNormLocation, texcoordLocation, this.texture, {r:0, g:0, b:0, a:0}, colorLocation);
     }
 }

@@ -1,15 +1,18 @@
 import { AABB } from './aabb';
 import { ABChunk } from './abChunk';
+import { PlaneChunk } from './planeChunk';
 import { Vector } from './vector';
 import { grey, noise } from './noise';
 
 export class Noisy{
   loadedList: string[];
-  chunkList: {models: AABB[], map: HTMLCanvasElement, position: {x: number, y: number}, group: ABChunk}[];
+  chunkList: {models: AABB[], map: HTMLCanvasElement, position: {x: number, y: number}, group: PlaneChunk}[];
   gl: WebGLRenderingContext;
   chunkSize: number;
+  textures: Record<string, WebGLTexture>;
 
-  constructor(gl: WebGLRenderingContext, chunkSize: number){
+  constructor(gl: WebGLRenderingContext, chunkSize: number, textures: Record<string, WebGLTexture>){
+    this.textures = textures;
     this.chunkSize = chunkSize;
     this.loadedList = [];
     this.chunkList = [];//makeWorld(gl);
@@ -40,7 +43,8 @@ export class Noisy{
             generateChunk(gl, 
                 Math.floor(position.x / 2 /chunkSize)*chunkSize, 
                 Math.floor(position.y / 2 /chunkSize)*chunkSize, chunkSize,
-                lod
+                lod,
+                this.textures
             )
         );
     }
@@ -57,7 +61,7 @@ let intersect = (modelList: any[], px: number, py: number, pz: number): {stat: b
   return inb;
 }
 
-const generateChunk = (gl: WebGLRenderingContext, ox: number, oy: number, chunkSize: number, lod: number)=>{
+const generateChunk = (gl: WebGLRenderingContext, ox: number, oy: number, chunkSize: number, lod: number, textures: Record<string,WebGLTexture>)=>{
     //console.log('generating', ox, oy)
     const canvas = document.createElement('canvas');
     canvas.width = chunkSize;
@@ -95,7 +99,7 @@ const generateChunk = (gl: WebGLRenderingContext, ox: number, oy: number, chunkS
     }
     return {
             models: list,
-            group: new ABChunk(gl, list),
+            group: new PlaneChunk(gl, list, textures),
             position: {x: ox, y: oy},
             map: canvas,
             lod

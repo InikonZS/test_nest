@@ -47,12 +47,12 @@ export class AABB{
   }
 
   render(gl: any, positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, colorLocation: any){
-    renderModel(gl, this.glPositionBuffer, this.normBuffer, this.uvList, 36, positionAttributeLocation, positionNormLocation, texcoordLocation, this.color, colorLocation);
+    //renderModel(gl, this.glPositionBuffer, this.normBuffer, this.uvList, 36, positionAttributeLocation, positionNormLocation, texcoordLocation, this.color, colorLocation);
   }
 
 }
 
-export function renderModel(gl: WebGLRenderingContext, glBuffer: any, normBuffer: any, uvBuffer: any, bufLength: number, positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, color: { r: number; g: number; b: number; a: number; }, colorLocation: any){
+export function renderModel(gl: WebGLRenderingContext, glBuffer: any, normBuffer: any, uvBuffer: any, bufLength: number, positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, texture: WebGLTexture, color: { r: number; g: number; b: number; a: number; }, colorLocation: any){
 
   gl.uniform4f(colorLocation, color.r/255, color.g/255, color.b/255, color.a/255);
   gl.bindBuffer(gl.ARRAY_BUFFER, glBuffer);
@@ -81,6 +81,8 @@ export function renderModel(gl: WebGLRenderingContext, glBuffer: any, normBuffer
   var offset = 0;
   //var count = positions.length / size;
   var count = bufLength; 
+
+  gl.bindTexture(gl.TEXTURE_2D, texture);
  
   gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
   // текстурные координаты - числа с плавающей точкой
@@ -94,12 +96,12 @@ export function setTexcoords() {
   const buf: Array<number> = [];
   for (let i =0; i< 6; i++){
     [
-        0, 0,
-        1, 0,
-        1, 1,
         1, 1,
         0, 1,
         0, 0,
+        0, 0,
+        1, 0,
+        1, 1,
        ].forEach(j=>{
           buf.push(j)
        });

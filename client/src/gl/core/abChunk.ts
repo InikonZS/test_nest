@@ -8,10 +8,31 @@ export class ABChunk{
     uvBuffer: WebGLBuffer;
     texture: WebGLTexture;
 
-    constructor(gl: WebGLRenderingContext, list: AABB[], texture: WebGLTexture, plane?: number) {
+    constructor(gl: WebGLRenderingContext, _list: AABB[], texture: WebGLTexture, plane?: number, ) {
+        const mp: Record<string, number> = {};
+        _list.forEach(((it, i)=>mp[`${it.aVector3d.x}_${it.aVector3d.y}_${it.aVector3d.z}`] = i));
+        let dx = 0;
+        let dy =0;
+        if (plane == 5){
+            dx = -2;
+        }
+        if (plane == 3){
+            dx = 2;
+        }
+        if (plane == 2){
+            dy = -2;
+        }
+        if (plane == 4){
+            dy = 2;
+        }
+        let list = _list.filter((it, i)=>mp[`${it.aVector3d.x + dx}_${it.aVector3d.y + dy}_${it.aVector3d.z}`] == undefined);
+        if ([0, 1].includes(plane)){
+            list = _list
+        }
+        console.log(mp)
         this.texture = texture;
         const vertexList: Array<number> = [];
-        list.forEach(it=>{
+        list.forEach((it, i)=>{
             it.vertexList.forEach((jt, j)=>{
                 const _plane = Math.floor(j/(6*4));
                 if (plane == undefined || plane == _plane){
@@ -26,7 +47,7 @@ export class ABChunk{
         this.glPositionBuffer = positionBuffer;
 
         const normList: Array<number> = [];
-        list.forEach(it=>{
+        list.forEach((it, i)=>{
             it.normList.forEach((jt, j)=>{
                 const _plane = Math.floor(j/(6* 3));
                 if (plane == undefined || plane == _plane){
@@ -41,7 +62,7 @@ export class ABChunk{
         this.normBuffer = normBuffer;
 
         const uvList: Array<number> = [];
-        list.forEach(it=>{
+        list.forEach((it, i)=>{
             it.uvList.forEach((jt, j)=>{
                 const _plane = Math.floor(j/(6* 2));
                 if (plane == undefined || plane == _plane){

@@ -8,6 +8,9 @@ export class PlaneChunk{
 
     constructor(gl: WebGLRenderingContext, list: AABB[], textures: Record<string, WebGLTexture>) {
         for (let i=0; i< 6; i++){
+            if ([].includes(i)){
+                
+            } else {
             this.models.push(new ABChunk(gl, list, [
                 textures.texture,
                 textures.texture_top,
@@ -16,6 +19,7 @@ export class PlaneChunk{
                 textures.texture_side,
                 textures.texture_side,
             ][i], i));
+        }
         }  
     }
 

@@ -3,6 +3,7 @@ import {Player} from "./player";
 import { Noisy } from "./noisy";
 import {createShader, createProgram} from "./gl-utils";
 import m4 from './m4';
+import dirt from "../assets/dirt.png";
 
 export class GameScene {
     canvas: HTMLCanvasElement;
@@ -66,6 +67,7 @@ export class GameScene {
       gl_FragColor = texture2D(u_texture, v_texcoord) / 5.0 * 4.0 + texture2D(u_texture, v_texcoord)/5.0 * abs(dot(normalize(vec3(1.0, 0.5, 0.25)), normalize(nos)));
       }
     `; 
+    
     //clamp(dot(normalize(vec3(1.0, 1.0, 1.0)), normalize(nos)), 0.1, 0.9);
     //gl_FragColor.rgb = clamp(texture2D(u_texture, v_texcoord) + dot(normalize(vec3(1.0, 1.0, 1.0)), normalize(nos)), 0.0, 1.0) ;
     //gl_FragColor = clamp(texture2D(u_texture, v_texcoord) + max(min(0.8, (0.01 * 1.3 / sqrt(pos.z))), 0.15) * dot(normalize(vec3(1.0, 0.7, 0.3)), normalize(vec3(nos.x + 1.0, nos.y + 1.0, nos.z + 1.0))), 0.0, 1.0);
@@ -85,6 +87,28 @@ export class GameScene {
     //var worldLocation = gl.getUniformLocation(program, "u_matrix_world");
 
     //console.log(m4.identity());
+
+        // создаём текстуру
+        var texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        
+        // заполняем текстуру голубым пикселем 1x1
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                    new Uint8Array([0, 0, 255, 255]));
+        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+ // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+        
+        // асинхронная загрузка изображения
+        var image = new Image();
+        image.src = dirt;
+        image.addEventListener('load', () => {
+            // теперь, когда изображение загрузилось, копируем его в текстуру
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, image);
+            gl.generateMipmap(gl.TEXTURE_2D);
+        });
 
 
     gl.clearColor(0, 0, 0, 0);
@@ -131,8 +155,8 @@ export class GameScene {
       });*/
 
       const loadDistance = 12;
-        const lodPoint = 4;
-              const lodPoint2 = 8;
+        const lodPoint = 24;
+              const lodPoint2 = 28;
       for (let px = -loadDistance; px<loadDistance; px++){
            for (let py = -loadDistance; py<loadDistance; py++){
         this.world.loadChunk(gl, {x: -this.player.posX + px* this.chunkSize, y: -this.player.posY + py* this.chunkSize}, (Math.abs(px) < lodPoint2 && Math.abs(py) < lodPoint2) ? ((Math.abs(px) < lodPoint && Math.abs(py) < lodPoint) ? 1 : 2) : 4 );

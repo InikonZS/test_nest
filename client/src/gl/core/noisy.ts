@@ -92,12 +92,14 @@ const generateChunk = (gl: WebGLRenderingContext, ox: number, oy: number, chunkS
             if (x % lod ==0 &&  y % lod == 0){
             const blockSize = 2;
             const blockZ = Math.floor(noiseValue*50 / blockSize) * blockSize;
-                let ob = new AABB(gl, 
-                    new Vector((x + ox)*blockSize, (y+oy)*blockSize, -blockSize*lod + blockZ), 
-                    new Vector(((x+ox)+lod)*blockSize, ((y+oy)+lod)*blockSize, + blockZ), 
-                {r:Math.random()*100+100, g:Math.random()*100+100, b:Math.random()*100+100, a:255}
-                );
-                list.push(ob);
+                for (let h = 0; h<5; h++){
+                  let ob = new AABB(gl, 
+                      new Vector((x + ox)*blockSize, (y+oy)*blockSize, -blockSize*lod + blockZ - h* blockSize), 
+                      new Vector(((x+ox)+lod)*blockSize, ((y+oy)+lod)*blockSize, + blockZ - h* blockSize), 
+                  {r:Math.random()*100+100, g:Math.random()*100+100, b:Math.random()*100+100, a:255}
+                  );
+                  list.push(ob);
+                }
               }
            // }
            
@@ -110,7 +112,7 @@ const generateChunk = (gl: WebGLRenderingContext, ox: number, oy: number, chunkS
     }
     const result =  {
             models: list,
-            group: new PlaneChunk(gl, list, textures),
+            group: new PlaneChunk(gl, list, chunkSize, textures),
             position: {x: ox, y: oy},
             map: canvas,
             lod

@@ -9,8 +9,8 @@ export class ABChunk{
     uvBuffer: WebGLBuffer;
     texture: WebGLTexture;
 
-    constructor(gl: WebGLRenderingContext, _list: AABB[], texture: WebGLTexture, plane?: number, ) {
-        const chunkSize = _list.length ** 0.5;
+    constructor(gl: WebGLRenderingContext, _list: AABB[], chunkSize: number, texture: WebGLTexture, plane?: number) {
+        //const chunkSize = _list.length ** 0.5;
 
         const mp: Record<string, number> = {};
         _list.forEach(((it, i)=>mp[`${it.aVector3d.x}_${it.aVector3d.y}_${it.aVector3d.z}`] = i));

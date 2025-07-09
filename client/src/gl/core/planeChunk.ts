@@ -6,12 +6,12 @@ export class PlaneChunk{
     models: ABChunk[] = [];
     textures: WebGLTexture;
 
-    constructor(gl: WebGLRenderingContext, list: AABB[], textures: Record<string, WebGLTexture>) {
+    constructor(gl: WebGLRenderingContext, list: AABB[], chunkSize: number, textures: Record<string, WebGLTexture>) {
         for (let i=0; i< 6; i++){
             if ([].includes(i)){
                 
             } else {
-            this.models.push(new ABChunk(gl, list, [
+            this.models.push(new ABChunk(gl, list, chunkSize, [
                 textures.texture,
                 textures.texture_top,
                 textures.texture_side,

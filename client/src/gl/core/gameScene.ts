@@ -18,7 +18,7 @@ export class GameScene {
 
 
     constructor(canvas: HTMLCanvasElement, mapCanvas: HTMLCanvasElement){
-        this.chunkSize = 16;
+        this.chunkSize = 32;
         this.canvas = canvas;
         this.canvas.addEventListener('click', this.handleClick);
         this.canvas.addEventListener('mousemove', this.handleMove);
@@ -137,7 +137,7 @@ export class GameScene {
       this.world.loadChunk(gl, {x: -this.player.posX + it.x * 10, y: -this.player.posY + it.y * 10});
       });*/
 
-      const loadDistance = 24;
+      const loadDistance = 16;
         const lodPoint = 240;
               const lodPoint2 = 280;
       /*for (let px = -loadDistance; px<loadDistance; px++){

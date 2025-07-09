@@ -108,13 +108,15 @@ const generateChunk = (gl: WebGLRenderingContext, ox: number, oy: number, chunkS
             
         }
     }
-    return {
+    const result =  {
             models: list,
             group: new PlaneChunk(gl, list, textures),
             position: {x: ox, y: oy},
             map: canvas,
             lod
           }
+    list.forEach(it=>it.clean());
+    return result;
     //return list;
 }
 

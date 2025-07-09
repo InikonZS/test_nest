@@ -202,6 +202,7 @@ export class ABChunk{
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvList), gl.STATIC_DRAW); 
         
         this.uvBuffer = uvBuffer;
+        list.forEach((it, i)=>{it.clean()})
     }
 
     render(gl: any, positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, colorLocation: any){

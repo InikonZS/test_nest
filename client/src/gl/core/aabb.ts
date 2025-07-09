@@ -38,6 +38,13 @@ export class AABB{
     this.normBuffer = normBuffer;*/
     this.uvList = setTexcoordsLWH(this.lwh.x, this.lwh.y, this.lwh.z);
   }
+
+  clean(){
+    this.vertexList = null;
+    this.uvList = null;
+    this.normList = null;
+    this.color = null;
+  }
   
   inside(vector3d: any){
     let v = vector3d;

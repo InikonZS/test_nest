@@ -5,7 +5,7 @@ import { Vector } from './vector';
 import { grey, noise } from './noise';
 
 export class Noisy{
-  loadedList: string[];
+  loadedList: Record<string, boolean>;
   chunkList: {models: AABB[], map: HTMLCanvasElement, position: {x: number, y: number}, group: PlaneChunk}[];
   gl: WebGLRenderingContext;
   chunkSize: number;
@@ -14,7 +14,7 @@ export class Noisy{
   constructor(gl: WebGLRenderingContext, chunkSize: number, textures: Record<string, WebGLTexture>){
     this.textures = textures;
     this.chunkSize = chunkSize;
-    this.loadedList = [];
+    this.loadedList = {};
     this.chunkList = [];//makeWorld(gl);
     this.gl = gl;
   }
@@ -32,13 +32,17 @@ export class Noisy{
     return this.chunkList.findIndex(chunk => {
       return Math.abs(chunk.position.x - v.x  / 2) <= this.chunkSize + 1 && Math.abs(chunk.position.y - v.y / 2) <= this.chunkSize +1 && intersect(chunk.models, v.x, v.y, v.z)
     }) != -1;
+    // return false;
     //return intersect(this.modelList, v.x, v.y, v.z);
   }
 
   loadChunk(gl: WebGLRenderingContext, position: { x: number; y: number; }, lod = 2){
     const chunkSize = this.chunkSize;
-    if (this.loadedList.find(it=> `${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}_${lod}` == it) == undefined){
-        this.loadedList.push(`${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}_${lod}`);
+    if (!this.loadedList[`${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}_${lod}`]){
+       this.loadedList[`${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}_${lod}`] = true;
+       
+    //if (this.loadedList.find(it=> `${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}_${lod}` == it) == undefined){
+     //   this.loadedList.push(`${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}_${lod}`);
         this.chunkList.push(
             generateChunk(gl, 
                 Math.floor(position.x / 2 /chunkSize)*chunkSize, 

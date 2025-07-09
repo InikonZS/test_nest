@@ -36,7 +36,7 @@ export class AABB{
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normList), gl.STATIC_DRAW); 
     
     this.normBuffer = normBuffer;*/
-    this.uvList = setTexcoords();
+    this.uvList = setTexcoordsLWH(this.lwh.x, this.lwh.y, this.lwh.z);
   }
   
   inside(vector3d: any){
@@ -102,6 +102,35 @@ export function setTexcoords() {
         0, 0,
         1, 0,
         1, 1,
+       ].forEach(j=>{
+          buf.push(j)
+       });
+  }
+  return buf;
+  /*gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array(buf),
+       gl.STATIC_DRAW);*/
+       
+}
+
+export function setTexcoordsLWH(l: any, w: any, h: any) {
+  const buf: Array<number> = [];
+  for (let i =0; i< 6; i++){
+    let sx = 1;
+    let sy = 1;
+    if ([0, 1].includes(i)){
+      sx = l;
+      sy = w;
+    }
+
+    [
+        sx, sy,
+        0, sy,
+        0, 0,
+        0, 0,
+        sx, 0,
+        sx, sy,
        ].forEach(j=>{
           buf.push(j)
        });

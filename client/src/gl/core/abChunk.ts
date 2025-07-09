@@ -1,4 +1,5 @@
 import {AABB, renderModel} from "./aabb";
+import {cut} from "./cutter";
 import { Vector } from "./vector";
 
 export class ABChunk{
@@ -9,6 +10,8 @@ export class ABChunk{
     texture: WebGLTexture;
 
     constructor(gl: WebGLRenderingContext, _list: AABB[], texture: WebGLTexture, plane?: number, ) {
+        const chunkSize = _list.length ** 0.5;
+
         const mp: Record<string, number> = {};
         _list.forEach(((it, i)=>mp[`${it.aVector3d.x}_${it.aVector3d.y}_${it.aVector3d.z}`] = i));
         let dx = 0;
@@ -26,10 +29,41 @@ export class ABChunk{
             dy = 2;
         }
         let list = _list.filter((it, i)=>mp[`${it.aVector3d.x + dx}_${it.aVector3d.y + dy}_${it.aVector3d.z}`] == undefined);
+
         if ([0, 1].includes(plane)){
-            list = _list
+            const mpl: Record<string, AABB[]> = {};
+            _list.forEach(it=>{
+                if(!mpl[`${it.aVector3d.z}`]){
+                    mpl[`${it.aVector3d.z}`] = [];
+                }
+                mpl[`${it.aVector3d.z}`].push(it);
+            });
+            const resList: Array<AABB> = [];
+            Object.keys(mpl).forEach(it=>{
+                const tileSize = 2;
+                const chunkOffset = _list[0].aVector3d;
+                const mps = new Array(chunkSize).fill(null).map(it=>new Array(chunkSize).fill('-'));
+                const aabbs = mpl[it];
+                aabbs.forEach(it=>
+                    mps[(it.aVector3d.y - chunkOffset.y) /tileSize ][(it.aVector3d.x - chunkOffset.x) / tileSize] = '8'
+                );
+                const cutted = cut(mps);
+                const z = plane == 1 ? aabbs[0].bVector3d.z : aabbs[0].aVector3d.z ;
+                cutted.forEach(ct=>{
+                    const res = new AABB(gl, new Vector(ct.x * tileSize + chunkOffset.x, ct.y * tileSize + chunkOffset.y, z), new Vector(ct.x * tileSize + chunkOffset.x  + ct.sx*tileSize, ct.y * tileSize + chunkOffset.y + ct.sy * tileSize, z), {r: 0, g: 0, b:0, a:0})
+                    resList.push(res);
+                });
+            });
+            list = resList;
         }
-        console.log(mp)
+            if ([0].includes(plane)){
+                //list = _list;
+            }
+            if ([1].includes(plane)){
+                //list = _list;
+            }
+
+        //console.log(mp)
         this.texture = texture;
         const vertexList: Array<number> = [];
         list.forEach((it, i)=>{

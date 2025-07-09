@@ -30,9 +30,16 @@ export class ABChunk{
         }
         let list = _list.filter((it, i)=>mp[`${it.aVector3d.x + dx}_${it.aVector3d.y + dy}_${it.aVector3d.z}`] == undefined);
 
+        if ([0].includes(plane)){
+            list = _list;
+        }
+        if ([1].includes(plane)){
+            list = _list;
+        }
+
         if ([0, 1].includes(plane)){
             const mpl: Record<string, AABB[]> = {};
-            _list.forEach(it=>{
+            list.forEach(it=>{
                 if(!mpl[`${it.aVector3d.z}`]){
                     mpl[`${it.aVector3d.z}`] = [];
                 }
@@ -51,6 +58,92 @@ export class ABChunk{
                 const z = plane == 1 ? aabbs[0].bVector3d.z : aabbs[0].aVector3d.z ;
                 cutted.forEach(ct=>{
                     const res = new AABB(gl, new Vector(ct.x * tileSize + chunkOffset.x, ct.y * tileSize + chunkOffset.y, z), new Vector(ct.x * tileSize + chunkOffset.x  + ct.sx*tileSize, ct.y * tileSize + chunkOffset.y + ct.sy * tileSize, z), {r: 0, g: 0, b:0, a:0})
+                    resList.push(res);
+                });
+            });
+            list = resList;
+        }
+
+         if ([3, 5].includes(plane)){
+            const mpl: Record<string, AABB[]> = {};
+            list.forEach(it=>{
+                if(!mpl[`${it.aVector3d.x}`]){
+                    mpl[`${it.aVector3d.x}`] = [];
+                }
+                mpl[`${it.aVector3d.x}`].push(it);
+            });
+            const resList: Array<AABB> = [];
+            Object.keys(mpl).forEach(it=>{
+                const aabbs = mpl[it];
+                let minZ = Number.MAX_SAFE_INTEGER;
+                let maxZ = Number.MIN_SAFE_INTEGER;
+                aabbs.forEach(kt=>{
+                    if (kt.aVector3d.z < minZ){
+                        minZ = kt.aVector3d.z
+                    }
+                    if (kt.aVector3d.z > maxZ){
+                        maxZ = kt.aVector3d.z
+                    }
+                });
+                //console.log(minZ, maxZ);
+                const tileSize = 2;
+                const chunkOffset = _list[0].aVector3d;
+                const mps = new Array((maxZ - minZ)/tileSize + 1).fill(null).map(it=>new Array(chunkSize).fill('-'));
+
+                aabbs.forEach(it=> {
+                    mps[(it.aVector3d.z - minZ) /tileSize ][(it.aVector3d.y - chunkOffset.y) / tileSize] = '8';
+                });
+                const cutted = cut(mps);
+                const x = plane == 3 ? aabbs[0].bVector3d.x : aabbs[0].aVector3d.x ;
+                cutted.forEach(ct=>{
+                    const res = new AABB(gl, 
+                        new Vector(x, ct.x * tileSize + chunkOffset.y, ct.y * tileSize + minZ), 
+                        new Vector(x, ct.x * tileSize + chunkOffset.y  + ct.sx*tileSize, ct.y * tileSize + minZ + ct.sy * tileSize),
+                        {r: 0, g: 0, b:0, a:0}
+                    )
+                    resList.push(res);
+                });
+            });
+            list = resList;
+        }
+
+        if ([2, 4].includes(plane)){
+            const mpl: Record<string, AABB[]> = {};
+            list.forEach(it=>{
+                if(!mpl[`${it.aVector3d.y}`]){
+                    mpl[`${it.aVector3d.y}`] = [];
+                }
+                mpl[`${it.aVector3d.y}`].push(it);
+            });
+            const resList: Array<AABB> = [];
+            Object.keys(mpl).forEach(it=>{
+                const aabbs = mpl[it];
+                let minZ = Number.MAX_SAFE_INTEGER;
+                let maxZ = Number.MIN_SAFE_INTEGER;
+                aabbs.forEach(kt=>{
+                    if (kt.aVector3d.z < minZ){
+                        minZ = kt.aVector3d.z
+                    }
+                    if (kt.aVector3d.z > maxZ){
+                        maxZ = kt.aVector3d.z
+                    }
+                });
+                //console.log(minZ, maxZ);
+                const tileSize = 2;
+                const chunkOffset = _list[0].aVector3d;
+                const mps = new Array((maxZ - minZ)/tileSize + 1).fill(null).map(it=>new Array(chunkSize).fill('-'));
+
+                aabbs.forEach(it=> {
+                    mps[(it.aVector3d.z - minZ) /tileSize ][(it.aVector3d.x - chunkOffset.x) / tileSize] = '8';
+                });
+                const cutted = cut(mps);
+                const y = plane == 4 ? aabbs[0].bVector3d.y : aabbs[0].aVector3d.y ;
+                cutted.forEach(ct=>{
+                    const res = new AABB(gl, 
+                        new Vector( ct.x * tileSize + chunkOffset.x, y, ct.y * tileSize + minZ), 
+                        new Vector( ct.x * tileSize + chunkOffset.x  + ct.sx*tileSize, y, ct.y * tileSize + minZ + ct.sy * tileSize),
+                        {r: 0, g: 0, b:0, a:0}
+                    )
                     resList.push(res);
                 });
             });

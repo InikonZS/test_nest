@@ -10,6 +10,7 @@ export class Noisy{
   gl: WebGLRenderingContext;
   chunkSize: number;
   textures: Record<string, WebGLTexture>;
+  busy: boolean = false;
 
   constructor(gl: WebGLRenderingContext, chunkSize: number, textures: Record<string, WebGLTexture>){
     this.textures = textures;
@@ -38,19 +39,25 @@ export class Noisy{
 
   loadChunk(gl: WebGLRenderingContext, position: { x: number; y: number; }, lod = 2){
     const chunkSize = this.chunkSize;
+    if (this.busy){
+      return;
+    }
     if (!this.loadedList[`${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}_${lod}`]){
        this.loadedList[`${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}_${lod}`] = true;
-       
+       this.busy = true;
     //if (this.loadedList.find(it=> `${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}_${lod}` == it) == undefined){
      //   this.loadedList.push(`${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}_${lod}`);
+      setTimeout(()=>{
         this.chunkList.push(
-            generateChunk(gl, 
-                Math.floor(position.x / 2 /chunkSize)*chunkSize, 
-                Math.floor(position.y / 2 /chunkSize)*chunkSize, chunkSize,
-                lod,
-                this.textures
-            )
-        );
+              generateChunk(gl, 
+                  Math.floor(position.x / 2 /chunkSize)*chunkSize, 
+                  Math.floor(position.y / 2 /chunkSize)*chunkSize, chunkSize,
+                  lod,
+                  this.textures
+              )
+          );
+          this.busy = false;
+      }, 0) ;
     }
   }
 }

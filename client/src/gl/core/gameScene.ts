@@ -137,13 +137,27 @@ export class GameScene {
       this.world.loadChunk(gl, {x: -this.player.posX + it.x * 10, y: -this.player.posY + it.y * 10});
       });*/
 
-      const loadDistance = 12;
-        const lodPoint = 24;
-              const lodPoint2 = 28;
-      for (let px = -loadDistance; px<loadDistance; px++){
+      const loadDistance = 24;
+        const lodPoint = 240;
+              const lodPoint2 = 280;
+      /*for (let px = -loadDistance; px<loadDistance; px++){
            for (let py = -loadDistance; py<loadDistance; py++){
         this.world.loadChunk(gl, {x: -this.player.posX + px* this.chunkSize, y: -this.player.posY + py* this.chunkSize}, (Math.abs(px) < lodPoint2 && Math.abs(py) < lodPoint2) ? ((Math.abs(px) < lodPoint && Math.abs(py) < lodPoint) ? 1 : 2) : 4 );
         }
+      }*/
+
+      const lf = (x: number, y: number)=>{
+        this.world.loadChunk(gl, {x: -this.player.posX + x* this.chunkSize, y: -this.player.posY + y* this.chunkSize}, 1);        
+      }
+      for (let r = 0; r< loadDistance; r++){
+         for (let px = -r; px<r; px++){
+            lf(px, r);
+            lf(px, -r);
+         }
+         for (let py = -r; py<r; py++){
+            lf(r, py);
+            lf(-r, -py);
+         }
       }
 
       var aspect = this.canvas.clientWidth / this.canvas.clientHeight;

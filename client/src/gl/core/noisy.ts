@@ -7,7 +7,7 @@ import { Player } from './player';
 
 export class Noisy{
   loadedList: Record<string, boolean>;
-  chunkList: {models: AABB[], map: HTMLCanvasElement, position: {x: number, y: number}, group: PlaneChunk, groupL1: PlaneChunk, groupL2: PlaneChunk, currentLod?: PlaneChunk, lods: Record<string, boolean>}[];
+  chunkList: {models: AABB[], map: HTMLCanvasElement, position: {x: number, y: number}, group: PlaneChunk, groupL1: PlaneChunk, groupL2: PlaneChunk, currentLod?: PlaneChunk, lods: Record<string, PlaneChunk>}[];
   gl: WebGLRenderingContext;
   chunkSize: number;
   textures: Record<string, WebGLTexture>;
@@ -47,7 +47,7 @@ export class Noisy{
     const found = this.chunkList.find(it=>it.position.x == Math.floor(position.x / 2 /chunkSize)*chunkSize && it.position.y == Math.floor(position.y / 2 /chunkSize)*chunkSize);
     if (found){
       if (found.lods[lod]){
-        found.currentLod = lod == 1 ? found.group : (lod == 2 ? found.groupL1 : found.groupL2);
+        found.currentLod = found.lods[lod];//lod == 1 ? found.group : (lod == 2 ? found.groupL1 : found.groupL2);
         return;
       }
     }
@@ -72,15 +72,15 @@ export class Noisy{
             found.currentLod = newLod;
             found.models = newChunk.models;
             found.group = newLod;
-            found.lods[1] = true;
-          } else if (lod == 2){
+            found.lods[1] = newLod;
+          } /*else if (lod == 2){
             found.currentLod = newLod;
-            found.groupL1 = newLod;
-            found.lods[2] = true;
-          } else {
-            found.lods[4] = true;
+            //found.groupL1 = newLod;
+            found.lods[2] = newLod;
+          }*/ else {
+            found.lods[lod] = newLod;
             found.currentLod = newLod;
-            found.groupL2 = newLod;
+            //found.groupL2 = newLod;
           }
           //found.currentLod = lod == 1 ? found.group : (lod == 2 ? found.groupL1 : found.groupL2);
         } else {
@@ -118,7 +118,7 @@ const generateChunk = (gl: WebGLRenderingContext, ox: number, oy: number, chunkS
     const list: Array<AABB> = [];
     const listL1: Array<AABB> = [];
     const listL2: Array<AABB> = [];
-    const octas = 9;
+    const octas = 11;
     const defaultColor = {r: 0, g: 0, b:0, a:0};
     const blockSize = 2;
     for (let x=0; x<chunkSize; x++){
@@ -129,7 +129,7 @@ const generateChunk = (gl: WebGLRenderingContext, ox: number, oy: number, chunkS
             }
             //if (noiseValue){
             if (x % lod ==0 &&  y % lod == 0){
-            const blockZ = Math.floor(noiseValue*100 / (blockSize * lod)) * blockSize * lod;
+            const blockZ = Math.floor(noiseValue*120 / (blockSize * lod)) * blockSize * lod;
                 for (let h = 0; h<4; h++){
                   let ob = new AABB(gl, 
                       new Vector((x + ox)*blockSize, (y+oy)*blockSize, -blockSize * lod + blockZ - h* blockSize*lod), 
@@ -146,14 +146,17 @@ const generateChunk = (gl: WebGLRenderingContext, ox: number, oy: number, chunkS
             //ctx.fillStyle = noiseValue > 0 ? grey(0) : grey(255); 
             //ctx.fillStyle = grey(Math.max(Math.min((noiseValue + 1) / 2 * 256, 255), 100));//grey((noiseValue + 1) / 2 * 256);
             
+            
             ctx.fillStyle = grey((noiseValue + 1) / 2 * 256);
             ctx.fillRect(x, y, 1, 1);
             
         }
     }
-    const l0 = new PlaneChunk(gl, list, chunkSize, blockSize, textures);
-    const l1 = new PlaneChunk(gl, listL1, chunkSize, blockSize * 2, textures)
-    const l2 = new PlaneChunk(gl, listL2, chunkSize, blockSize * 4, textures)
+    const l0 = lod == 1 && new PlaneChunk(gl, list, chunkSize, blockSize, textures);
+    const l1 = lod == 2 &&  new PlaneChunk(gl, listL1, chunkSize, blockSize * 2, textures)
+    const l2 = lod == 4 &&  new PlaneChunk(gl, listL2, chunkSize, blockSize * 4, textures)
+    const l3 = lod >= 8 &&  new PlaneChunk(gl, listL2, chunkSize, blockSize * lod, textures)
+    const l = l0 || l1 || l2 || l3;
     const result =  {
             models: list,
             group: l0,
@@ -161,11 +164,49 @@ const generateChunk = (gl: WebGLRenderingContext, ox: number, oy: number, chunkS
             groupL2: l2,
             position: {x: ox, y: oy},
             map: canvas,
-            currentLod: lod == 1 ? l0 : (lod == 2 ? l1 : l2) ,
-            lods: {[lod.toString()]: true}
+            currentLod: l,//lod == 1 ? l0 : (lod == 2 ? l1 : l2) ,
+            lods: {[lod.toString()]: l}
           }
     list.forEach(it=>it.clean());
     return result;
     //return list;
+}
+
+
+const generateChunkUni = (ox: number, oy: number, chunkSize: number, onValue: (value: number, x: number, y: number)=>void)=>{
+    const octas = 11;
+    for (let x=0; x<chunkSize; x++){
+        for (let y=0; y<chunkSize; y++){
+            let noiseValue = 0;
+            for (let k=4; k< octas; k++){
+                noiseValue = (noiseValue + (noise((x + ox) / 2 ** k, (y + oy) / 2 ** k)) /((octas-k) ** 1.2));
+            }
+            onValue(noiseValue, x, y);  
+        }
+    }
+}
+
+const generateChunkLod = (gl: WebGLRenderingContext, ox: number, oy: number, chunkSize: number, lod: number, textures: Record<string,WebGLTexture>)=>{
+  const blockSize = 2;
+  const list:AABB[] = [];
+
+  generateChunkUni(ox, oy, chunkSize, (noiseValue, x, y)=>{
+    if (x % lod == 0 && y % lod == 0) {
+      const blockZ = Math.floor(noiseValue * 120 / (blockSize * lod)) * blockSize * lod;
+      for (let h = 0; h < 4; h++) {
+        let ob = new AABB(gl,
+          new Vector((x + ox) * blockSize, (y + oy) * blockSize, -blockSize * lod + blockZ - h * blockSize * lod),
+          new Vector(((x + ox) + lod) * blockSize, ((y + oy) + lod) * blockSize, + blockZ - h * blockSize * lod),
+          undefined,
+          true
+        );
+        list.push(ob);
+      }
+    }
+  })
+  return {
+    chunk: new PlaneChunk(gl, list, chunkSize, blockSize * lod, textures),
+    models: list
+  }
 }
 

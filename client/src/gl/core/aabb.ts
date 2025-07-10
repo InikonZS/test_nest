@@ -15,7 +15,7 @@ export class AABB{
   normBuffer: any;
   uvList: number[];
 
-  constructor(gl: WebGLRenderingContext, aVector3d: Vector, bVector3d: Vector, color: { r: number; g: number; b: number; a: number; }, noBuf: boolean = false) {
+  constructor(gl: WebGLRenderingContext, aVector3d: Vector, bVector3d: Vector, color?: { r: number; g: number; b: number; a: number; }, noBuf: boolean = false) {
     this.aVector3d = aVector3d;
     this.bVector3d = bVector3d;//new Vector(bVector3d.x - 0.2, bVector3d.y -0.2, bVector3d.z);
     this.lwh = this.bVector3d.subVector(this.aVector3d);
@@ -36,7 +36,7 @@ export class AABB{
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normList), gl.STATIC_DRAW); 
     
     this.normBuffer = normBuffer;*/
-    this.uvList = !noBuf && setTexcoordsLWH(this.lwh.x, this.lwh.y, this.lwh.z);
+    this.uvList = !noBuf && setTexcoordsLWH(this.lwh.x /2, this.lwh.y/2, this.lwh.z/2);
   }
 
   clean(){
@@ -61,7 +61,7 @@ export class AABB{
 
 export function renderModel(gl: WebGLRenderingContext, glBuffer: any, normBuffer: any, uvBuffer: any, bufLength: number, positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, texture: WebGLTexture, color: { r: number; g: number; b: number; a: number; }, colorLocation: any){
 
-  gl.uniform4f(colorLocation, color.r/255, color.g/255, color.b/255, color.a/255);
+  //gl.uniform4f(colorLocation, color.r/255, color.g/255, color.b/255, color.a/255);
   gl.bindBuffer(gl.ARRAY_BUFFER, glBuffer);
 
   // Указываем атрибуту, как получать данные от positionBuffer (ARRAY_BUFFER)
@@ -130,6 +130,17 @@ export function setTexcoordsLWH(l: any, w: any, h: any) {
       sx = l;
       sy = w;
     }
+
+    if ([2, 4].includes(i)){
+      sx = l;
+      sy = h;
+    }
+
+    if ([3, 5].includes(i)){
+      sx = w;
+      sy = h;
+    }
+
 
     [
         sx, sy,

@@ -15,10 +15,21 @@ export class GameScene {
     player: Player;
     world: Noisy;
     chunkSize: number;
+    loadDistance: number;
+    lodPoint: number;
+    lodPoint2: number;
+    lodPoints: number[];
+    fps: number = 15;
+    onTick: any;
 
 
     constructor(canvas: HTMLCanvasElement, mapCanvas: HTMLCanvasElement){
-        this.chunkSize = 32;
+        /*this.chunkSize = 32;
+        this.loadDistance = 10;
+        this.lodPoints = [3, 6, 12, 18];*/
+        this.chunkSize = 128;
+        this.loadDistance = 7;
+        this.lodPoints = [2, 3, 4, 5];
         this.canvas = canvas;
         this.canvas.addEventListener('click', this.handleClick);
         this.canvas.addEventListener('mousemove', this.handleMove);
@@ -65,8 +76,10 @@ export class GameScene {
     varying vec2 v_texcoord;       
     uniform sampler2D u_texture;
 
+        vec4 tex;
       void main() {
-      gl_FragColor = (texture2D(u_texture, v_texcoord) / 5.0 * 4.0 + texture2D(u_texture, v_texcoord)/5.0 * abs(dot(normalize(vec3(1.0, 0.5, 0.25)), normalize(nos)) ))/ max((pos.z /1000.0), 1.0);
+      tex = texture2D(u_texture, v_texcoord);
+      gl_FragColor = (tex / 5.0 * 4.0 + tex/5.0 * abs(dot(normalize(vec3(1.0, 0.5, 0.25)), normalize(nos)) ))/ max((pos.z /1000.0), 1.0);
       }
     `; 
     
@@ -99,6 +112,8 @@ export class GameScene {
     
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.useProgram(program);
+    //gl.enable(gl.CULL_FACE);
+    //gl.cullFace(gl.BACK)
     gl.enableVertexAttribArray(positionAttributeLocation);
     gl.enableVertexAttribArray(positionNormLocation);
     gl.enableVertexAttribArray(texcoordLocation);
@@ -114,7 +129,13 @@ export class GameScene {
     let checkTick = 0;
 
     const lf = (x: number, y: number, r: number)=>{
-        let lod = r < 3 ? 1 : (r < 6 ? 2 : 4);
+        let lodIndex = this.lodPoints.findIndex(it=> it > r);
+        if (lodIndex == -1){
+            lodIndex = this.lodPoints.length;
+        }
+        const lodScalers = [1, 2, 4, 8, 16];
+        const lod = lodScalers[lodIndex];
+        //let lod = r < this.lodPoint ? 1 : (r < this.lodPoint2 ? 2 : 8);
         this.world.loadChunk(gl, {x: -this.player.posX + x* this.chunkSize * 2, y: -this.player.posY + y* this.chunkSize  * 2}, lod);        
     }
 
@@ -122,6 +143,8 @@ export class GameScene {
       now *= 0.001;
       var deltaTime = now - then;
       then = now;
+
+      this.fps = (this.fps * 31 + (1 / deltaTime)) / 32
 
       this.player.procMoves(world, deltaTime);
 
@@ -144,9 +167,6 @@ export class GameScene {
       this.world.loadChunk(gl, {x: -this.player.posX + it.x * 10, y: -this.player.posY + it.y * 10});
       });*/
 
-      const loadDistance = 10;
-        const lodPoint = 240;
-              const lodPoint2 = 280;
       /*for (let px = -loadDistance; px<loadDistance; px++){
            for (let py = -loadDistance; py<loadDistance; py++){
         this.world.loadChunk(gl, {x: -this.player.posX + px* this.chunkSize, y: -this.player.posY + py* this.chunkSize}, (Math.abs(px) < lodPoint2 && Math.abs(py) < lodPoint2) ? ((Math.abs(px) < lodPoint && Math.abs(py) < lodPoint) ? 1 : 2) : 4 );
@@ -155,16 +175,17 @@ export class GameScene {
 
         checkTick -= deltaTime;
         if (checkTick <0){
-            for (let r = 0; r< loadDistance; r++){
+            for (let r = 0; r< this.loadDistance; r++){
                 for (let px = -r; px<=r; px++){
                     lf(px, r, r);
-                    lf(px, -r, r);
+                    lf(-px, -r, r);
                 }
                 for (let py = -r+1; py<r; py++){
                     lf(r, py, r);
                     lf(-r, -py, r);
                 }
             }
+            this.onTick?.();
             checkTick = 0.05;
         }
 

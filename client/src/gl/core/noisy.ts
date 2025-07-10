@@ -3,10 +3,11 @@ import { ABChunk } from './abChunk';
 import { PlaneChunk } from './planeChunk';
 import { Vector } from './vector';
 import { grey, noise } from './noise';
+import { Player } from './player';
 
 export class Noisy{
   loadedList: Record<string, boolean>;
-  chunkList: {models: AABB[], map: HTMLCanvasElement, position: {x: number, y: number}, group: PlaneChunk}[];
+  chunkList: {models: AABB[], map: HTMLCanvasElement, position: {x: number, y: number}, group: PlaneChunk, groupL1: PlaneChunk, groupL2: PlaneChunk, currentLod?: PlaneChunk, lods: Record<string, boolean>}[];
   gl: WebGLRenderingContext;
   chunkSize: number;
   textures: Record<string, WebGLTexture>;
@@ -23,7 +24,8 @@ export class Noisy{
   render(gl: WebGLRenderingContext, positionAttributeLocation: number, normAttributeLocation: number, texcoordLocation: number, colorLocation: WebGLUniformLocation){
     this.gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     this.chunkList.forEach(chunk=>{
-      chunk.group.render(gl, positionAttributeLocation, normAttributeLocation, texcoordLocation, colorLocation);
+      //chunk.groupL1.render(gl, positionAttributeLocation, normAttributeLocation, texcoordLocation, colorLocation);
+      (chunk.currentLod /*|| chunk.group*/).render(gl, positionAttributeLocation, normAttributeLocation, texcoordLocation, colorLocation);
       //chunk.models.forEach(it=>it.render(this.gl, positionAttributeLocation, normAttributeLocation, colorLocation));
     });
   }
@@ -37,8 +39,18 @@ export class Noisy{
     //return intersect(this.modelList, v.x, v.y, v.z);
   }
 
-  loadChunk(gl: WebGLRenderingContext, position: { x: number; y: number; }, lod = 2){
+  loadChunk(gl: WebGLRenderingContext, position: { x: number; y: number; }, lod: number){
+    if (this.busy){
+      return;
+    }
     const chunkSize = this.chunkSize;
+    const found = this.chunkList.find(it=>it.position.x == Math.floor(position.x / 2 /chunkSize)*chunkSize && it.position.y == Math.floor(position.y / 2 /chunkSize)*chunkSize);
+    if (found){
+      if (found.lods[lod]){
+        found.currentLod = lod == 1 ? found.group : (lod == 2 ? found.groupL1 : found.groupL2);
+        return;
+      }
+    }
     if (this.busy){
       return;
     }
@@ -48,14 +60,35 @@ export class Noisy{
     //if (this.loadedList.find(it=> `${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}_${lod}` == it) == undefined){
      //   this.loadedList.push(`${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}_${lod}`);
       setTimeout(()=>{
-        this.chunkList.push(
-              generateChunk(gl, 
+        const newChunk = generateChunk(gl, 
                   Math.floor(position.x / 2 /chunkSize)*chunkSize, 
                   Math.floor(position.y / 2 /chunkSize)*chunkSize, chunkSize,
                   lod,
                   this.textures
-              )
-          );
+              );
+        if (found){
+          const newLod = newChunk.currentLod;
+          if (lod == 1){
+            found.currentLod = newLod;
+            found.models = newChunk.models;
+            found.group = newLod;
+            found.lods[1] = true;
+          } else if (lod == 2){
+            found.currentLod = newLod;
+            found.groupL1 = newLod;
+            found.lods[2] = true;
+          } else {
+            found.lods[4] = true;
+            found.currentLod = newLod;
+            found.groupL2 = newLod;
+          }
+          //found.currentLod = lod == 1 ? found.group : (lod == 2 ? found.groupL1 : found.groupL2);
+        } else {
+          //newChunk.currentLod = newChunk.group;
+          this.chunkList.push(
+                newChunk
+            );
+        }
           this.busy = false;
       }, 0) ;
     }
@@ -78,10 +111,16 @@ const generateChunk = (gl: WebGLRenderingContext, ox: number, oy: number, chunkS
     canvas.width = chunkSize;
     canvas.height = chunkSize;
     const ctx = canvas.getContext('2d');
+    //ctx.fillStyle = '#000';
+    //ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 
     const list: Array<AABB> = [];
+    const listL1: Array<AABB> = [];
+    const listL2: Array<AABB> = [];
     const octas = 9;
+    const defaultColor = {r: 0, g: 0, b:0, a:0};
+    const blockSize = 2;
     for (let x=0; x<chunkSize; x++){
         for (let y=0; y<chunkSize; y++){
             let noiseValue = 0;
@@ -90,32 +129,40 @@ const generateChunk = (gl: WebGLRenderingContext, ox: number, oy: number, chunkS
             }
             //if (noiseValue){
             if (x % lod ==0 &&  y % lod == 0){
-            const blockSize = 2;
-            const blockZ = Math.floor(noiseValue*50 / blockSize) * blockSize;
-                for (let h = 0; h<5; h++){
+            const blockZ = Math.floor(noiseValue*100 / (blockSize * lod)) * blockSize * lod;
+                for (let h = 0; h<4; h++){
                   let ob = new AABB(gl, 
-                      new Vector((x + ox)*blockSize, (y+oy)*blockSize, -blockSize*lod + blockZ - h* blockSize), 
-                      new Vector(((x+ox)+lod)*blockSize, ((y+oy)+lod)*blockSize, + blockZ - h* blockSize), 
-                  {r:Math.random()*100+100, g:Math.random()*100+100, b:Math.random()*100+100, a:255}
-                  );
-                  list.push(ob);
+                      new Vector((x + ox)*blockSize, (y+oy)*blockSize, -blockSize * lod + blockZ - h* blockSize*lod), 
+                      new Vector(((x+ox)+lod)*blockSize, ((y+oy)+lod)*blockSize, + blockZ - h* blockSize * lod), 
+                  //{r:Math.random()*100+100, g:Math.random()*100+100, b:Math.random()*100+100, a:255},
+                  defaultColor,
+                  true);
+                  const clist = lod == 1 ? list : (lod == 2 ? listL1 : listL2);
+                  clist.push(ob);
                 }
               }
            // }
            
             //ctx.fillStyle = noiseValue > 0 ? grey(0) : grey(255); 
             //ctx.fillStyle = grey(Math.max(Math.min((noiseValue + 1) / 2 * 256, 255), 100));//grey((noiseValue + 1) / 2 * 256);
+            
             ctx.fillStyle = grey((noiseValue + 1) / 2 * 256);
             ctx.fillRect(x, y, 1, 1);
             
         }
     }
+    const l0 = new PlaneChunk(gl, list, chunkSize, blockSize, textures);
+    const l1 = new PlaneChunk(gl, listL1, chunkSize, blockSize * 2, textures)
+    const l2 = new PlaneChunk(gl, listL2, chunkSize, blockSize * 4, textures)
     const result =  {
             models: list,
-            group: new PlaneChunk(gl, list, chunkSize, textures),
+            group: l0,
+            groupL1: l1,
+            groupL2: l2,
             position: {x: ox, y: oy},
             map: canvas,
-            lod
+            currentLod: lod == 1 ? l0 : (lod == 2 ? l1 : l2) ,
+            lods: {[lod.toString()]: true}
           }
     list.forEach(it=>it.clean());
     return result;

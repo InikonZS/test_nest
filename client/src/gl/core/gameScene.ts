@@ -66,7 +66,7 @@ export class GameScene {
     uniform sampler2D u_texture;
 
       void main() {
-      gl_FragColor = texture2D(u_texture, v_texcoord) / 5.0 * 4.0 + texture2D(u_texture, v_texcoord)/5.0 * abs(dot(normalize(vec3(1.0, 0.5, 0.25)), normalize(nos)));
+      gl_FragColor = (texture2D(u_texture, v_texcoord) / 5.0 * 4.0 + texture2D(u_texture, v_texcoord)/5.0 * abs(dot(normalize(vec3(1.0, 0.5, 0.25)), normalize(nos)) ))/ max((pos.z /1000.0), 1.0);
       }
     `; 
     
@@ -111,6 +111,13 @@ export class GameScene {
     
     var then = 0;
     let ang =0;
+    let checkTick = 0;
+
+    const lf = (x: number, y: number, r: number)=>{
+        let lod = r < 3 ? 1 : (r < 6 ? 2 : 4);
+        this.world.loadChunk(gl, {x: -this.player.posX + x* this.chunkSize * 2, y: -this.player.posY + y* this.chunkSize  * 2}, lod);        
+    }
+
     var drawScene = (now: number)=>{
       now *= 0.001;
       var deltaTime = now - then;
@@ -137,7 +144,7 @@ export class GameScene {
       this.world.loadChunk(gl, {x: -this.player.posX + it.x * 10, y: -this.player.posY + it.y * 10});
       });*/
 
-      const loadDistance = 16;
+      const loadDistance = 10;
         const lodPoint = 240;
               const lodPoint2 = 280;
       /*for (let px = -loadDistance; px<loadDistance; px++){
@@ -146,19 +153,20 @@ export class GameScene {
         }
       }*/
 
-      const lf = (x: number, y: number)=>{
-        this.world.loadChunk(gl, {x: -this.player.posX + x* this.chunkSize, y: -this.player.posY + y* this.chunkSize}, 1);        
-      }
-      for (let r = 0; r< loadDistance; r++){
-         for (let px = -r; px<r; px++){
-            lf(px, r);
-            lf(px, -r);
-         }
-         for (let py = -r; py<r; py++){
-            lf(r, py);
-            lf(-r, -py);
-         }
-      }
+        checkTick -= deltaTime;
+        if (checkTick <0){
+            for (let r = 0; r< loadDistance; r++){
+                for (let px = -r; px<=r; px++){
+                    lf(px, r, r);
+                    lf(px, -r, r);
+                }
+                for (let py = -r+1; py<r; py++){
+                    lf(r, py, r);
+                    lf(-r, -py, r);
+                }
+            }
+            checkTick = 0.05;
+        }
 
       var aspect = this.canvas.clientWidth / this.canvas.clientHeight;
       var matrix = makeCameraMatrix(aspect, this.player.camRX, this.player.camRY, this.player.posX, this.player.posY, this.player.posZ);
@@ -180,9 +188,10 @@ export class GameScene {
       ctx.fillRect(0,0, this.mapCanvas.width, this.mapCanvas.height);
 
       const offset = {x: this.mapCanvas.width / 2 + this.player.posX / 2, y: this.mapCanvas.height / 2 + this.player.posY / 2}
+      ctx.strokeStyle = '#9ff2';
+      ctx.lineWidth = 1;
       world.chunkList.forEach(it=>{
-        ctx.strokeStyle = '#9ff2';
-        ctx.lineWidth = 1;
+        
         ctx.drawImage(it.map, it.position.x + offset.x, it.position.y +offset.y);  
         ctx.strokeRect(it.position.x + offset.x + 0.5, it.position.y +offset.y + 0.5, this.chunkSize, this.chunkSize); 
       });
@@ -259,7 +268,7 @@ export class GameScene {
 
 
 function makeCameraMatrix(aspect: number, rx: number, ry: number, px: number, py: number, pz: number){
-  let matrix = m4.perspective(1, aspect, 0.1, 2000); 
+  let matrix = m4.perspective(1, aspect, 0.1, 20000); 
   matrix = m4.xRotate(matrix, ry);
   matrix = m4.yRotate(matrix, 0);
   matrix = m4.zRotate(matrix, rx);

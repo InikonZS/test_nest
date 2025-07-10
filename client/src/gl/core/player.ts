@@ -25,7 +25,7 @@ export class Player{
     this.camRY=0;
     this.posX=-2;
     this.posY=-2;
-    this.posZ = -3;
+    this.posZ = -30;
     this.forward = false;
     this.tryJump = false;  
     this.onFloor = false;

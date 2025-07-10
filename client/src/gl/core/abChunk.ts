@@ -9,34 +9,43 @@ export class ABChunk{
     uvBuffer: WebGLBuffer;
     texture: WebGLTexture;
 
-    constructor(gl: WebGLRenderingContext, _list: AABB[], chunkSize: number, texture: WebGLTexture, plane?: number) {
+    constructor(gl: WebGLRenderingContext, _list: AABB[], mp: Record<string, number>, chunkSize: number, tileSize: number, texture: WebGLTexture, plane?: number) {
         //const chunkSize = _list.length ** 0.5;
-
-        const mp: Record<string, number> = {};
-        _list.forEach(((it, i)=>mp[`${it.aVector3d.x}_${it.aVector3d.y}_${it.aVector3d.z}`] = i));
+        //const tileSize = 2;
+        //const mp: Record<string, number> = {};
+        //_list.forEach(((it, i)=>mp[`${it.aVector3d.x}_${it.aVector3d.y}_${it.aVector3d.z}`] = i));
         let dx = 0;
         let dy =0;
+        let dz = 0;
         if (plane == 5){
-            dx = -2;
+            dx = -tileSize;
         }
         if (plane == 3){
-            dx = 2;
+            dx = tileSize;
         }
         if (plane == 2){
-            dy = -2;
+            dy = -tileSize;
         }
         if (plane == 4){
-            dy = 2;
+            dy = tileSize;
         }
-        let list = _list.filter((it, i)=>mp[`${it.aVector3d.x + dx}_${it.aVector3d.y + dy}_${it.aVector3d.z}`] == undefined);
+        if (plane == 0){
+            dz = -tileSize;
+        }
+        if (plane == 1){
+            dz = tileSize;
+        }
+        //`${it.aVector3d.x + dx}_${it.aVector3d.y + dy}_${it.aVector3d.z + dz}`;
+        let list = _list.filter((it, i)=>mp[(it.aVector3d.x + dx) +'_'+(it.aVector3d.y + dy)+'_'+(it.aVector3d.z + dz)] == undefined);
 
-        if ([0].includes(plane)){
+        /*if ([0].includes(plane)){
             list = _list;
         }
         if ([1].includes(plane)){
             list = _list;
-        }
-
+        }*/
+        const tmtest = Date.now();
+        /*static mem*/const mps = new Array(chunkSize ).fill(null).map(it=>new Array(chunkSize).fill('-'));
         if ([0, 1].includes(plane)){
             const mpl: Record<string, AABB[]> = {};
             list.forEach(it=>{
@@ -46,11 +55,17 @@ export class ABChunk{
                 mpl[`${it.aVector3d.z}`].push(it);
             });
             const resList: Array<AABB> = [];
+           
             Object.keys(mpl).forEach(it=>{
-                const tileSize = 2;
-                const chunkOffset = _list[0].aVector3d;
-                const mps = new Array(chunkSize).fill(null).map(it=>new Array(chunkSize).fill('-'));
                 const aabbs = mpl[it];
+                if (aabbs.length == 1){
+                    resList.push(new AABB(gl, aabbs[0].aVector3d, aabbs[0].bVector3d, {r: 0, g: 0, b:0, a:0}));
+                    return;
+                }
+    
+                const chunkOffset = _list[0].aVector3d;
+                /*static mem use*/mps.forEach((it)=>it.fill('-'));
+                //const mps = new Array(chunkSize).fill(null).map(it=>new Array(chunkSize).fill('-'));
                 aabbs.forEach(it=>
                     mps[(it.aVector3d.y - chunkOffset.y) /tileSize ][(it.aVector3d.x - chunkOffset.x) / tileSize] = '8'
                 );
@@ -86,10 +101,10 @@ export class ABChunk{
                     }
                 });
                 //console.log(minZ, maxZ);
-                const tileSize = 2;
+        
                 const chunkOffset = _list[0].aVector3d;
                 const mps = new Array((maxZ - minZ)/tileSize + 1).fill(null).map(it=>new Array(chunkSize).fill('-'));
-
+  //mps.forEach((it, i)=>it.fill('-'));
                 aabbs.forEach(it=> {
                     mps[(it.aVector3d.z - minZ) /tileSize ][(it.aVector3d.y - chunkOffset.y) / tileSize] = '8';
                 });
@@ -129,10 +144,10 @@ export class ABChunk{
                     }
                 });
                 //console.log(minZ, maxZ);
-                const tileSize = 2;
+        
                 const chunkOffset = _list[0].aVector3d;
                 const mps = new Array((maxZ - minZ)/tileSize + 1).fill(null).map(it=>new Array(chunkSize).fill('-'));
-
+  mps.forEach((it, i)=>it.fill('-'));
                 aabbs.forEach(it=> {
                     mps[(it.aVector3d.z - minZ) /tileSize ][(it.aVector3d.x - chunkOffset.x) / tileSize] = '8';
                 });
@@ -155,6 +170,8 @@ export class ABChunk{
             if ([1].includes(plane)){
                 //list = _list;
             }
+
+            //plane == 0 && console.log('tmtest', Date.now()-tmtest, 'pl-', plane)
 
         //console.log(mp)
         this.texture = texture;

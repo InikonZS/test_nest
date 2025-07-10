@@ -15,11 +15,11 @@ export class AABB{
   normBuffer: any;
   uvList: number[];
 
-  constructor(gl: WebGLRenderingContext, aVector3d: Vector, bVector3d: Vector, color: { r: number; g: number; b: number; a: number; }) {
+  constructor(gl: WebGLRenderingContext, aVector3d: Vector, bVector3d: Vector, color: { r: number; g: number; b: number; a: number; }, noBuf: boolean = false) {
     this.aVector3d = aVector3d;
     this.bVector3d = bVector3d;//new Vector(bVector3d.x - 0.2, bVector3d.y -0.2, bVector3d.z);
     this.lwh = this.bVector3d.subVector(this.aVector3d);
-    let vertexList = makeBoxModel(this.aVector3d, this.lwh.x, this.lwh.y, this.lwh.z);
+    let vertexList = !noBuf && makeBoxModel(this.aVector3d, this.lwh.x, this.lwh.y, this.lwh.z);
     this.vertexList = vertexList;
     this.color = color;
 
@@ -29,14 +29,14 @@ export class AABB{
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexList), gl.STATIC_DRAW); 
     this.glPositionBuffer = positionBuffer;*/
 
-    let normList = makeBoxNormalsFromVertexList();
+    let normList = !noBuf && makeBoxNormalsFromVertexList();
     this.normList = normList;
     /*var normBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, normBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normList), gl.STATIC_DRAW); 
     
     this.normBuffer = normBuffer;*/
-    this.uvList = setTexcoordsLWH(this.lwh.x, this.lwh.y, this.lwh.z);
+    this.uvList = !noBuf && setTexcoordsLWH(this.lwh.x, this.lwh.y, this.lwh.z);
   }
 
   clean(){

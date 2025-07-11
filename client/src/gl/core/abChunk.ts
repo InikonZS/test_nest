@@ -8,6 +8,7 @@ export class ABChunk{
     listLength: number;
     uvBuffer: WebGLBuffer;
     texture: WebGLTexture;
+    indexBuffer: WebGLBuffer;
 
     constructor(gl: WebGLRenderingContext, _list: AABB[], mp: Record<string, number>, chunkSize: number, tileSize: number, texture: WebGLTexture, plane?: number) {
         //const chunkSize = _list.length ** 0.5;
@@ -59,7 +60,7 @@ export class ABChunk{
             Object.keys(mpl).forEach(it=>{
                 const aabbs = mpl[it];
                 if (aabbs.length == 1){
-                    resList.push(new AABB(gl, aabbs[0].aVector3d, aabbs[0].bVector3d, {r: 0, g: 0, b:0, a:0}));
+                    resList.push(new AABB(aabbs[0].aVector3d, aabbs[0].bVector3d));
                     return;
                 }
     
@@ -72,7 +73,7 @@ export class ABChunk{
                 const cutted = cut(mps);
                 const z = plane == 1 ? aabbs[0].bVector3d.z : aabbs[0].aVector3d.z ;
                 cutted.forEach(ct=>{
-                    const res = new AABB(gl, new Vector(ct.x * tileSize + chunkOffset.x, ct.y * tileSize + chunkOffset.y, z), new Vector(ct.x * tileSize + chunkOffset.x  + ct.sx*tileSize, ct.y * tileSize + chunkOffset.y + ct.sy * tileSize, z), {r: 0, g: 0, b:0, a:0})
+                    const res = new AABB(new Vector(ct.x * tileSize + chunkOffset.x, ct.y * tileSize + chunkOffset.y, z), new Vector(ct.x * tileSize + chunkOffset.x  + ct.sx*tileSize, ct.y * tileSize + chunkOffset.y + ct.sy * tileSize, z))
                     resList.push(res);
                 });
             });
@@ -111,10 +112,9 @@ export class ABChunk{
                 const cutted = cut(mps);
                 const x = plane == 3 ? aabbs[0].bVector3d.x : aabbs[0].aVector3d.x ;
                 cutted.forEach(ct=>{
-                    const res = new AABB(gl, 
+                    const res = new AABB(
                         new Vector(x, ct.x * tileSize + chunkOffset.y, ct.y * tileSize + minZ), 
                         new Vector(x, ct.x * tileSize + chunkOffset.y  + ct.sx*tileSize, ct.y * tileSize + minZ + ct.sy * tileSize),
-                        {r: 0, g: 0, b:0, a:0}
                     )
                     resList.push(res);
                 });
@@ -154,10 +154,9 @@ export class ABChunk{
                 const cutted = cut(mps);
                 const y = plane == 4 ? aabbs[0].bVector3d.y : aabbs[0].aVector3d.y ;
                 cutted.forEach(ct=>{
-                    const res = new AABB(gl, 
+                    const res = new AABB( 
                         new Vector( ct.x * tileSize + chunkOffset.x, y, ct.y * tileSize + minZ), 
-                        new Vector( ct.x * tileSize + chunkOffset.x  + ct.sx*tileSize, y, ct.y * tileSize + minZ + ct.sy * tileSize),
-                        {r: 0, g: 0, b:0, a:0}
+                        new Vector( ct.x * tileSize + chunkOffset.x  + ct.sx*tileSize, y, ct.y * tileSize + minZ + ct.sy * tileSize)
                     )
                     resList.push(res);
                 });
@@ -219,10 +218,32 @@ export class ABChunk{
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvList), gl.STATIC_DRAW); 
         
         this.uvBuffer = uvBuffer;
+/*
+        // create the buffer
+        const indexBuffer = gl.createBuffer();
+        
+        // make this buffer the current 'ELEMENT_ARRAY_BUFFER'
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+        
+        // Fill the current element array buffer with data
+        const indicesChunk = [
+        0, 1, 2,   // first triangle
+        2, 1, 3,   // second triangle
+        ];
+        const indices: Array<number> = [];
+        for (let i = 0; i< this.listLength; i++){
+            indices.push(indicesChunk[i % 6] + Math.floor(i / 6)*4);
+        }
+        gl.bufferData(
+            gl.ELEMENT_ARRAY_BUFFER,
+            new Uint16Array(indices),
+            gl.STATIC_DRAW
+        );
+        this.indexBuffer = indexBuffer;*/
         list.forEach((it, i)=>{it.clean()})
     }
 
     render(gl: any, positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, colorLocation: any){
-        renderModel(gl, this.glPositionBuffer, this.normBuffer, this.uvBuffer, (12 * (3)) * this.listLength, positionAttributeLocation, positionNormLocation, texcoordLocation, this.texture, {r:0, g:0, b:0, a:0}, colorLocation);
+        renderModel(gl, this.glPositionBuffer, this.normBuffer, this.uvBuffer, this.indexBuffer, (12 * (3)) * this.listLength, positionAttributeLocation, positionNormLocation, texcoordLocation, this.texture, {r:0, g:0, b:0, a:0}, colorLocation);
     }
 }

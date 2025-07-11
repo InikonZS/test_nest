@@ -10,18 +10,18 @@ export class AABB{
   lwh: Vector;
   vertexList: any[];
   normList: any[];
-  color: { r: number; g: number; b: number; a: number; };
+  //color: { r: number; g: number; b: number; a: number; };
   glPositionBuffer: any;
   normBuffer: any;
   uvList: number[];
 
-  constructor(gl: WebGLRenderingContext, aVector3d: Vector, bVector3d: Vector, color?: { r: number; g: number; b: number; a: number; }, noBuf: boolean = false) {
+  constructor(aVector3d: Vector, bVector3d: Vector, noBuf: boolean = false) {
     this.aVector3d = aVector3d;
     this.bVector3d = bVector3d;//new Vector(bVector3d.x - 0.2, bVector3d.y -0.2, bVector3d.z);
     this.lwh = this.bVector3d.subVector(this.aVector3d);
     let vertexList = !noBuf && makeBoxModel(this.aVector3d, this.lwh.x, this.lwh.y, this.lwh.z);
     this.vertexList = vertexList;
-    this.color = color;
+    //this.color = color;
 
 
     /*var positionBuffer = gl.createBuffer();
@@ -43,7 +43,7 @@ export class AABB{
     this.vertexList = null;
     this.uvList = null;
     this.normList = null;
-    this.color = null;
+    //this.color = null;
   }
   
   inside(vector3d: any){
@@ -59,7 +59,7 @@ export class AABB{
 
 }
 
-export function renderModel(gl: WebGLRenderingContext, glBuffer: any, normBuffer: any, uvBuffer: any, bufLength: number, positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, texture: WebGLTexture, color: { r: number; g: number; b: number; a: number; }, colorLocation: any){
+export function renderModel(gl: WebGLRenderingContext, glBuffer: any, normBuffer: any, uvBuffer: any, indexBuffer: any, bufLength: number, positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, texture: WebGLTexture, color: { r: number; g: number; b: number; a: number; }, colorLocation: any){
 
   //gl.uniform4f(colorLocation, color.r/255, color.g/255, color.b/255, color.a/255);
   gl.bindBuffer(gl.ARRAY_BUFFER, glBuffer);
@@ -95,7 +95,8 @@ export function renderModel(gl: WebGLRenderingContext, glBuffer: any, normBuffer
   // текстурные координаты - числа с плавающей точкой
   gl.vertexAttribPointer(texcoordLocation, 2, gl.FLOAT, false, 0, 0);
   
-
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+ // gl.drawElements(gl.TRIANGLE_STRIP, count, gl.UNSIGNED_SHORT, offset)
   gl.drawArrays(primitiveType, offset, count); 
 }
 

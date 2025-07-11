@@ -28,8 +28,13 @@ export class GameScene {
         this.loadDistance = 10;
         this.lodPoints = [3, 6, 12, 18];*/
         this.chunkSize = 128;
-        this.loadDistance = 7;
-        this.lodPoints = [2, 3, 4, 5];
+        this.loadDistance = 10;
+        this.lodPoints = [1.5, 3, 4, 8];
+
+        /*this.chunkSize = 32;
+        this.loadDistance = 5;
+        this.lodPoints = [10, 10, 10];*/
+
         this.canvas = canvas;
         this.canvas.addEventListener('click', this.handleClick);
         this.canvas.addEventListener('mousemove', this.handleMove);
@@ -174,7 +179,7 @@ export class GameScene {
       }*/
 
         checkTick -= deltaTime;
-        if (checkTick <0){
+        //if (checkTick <0){
             for (let r = 0; r< this.loadDistance; r++){
                 for (let px = -r; px<=r; px++){
                     lf(px, r, r);
@@ -186,8 +191,8 @@ export class GameScene {
                 }
             }
             this.onTick?.();
-            checkTick = 0.05;
-        }
+            checkTick = 0.005;
+        //}
 
       var aspect = this.canvas.clientWidth / this.canvas.clientHeight;
       var matrix = makeCameraMatrix(aspect, this.player.camRX, this.player.camRY, this.player.posX, this.player.posY, this.player.posZ);

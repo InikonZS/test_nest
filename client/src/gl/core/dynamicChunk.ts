@@ -1,8 +1,9 @@
-import { AABB } from "./aabb";
-import { grey, noise } from "./noise";
+import { AABB, renderModel } from "./aabb";
+import { generateChunkUni, grey, noise } from "./noise";
 import { intersect } from "./noisy";
 import { PlaneChunk } from "./planeChunk";
 import { Vector } from "./vector";
+import { requestNoise } from "./requestWorker";
 
 type AbstractLod = {
     ready: boolean, 
@@ -29,15 +30,15 @@ export class DynamicChunk {
         this.textures = textures;
     }
 
-    prepareModelsList(lod: number, ox: number, oy: number, blockSize: number, chunkSize: number){
+    _prepareModelsList(lod: number, ox: number, oy: number, blockSize: number, chunkSize: number){
         const list:AABB[] = [];
         const corners:AABB[] = [];
         generateChunkUni(ox-1*lod, oy-1*lod, chunkSize + 2*lod, (noiseValue, x, y)=>{
             const targetList = ((x <= 0) || (y <= 0) || (x > chunkSize) || (y > chunkSize)) ? corners : list;
-
+            //todo: fix lod edge leak, be sure all previous lod blocks are filled
             if (x % lod == 0 && y % lod == 0) {
                 const blockZ = Math.floor(noiseValue * 120 / (blockSize * lod)) * blockSize * lod;
-                for (let h = 0; h < 4; h++) {
+                for (let h = 0; h < 40; h++) {
                     let ob = new AABB(
                         new Vector((x + ox) * blockSize, (y + oy) * blockSize, -blockSize * lod + blockZ - h * blockSize * lod),
                         new Vector(((x + ox) + lod) * blockSize, ((y + oy) + lod) * blockSize, + blockZ - h * blockSize * lod),
@@ -48,6 +49,10 @@ export class DynamicChunk {
             }
         });
         return {list, corners};      
+    }
+
+    prepareModelsList(lod: number, ox: number, oy: number, blockSize: number, chunkSize: number){
+        return requestNoise(lod, ox, oy, blockSize, chunkSize);
     }
 
     async loadSubchunkedLod(lod: number, slices: number){
@@ -79,7 +84,7 @@ export class DynamicChunk {
         for (let ySlice = 0; ySlice<slices; ySlice++){
             for (let xSlice = 0; xSlice<slices; xSlice++){
                 //console.log('sub sub ', ySlice, xSlice)
-                const {list, corners} = this.prepareModelsList(lod, ox + xSlice * chunkSize / slices , oy + ySlice * chunkSize / slices, blockSize, chunkSize / slices);
+                const {list, corners} = this._prepareModelsList(lod, ox + xSlice * chunkSize / slices , oy + ySlice * chunkSize / slices, blockSize, chunkSize / slices);
                 
                 //console.log('subchunk ',xSlice, ySlice, this.currentLod);
                 //await (new Promise((res)=>setTimeout(()=>res(0), 1)))
@@ -103,23 +108,34 @@ export class DynamicChunk {
 
     loadLod(lod: number){
         if (lod == 1){
-            return this.loadSubchunkedLod(lod, 8);
+            return this.loadSubchunkedLod(lod, 4);
         }
         if (lod == 2){
-            return this.loadSubchunkedLod(lod, 4);
+          //  return this.loadSubchunkedLod(lod, 4);
         }
         const blockSize = 2;
         const ox = this.position.x;
         const oy = this.position.y;
         const chunkSize = this.chunkSize;
-
-        const {list, corners} = this.prepareModelsList(lod, ox, oy, blockSize, chunkSize);
-        const loadOperation = new Promise<void>(resolve=>{
-            const chunk = new PlaneChunk(this.gl, list, corners, chunkSize, blockSize * lod, this.textures, ()=>{
+      
+        const loadOperation = new Promise<void>((resolve)=>{    
+            this.prepareModelsList(lod, ox, oy, blockSize, chunkSize).then((models)=>{
+            /*const chunk = new PlaneChunk(this.gl, list, corners, chunkSize, blockSize * lod, this.textures, ()=>{
                 this.currentLod = chunk; 
                 resolve();
-            }); 
-            this.lods[lod] = chunk;
+            }); */
+            const rf = bufFromModels(this.gl, this.textures, models)
+            //console.log(models);
+            this.lods[lod] = {
+                ready: true,
+                render: (positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, colorLocation: any)=>{
+                    rf(positionAttributeLocation, positionNormLocation, texcoordLocation, colorLocation)
+                    //console.log('ren')
+                },
+            };
+            this.currentLod = this.lods[lod]; 
+            resolve()
+            });  
         })
         
         return loadOperation;
@@ -163,16 +179,36 @@ export class DynamicChunk {
 }
 
 
+const bufFromModels = (gl: WebGLRenderingContext, textures: any, models: {
+    vertexes: Float32Array;
+    normals: Float32Array;
+    uv: Float32Array;
+}[])=>{
+    const renderList: ((positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, colorLocation: any)=>void)[] = [];
+    models.map((it,i )=>{
+        var positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(it.vertexes), gl.STATIC_DRAW); 
+        
+        var normBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, normBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(it.normals), gl.STATIC_DRAW); 
 
-const generateChunkUni = (ox: number, oy: number, chunkSize: number, onValue: (value: number, x: number, y: number)=>void)=>{
-    const octas = 11;
-    for (let x=0; x<chunkSize; x++){
-        for (let y=0; y<chunkSize; y++){
-            let noiseValue = 0;
-            for (let k=4; k< octas; k++){
-                noiseValue = (noiseValue + (noise((x + ox) / 2 ** k, (y + oy) / 2 ** k)) /((octas-k) ** 1.2));
-            }
-            onValue(noiseValue, x, y);  
-        }
+        var uvBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(it.uv), gl.STATIC_DRAW); 
+        renderList.push((positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, colorLocation: any)=>{
+            renderModel(gl, positionBuffer, normBuffer, uvBuffer, undefined, it.vertexes.length /4, positionAttributeLocation, positionNormLocation, texcoordLocation, [
+                        textures.texture,
+                        textures.texture_top,
+                        textures.texture_side,
+                        textures.texture_side,
+                        textures.texture_side,
+                        textures.texture_side,
+                    ][i], {r:0, g:0, b:0, a:0}, colorLocation);
+        })
+    })
+    return (positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, colorLocation: any)=>{
+        renderList.forEach(it=>it(positionAttributeLocation, positionNormLocation, texcoordLocation, colorLocation))
     }
 }

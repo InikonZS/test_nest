@@ -73,7 +73,7 @@ export class Noisy{
        this.busy = true;
     //if (this.loadedList.find(it=> `${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}_${lod}` == it) == undefined){
      //   this.loadedList.push(`${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}_${lod}`);
-      setTimeout(()=>{
+      //setTimeout(()=>{
                 /*generateChunk(gl, 
                   Math.floor(position.x / 2 /chunkSize)*chunkSize, 
                   Math.floor(position.y / 2 /chunkSize)*chunkSize, chunkSize,
@@ -111,7 +111,7 @@ export class Noisy{
           this.chunkMap[`${Math.floor(position.x / 2 / chunkSize)}_${Math.floor(position.y / 2 / chunkSize)}`] = newChunk;
         }
           //this.busy = false;
-      }, 0) ;
+      //}, 0) ;
     }
   }
 }

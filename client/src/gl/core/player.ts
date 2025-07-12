@@ -58,7 +58,7 @@ export class Player{
     if (!world){
         return;
     }
-    this.gravSpeed>-15? this.gravSpeed -= 0.3 : -15;
+    this.gravSpeed>-15? this.gravSpeed -= 0.3 : this.gravSpeed = -15;
 
     let nz = this.posZ - (this.gravSpeed * deltaTime);
     //let poi = (obj.reactLine(new Vector(-this.posX, -this.posY, -this.posZ-2),(new Vector(-this.posX, -this.posY, -nz-2)).add(this.posX,this.posY,this.posZ)));

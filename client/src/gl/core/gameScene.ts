@@ -6,6 +6,7 @@ import m4 from './m4';
 import dirt from "../assets/dirt.png";
 import dirt_top from "../assets/dirt_top.png";
 import dirt_side from "../assets/dirt_side.png";
+import wscript from "./worker.wjs";
 
 export class GameScene {
     canvas: HTMLCanvasElement;
@@ -27,9 +28,9 @@ export class GameScene {
         /*this.chunkSize = 32;
         this.loadDistance = 10;
         this.lodPoints = [3, 6, 12, 18];*/
-        this.chunkSize = 128;
-        this.loadDistance = 10;
-        this.lodPoints = [1.5, 3, 4, 8];
+        this.chunkSize = 64;
+        this.loadDistance = 5;
+        this.lodPoints = [2, 3, 8, 16];
 
         /*this.chunkSize = 32;
         this.loadDistance = 5;
@@ -87,7 +88,11 @@ export class GameScene {
       gl_FragColor = (tex / 5.0 * 4.0 + tex/5.0 * abs(dot(normalize(vec3(1.0, 0.5, 0.25)), normalize(nos)) ))/ max((pos.z /1000.0), 1.0);
       }
     `; 
-    
+    /*const worker = new Worker('./worker.js');
+    worker.onmessage = (ev)=>{
+        console.log(ev);
+    }
+    worker.postMessage('hi');*/
     //clamp(dot(normalize(vec3(1.0, 1.0, 1.0)), normalize(nos)), 0.1, 0.9);
     //gl_FragColor.rgb = clamp(texture2D(u_texture, v_texcoord) + dot(normalize(vec3(1.0, 1.0, 1.0)), normalize(nos)), 0.0, 1.0) ;
     //gl_FragColor = clamp(texture2D(u_texture, v_texcoord) + max(min(0.8, (0.01 * 1.3 / sqrt(pos.z))), 0.15) * dot(normalize(vec3(1.0, 0.7, 0.3)), normalize(vec3(nos.x + 1.0, nos.y + 1.0, nos.z + 1.0))), 0.0, 1.0);
@@ -149,7 +154,7 @@ export class GameScene {
       var deltaTime = now - then;
       then = now;
 
-      this.fps = (this.fps * 31 + (1 / deltaTime)) / 32
+      this.fps = (this.fps * 31 + (1 / Math.max(deltaTime, 0.0001))) / 32
 
       this.player.procMoves(world, deltaTime);
 

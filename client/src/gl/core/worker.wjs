@@ -1,0 +1,5 @@
+onmessage = (message)=>{
+
+    console.log('hello', message);
+    postMessage('response');
+}

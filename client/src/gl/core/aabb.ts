@@ -18,7 +18,7 @@ export class AABB{
   constructor(aVector3d: Vector, bVector3d: Vector, noBuf: boolean = false) {
     this.aVector3d = aVector3d;
     this.bVector3d = bVector3d;//new Vector(bVector3d.x - 0.2, bVector3d.y -0.2, bVector3d.z);
-    this.lwh = this.bVector3d.subVector(this.aVector3d);
+    this.lwh = new Vector(this.bVector3d.x, this.bVector3d.y, this.bVector3d.z).subVector(this.aVector3d);
     let vertexList = !noBuf && makeBoxModel(this.aVector3d, this.lwh.x, this.lwh.y, this.lwh.z);
     this.vertexList = vertexList;
     //this.color = color;

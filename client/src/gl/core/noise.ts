@@ -6,7 +6,7 @@ const initRandom = (seed: number) => {
     return value / 2147483647;
   }
 }
-const seedRand = Math.random() * 10000;
+const seedRand = 1;//Math.random() * 10000;
 const random = initRandom(seedRand);
 
 const permutationTable = new Array(1024).fill(0).map(it=>random());
@@ -181,4 +181,17 @@ const app = ()=>{
         window.addEventListener('mouseup', handleUp);
     }
     render()
+}
+
+export const generateChunkUni = (ox: number, oy: number, chunkSize: number, onValue: (value: number, x: number, y: number)=>void)=>{
+    const octas = 11;
+    for (let x=0; x<chunkSize; x++){
+        for (let y=0; y<chunkSize; y++){
+            let noiseValue = 0;
+            for (let k=4; k< octas; k++){
+                noiseValue = (noiseValue + (noise((x + ox) / 2 ** k, (y + oy) / 2 ** k)) /((octas-k) ** 1.2));
+            }
+            onValue(noiseValue, x, y);  
+        }
+    }
 }

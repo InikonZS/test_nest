@@ -12,10 +12,14 @@ const stylesHandler = isProduction ? MiniCssExtractPlugin.loader : 'style-loader
 
 
 const config = {
-    entry: './src/index.ts',
+    entry: {
+        main: './src/index.ts',
+        worker: './src/gl/worker.ts'
+    },
     devtool: 'source-map',
     output: {
         path: path.resolve(__dirname, 'dist'),
+        filename: '[name].js'
     },
     devServer: {
         open: true,
@@ -24,6 +28,7 @@ const config = {
     plugins: [
         new HtmlWebpackPlugin({
             template: 'index.html',
+            chunks: ['main']
         }),
 
         // Add your plugins here
@@ -41,9 +46,13 @@ const config = {
                 use: [stylesHandler,'css-loader'],
             },
             {
-                test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
+                test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif|wjs)$/i,
                 type: 'asset',
             },
+            {
+                test: /\.(wjs)$/i,
+                type: 'asset/resource',
+            }
 
             // Add your rules for custom modules here
             // Learn more about loaders from https://webpack.js.org/loaders/

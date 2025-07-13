@@ -14,6 +14,7 @@ export class AABB{
   glPositionBuffer: any;
   normBuffer: any;
   uvList: number[];
+  plane?: number;
 
   constructor(aVector3d: Vector, bVector3d: Vector, noBuf: boolean = false) {
     this.aVector3d = aVector3d;

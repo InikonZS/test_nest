@@ -14,18 +14,18 @@ export class PlaneChunk{
             const mp: Record<string, number> = {};
             list.forEach(((it, i)=>mp[`${it.aVector3d.x}_${it.aVector3d.y}_${it.aVector3d.z}`] = i));
             corners.forEach(((it, i)=>mp[`${it.aVector3d.x}_${it.aVector3d.y}_${it.aVector3d.z}`] = i));
-                for (let i=0; i< 6; i++){
+                for (let i=0; i< 1; i++){
                     if ([].includes(i)){
                         
                     } else {
                         await new Promise<void>(res=>setTimeout(()=>res(), 0))
                     this.models.push(new ABChunk(gl, list, mp, chunkSize, tileSize, [
-                        textures.texture,
+                        //textures.texture,
                         textures.texture_top,
+                        /*textures.texture_side,
                         textures.texture_side,
                         textures.texture_side,
-                        textures.texture_side,
-                        textures.texture_side,
+                        textures.texture_side,*/
                     ][i], i));
                 }
                 setTimeout(()=>{

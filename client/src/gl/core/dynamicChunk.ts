@@ -38,13 +38,16 @@ export class DynamicChunk {
             //todo: fix lod edge leak, be sure all previous lod blocks are filled
             if (x % lod == 0 && y % lod == 0) {
                 const blockZ = Math.floor(noiseValue * 120 / (blockSize * lod)) * blockSize * lod;
-                for (let h = 0; h < 40; h++) {
+                for (let h = 0; h < 4; h++) {
                     let ob = new AABB(
                         new Vector((x + ox) * blockSize, (y + oy) * blockSize, -blockSize * lod + blockZ - h * blockSize * lod),
                         new Vector(((x + ox) + lod) * blockSize, ((y + oy) + lod) * blockSize, + blockZ - h * blockSize * lod),
                         true
                     );
-                    targetList.push(ob);
+                    //3d gen
+                    //if ((((x + ox + y +oy)* Math.sin(blockZ) + blockZ + h) % 31) <18){
+                        targetList.push(ob);
+                    //}
                 }
             }
         });
@@ -84,12 +87,12 @@ export class DynamicChunk {
         for (let ySlice = 0; ySlice<slices; ySlice++){
             for (let xSlice = 0; xSlice<slices; xSlice++){
                 //console.log('sub sub ', ySlice, xSlice)
-                const {list, corners} = this._prepareModelsList(lod, ox + xSlice * chunkSize / slices , oy + ySlice * chunkSize / slices, blockSize, chunkSize / slices);
+                const {list, corners} = this._prepareModelsList(lod, ox + xSlice * chunkSize / slices, oy + ySlice * chunkSize / slices, blockSize, chunkSize / slices);
                 
                 //console.log('subchunk ',xSlice, ySlice, this.currentLod);
                 //await (new Promise((res)=>setTimeout(()=>res(0), 1)))
                 const subchunk = await (new Promise<PlaneChunk>((res)=>{let pc = new PlaneChunk(this.gl, list, corners, chunkSize /slices, blockSize * lod, this.textures, ()=>{res(pc)})}));
-                subchunkList.push({models: list, chunk: subchunk, position: {x: ox + xSlice * chunkSize / slices, y: oy + ySlice * chunkSize / slices}});
+                subchunkList.push({models: lod == 1 ? list : [], chunk: subchunk, position: {x: ox + xSlice * chunkSize / slices, y: oy + ySlice * chunkSize / slices}});
             }
         }
         /*this.lods[lod] = {
@@ -108,10 +111,10 @@ export class DynamicChunk {
 
     loadLod(lod: number){
         if (lod == 1){
-            return this.loadSubchunkedLod(lod, 4);
+            return this.loadSubchunkedLod(lod, 2);
         }
         if (lod == 2){
-          //  return this.loadSubchunkedLod(lod, 4);
+            return this.loadSubchunkedLod(1, 1);
         }
         const blockSize = 2;
         const ox = this.position.x;

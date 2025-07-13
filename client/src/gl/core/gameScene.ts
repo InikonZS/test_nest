@@ -7,6 +7,7 @@ import dirt from "../assets/dirt.png";
 import dirt_top from "../assets/dirt_top.png";
 import dirt_side from "../assets/dirt_side.png";
 import wscript from "./worker.wjs";
+import { Vector } from "./vector";
 
 export class GameScene {
     canvas: HTMLCanvasElement;
@@ -28,9 +29,9 @@ export class GameScene {
         /*this.chunkSize = 32;
         this.loadDistance = 10;
         this.lodPoints = [3, 6, 12, 18];*/
-        this.chunkSize = 64;
-        this.loadDistance = 5;
-        this.lodPoints = [2, 3, 8, 16];
+        this.chunkSize =64;
+        this.loadDistance = 3;
+        this.lodPoints = [4, 4, 4, 5];
 
         /*this.chunkSize = 32;
         this.loadDistance = 5;
@@ -84,10 +85,12 @@ export class GameScene {
 
         vec4 tex;
       void main() {
-      tex = texture2D(u_texture, v_texcoord);
+      vec2 vmod = mod(v_texcoord, 1.0);
+      tex = texture2D(u_texture, vec2((vmod.x + 1.0) / 2.0, (vmod.y + 0.0) / 1.0));
       gl_FragColor = (tex / 5.0 * 4.0 + tex/5.0 * abs(dot(normalize(vec3(1.0, 0.5, 0.25)), normalize(nos)) ))/ max((pos.z /1000.0), 1.0);
       }
     `; 
+    //  tex = texture2D(u_texture, vec2((mod(v_texcoord.x, 1.0) + 1.0) / 2.0, (mod(v_texcoord.y, 1.0) + 0.0) / 1.0));
     /*const worker = new Worker('./worker.js');
     worker.onmessage = (ev)=>{
         console.log(ev);
@@ -154,7 +157,13 @@ export class GameScene {
       var deltaTime = now - then;
       then = now;
 
-      this.fps = (this.fps * 31 + (1 / Math.max(deltaTime, 0.0001))) / 32
+      this.fps = (this.fps * 31 + (1 / Math.max(deltaTime, 0.0001))) / 32;
+
+        let ny = (20)* Math.cos(this.player.camRX);
+      let nx = (20)* Math.sin(this.player.camRX);
+        let nv = new Vector(-nx*Math.sin(this.player.camRY), -ny*Math.sin(this.player.camRY), -20*Math.cos(this.player.camRY));
+      let sv = this.player.getPosVector();
+      let nnv = nv.addVector(sv);
 
       this.player.procMoves(world, deltaTime);
 

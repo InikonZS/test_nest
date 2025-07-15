@@ -1,22 +1,22 @@
 import { AABB } from "./core/aabb";
 import { cut } from "./core/cutter";
-import { generateChunkUni } from "./core/noise";
+import { generateChunkUni, grey } from "./core/noise";
 import { Vector } from "./core/vector";
-
+type AABBVectors = {aVector3d: Vector, bVector3d: Vector};
 const prepareModelsList = (lod: number, ox: number, oy: number, blockSize: number, chunkSize: number) => {
-    const list: AABB[] = [];
-    const corners: AABB[] = [];
+    const list: AABBVectors[] = [];
+    const corners: AABBVectors[] = [];
     generateChunkUni(ox - 1 * lod, oy - 1 * lod, chunkSize + 2 * lod, (noiseValue, x, y) => {
         const targetList = ((x <= 0) || (y <= 0) || (x > chunkSize) || (y > chunkSize)) ? corners : list;
         //todo: fix lod edge leak, be sure all previous lod blocks are filled
         if (x % lod == 0 && y % lod == 0) {
             const blockZ = Math.floor(noiseValue * 120 / (blockSize * lod)) * blockSize * lod;
             for (let h = 0; h < 4; h++) {
-                let ob = new AABB(
-                    new Vector((x + ox) * blockSize, (y + oy) * blockSize, -blockSize * lod + blockZ - h * blockSize * lod),
-                    new Vector(((x + ox) + lod) * blockSize, ((y + oy) + lod) * blockSize, + blockZ - h * blockSize * lod),
-                    true
-                );
+                let ob = {
+                    aVector3d: new Vector((x + ox) * blockSize, (y + oy) * blockSize, -blockSize * lod + blockZ - h * blockSize * lod),
+                    bVector3d: new Vector(((x + ox) + lod) * blockSize, ((y + oy) + lod) * blockSize, + blockZ - h * blockSize * lod),
+
+                };
                 targetList.push(ob);
             }
         }
@@ -25,11 +25,14 @@ const prepareModelsList = (lod: number, ox: number, oy: number, blockSize: numbe
     return { list, corners };
 }
 
-const makeChunk = (lod: number, _list: AABB[], _corners: AABB[], blockSize: number, chunkSize: number) => {
+const makeChunk = (lod: number, _list: AABBVectors[], _corners: AABBVectors[], blockSize: number, chunkSize: number) => {
     const mp: Record<string, number> = {};
     _list.forEach(((it, i) => mp[`${it.aVector3d.x}_${it.aVector3d.y}_${it.aVector3d.z}`] = i));
     _corners.forEach(((it, i) => mp[`${it.aVector3d.x}_${it.aVector3d.y}_${it.aVector3d.z}`] = i));
-    const models = [];
+    //const models = [];
+    const vertexList: Array<number> = [];
+    const normList: Array<number> = [];
+    const uvList: Array<number> = [];
     for (let plane = 0; plane < 6; plane++) {
         if ([].includes(plane)) {
 
@@ -60,7 +63,7 @@ const makeChunk = (lod: number, _list: AABB[], _corners: AABB[], blockSize: numb
         let list = _list.filter((it, i)=>mp[(it.aVector3d.x + dx) +'_'+(it.aVector3d.y + dy)+'_'+(it.aVector3d.z + dz)] == undefined);
         const cutted = cut24(list, plane, _list[0].aVector3d, blockSize, chunkSize ) || cut35(list, plane, _list[0].aVector3d, blockSize, chunkSize ) ||cut01(list, plane, _list[0].aVector3d, blockSize, chunkSize );
     
-        const vertexList: Array<number> = [];
+        //const vertexList: Array<number> = [];
         cutted.forEach((it, i)=>{
             it.vertexList.forEach((jt, j)=>{
                 const _plane = Math.floor(j/(6*4));
@@ -69,9 +72,9 @@ const makeChunk = (lod: number, _list: AABB[], _corners: AABB[], blockSize: numb
                 }
             })
         });
-        const vertexes = new Float32Array(vertexList);
+        //const vertexes = new Float32Array(vertexList);
 
-        const normList: Array<number> = [];
+        //const normList: Array<number> = [];
         cutted.forEach((it, i)=>{
             it.normList.forEach((jt, j)=>{
                 const _plane = Math.floor(j/(6* 3));
@@ -80,9 +83,9 @@ const makeChunk = (lod: number, _list: AABB[], _corners: AABB[], blockSize: numb
                 }
             })
         });
-        const norm = new Float32Array(normList);
+        //const norm = new Float32Array(normList);
 
-        const uvList: Array<number> = [];
+        //const uvList: Array<number> = [];
         cutted.forEach((it, i)=>{
             it.uvList.forEach((jt, j)=>{
                 const _plane = Math.floor(j/(6* 2));
@@ -91,18 +94,22 @@ const makeChunk = (lod: number, _list: AABB[], _corners: AABB[], blockSize: numb
                 }
             })
         });
-        const uv = new Float32Array(uvList)
-        models.push({
+        //const uv = new Float32Array(uvList)
+        /*models.push({
             vertexes, normals: norm, uv
-        })
+        })*/
     }
 }
-return models;
+return {
+    vertexes: new Float32Array(vertexList),
+    normals:new Float32Array(normList),
+    uv: new Float32Array(uvList)
+};
 }
 
-const cut24 = (list:AABB[], plane: number, chunkOffset: Vector, blockSize: number, chunkSize: number)=>{
+const cut24 = (list:AABBVectors[], plane: number, chunkOffset: Vector, blockSize: number, chunkSize: number)=>{
     if ([0, 1].includes(plane)){
-        const mpl: Record<string, AABB[]> = {};
+        const mpl: Record<string, AABBVectors[]> = {};
         list.forEach(it=>{
             if(!mpl[`${it.aVector3d.z}`]){
                 mpl[`${it.aVector3d.z}`] = [];
@@ -131,14 +138,14 @@ const cut24 = (list:AABB[], plane: number, chunkOffset: Vector, blockSize: numbe
                 resList.push(res);
             });
         });
-        list = resList;
-        return list
+        //list = resList;
+        return resList
     }
 }
 
-const cut35 = (list:AABB[], plane: number, chunkOffset: Vector, blockSize: number, chunkSize: number)=>{
+const cut35 = (list:AABBVectors[], plane: number, chunkOffset: Vector, blockSize: number, chunkSize: number)=>{
     if ([3, 5].includes(plane)){
-            const mpl: Record<string, AABB[]> = {};
+            const mpl: Record<string, AABBVectors[]> = {};
             list.forEach(it=>{
                 if(!mpl[`${it.aVector3d.x}`]){
                     mpl[`${it.aVector3d.x}`] = [];
@@ -175,14 +182,14 @@ const cut35 = (list:AABB[], plane: number, chunkOffset: Vector, blockSize: numbe
                     resList.push(res);
                 });
             });
-            list = resList;
-             return list;
+            //list = resList;
+             return resList;
         }
 }
 
-const cut01 = (list:AABB[], plane: number, chunkOffset: Vector, blockSize: number, chunkSize: number)=>{
+const cut01 = (list:AABBVectors[], plane: number, chunkOffset: Vector, blockSize: number, chunkSize: number)=>{
      if ([2, 4].includes(plane)){
-            const mpl: Record<string, AABB[]> = {};
+            const mpl: Record<string, AABBVectors[]> = {};
             list.forEach(it=>{
                 if(!mpl[`${it.aVector3d.y}`]){
                     mpl[`${it.aVector3d.y}`] = [];
@@ -219,12 +226,24 @@ const cut01 = (list:AABB[], plane: number, chunkOffset: Vector, blockSize: numbe
                     resList.push(res);
                 });
             });
-            list = resList;
-            return list;
+            //list = resList;
+            return resList;
         }
 }
 
-onmessage = (message: MessageEvent<{ type: string, id: string, props: { lod: number, ox: number, oy: number, blockSize: number, chunkSize: number } }>) => {
+const prepareMap = (ox: number, oy: number, blockSize: number, chunkSize: number)=>{
+        const canvas = new OffscreenCanvas(chunkSize, chunkSize) //document.createElement('canvas');
+            //canvas.width = this.chunkSize;
+            //canvas.height = this.chunkSize;
+            const ctx = canvas.getContext('2d');
+            generateChunkUni(ox, oy, chunkSize, (noiseValue, x, y)=>{
+                ctx.fillStyle = grey((noiseValue + 1) / 2 * 256);
+                ctx.fillRect(x, y, 1, 1);
+            });
+        return canvas;
+}
+
+onmessage = async (message: MessageEvent<{ type: string, id: string, props: { lod: number, ox: number, oy: number, blockSize: number, chunkSize: number } }>) => {
     //console.log(message);
     if (message.data && typeof message.data == 'object' && message.data.type == 'prepareModelsList') {
         const { lod, ox, oy, blockSize, chunkSize } = message.data.props;
@@ -234,4 +253,10 @@ onmessage = (message: MessageEvent<{ type: string, id: string, props: { lod: num
         //postMessage({ type: message.data.type, id: message.data.id, result: result });
         postMessage({type: message.data.type, id: message.data.id, result:models});
     }
+    if (message.data && typeof message.data == 'object' && message.data.type == 'prepareMap'){
+        const {ox, oy, blockSize, chunkSize } = message.data.props;
+        const result = await prepareMap(ox, oy, blockSize, chunkSize).convertToBlob();
+        postMessage({type: message.data.type, id: message.data.id, result});
+    }
+
 }

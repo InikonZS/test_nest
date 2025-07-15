@@ -3,7 +3,7 @@ import { generateChunkUni, grey, noise } from "./noise";
 import { intersect } from "./noisy";
 import { PlaneChunk } from "./planeChunk";
 import { Vector } from "./vector";
-import { requestNoise } from "./requestWorker";
+import { requestMap, requestNoise } from "./requestWorker";
 
 type AbstractLod = {
     ready: boolean, 
@@ -12,7 +12,7 @@ type AbstractLod = {
 };
 export class DynamicChunk {
     //models: AABB[] = [];
-    map: HTMLCanvasElement;
+    map: HTMLCanvasElement | OffscreenCanvas | HTMLImageElement;
     position: {
         x: number,
         y: number
@@ -114,7 +114,7 @@ export class DynamicChunk {
             return this.loadSubchunkedLod(lod, 2);
         }
         if (lod == 2){
-            return this.loadSubchunkedLod(1, 1);
+            //return this.loadSubchunkedLod(1, 1);
         }
         const blockSize = 2;
         const ox = this.position.x;
@@ -122,12 +122,13 @@ export class DynamicChunk {
         const chunkSize = this.chunkSize;
       
         const loadOperation = new Promise<void>((resolve)=>{    
-            this.prepareModelsList(lod, ox, oy, blockSize, chunkSize).then((models)=>{
+            this.prepareModelsList(/*lod*/ Math.max(lod / 2, 1), ox, oy, blockSize, chunkSize).then((model)=>{
             /*const chunk = new PlaneChunk(this.gl, list, corners, chunkSize, blockSize * lod, this.textures, ()=>{
                 this.currentLod = chunk; 
                 resolve();
             }); */
-            const rf = bufFromModels(this.gl, this.textures, models)
+            //console.log(model);
+            const rf = bufFromModels(this.gl, this.textures, [model])
             //console.log(models);
             this.lods[lod] = {
                 ready: true,
@@ -138,7 +139,8 @@ export class DynamicChunk {
             };
             this.currentLod = this.lods[lod]; 
             resolve()
-            });  
+            }); 
+            //resolve(); 
         })
         
         return loadOperation;
@@ -159,15 +161,22 @@ export class DynamicChunk {
     }
 
     loadMap(){
-        const canvas = document.createElement('canvas');
-        canvas.width = this.chunkSize;
-        canvas.height = this.chunkSize;
+        /*const canvas = new OffscreenCanvas(this.chunkSize, this.chunkSize) 
+        //document.createElement('canvas');
+        //canvas.width = this.chunkSize;
+        //canvas.height = this.chunkSize;
         const ctx = canvas.getContext('2d');
         generateChunkUni(this.position.x, this.position.y, this.chunkSize, (noiseValue, x, y)=>{
             ctx.fillStyle = grey((noiseValue + 1) / 2 * 256);
             ctx.fillRect(x, y, 1, 1);
+        });*/
+        requestMap(this.position.x, this.position.y, undefined , this.chunkSize).then(canvas=>{
+            const url = URL.createObjectURL(canvas);
+            const img = document.createElement('img');
+            img.src = url;
+            img.onload = () => URL.revokeObjectURL(url);
+            this.map = img;//canvas;
         });
-        this.map = canvas;
     }
 
     react(vector: Vector){
@@ -202,12 +211,12 @@ const bufFromModels = (gl: WebGLRenderingContext, textures: any, models: {
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(it.uv), gl.STATIC_DRAW); 
         renderList.push((positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, colorLocation: any)=>{
             renderModel(gl, positionBuffer, normBuffer, uvBuffer, undefined, it.vertexes.length /4, positionAttributeLocation, positionNormLocation, texcoordLocation, [
-                        textures.texture,
+                        //textures.texture,
                         textures.texture_top,
+                        /*textures.texture_side,
                         textures.texture_side,
                         textures.texture_side,
-                        textures.texture_side,
-                        textures.texture_side,
+                        textures.texture_side,*/
                     ][i], {r:0, g:0, b:0, a:0}, colorLocation);
         })
     })

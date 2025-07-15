@@ -165,7 +165,7 @@ export function setTexcoordsLWH(l: any, w: any, h: any) {
 
 
 function inBox(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number) {
-  let n = 1;
+  let n = 0.5; //player width
   var bou = ((x3 <= x1 + n) && (x3 > x2 - n) && (y3 <= y1 + n) && (y3 > y2 - n) ||
       (x3 > x1 - n) && (x3 <= x2 + n) && (y3 <= y1 + n) && (y3 > y2 - n) ||
       (x3 <= x1 + n) && (x3 > x2 - n) && (y3 > y1 - n) && (y3 <= y2 + n) ||

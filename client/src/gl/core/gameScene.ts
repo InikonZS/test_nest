@@ -30,8 +30,8 @@ export class GameScene {
         this.loadDistance = 10;
         this.lodPoints = [3, 6, 12, 18];*/
         this.chunkSize =64;
-        this.loadDistance = 3;
-        this.lodPoints = [4, 4, 4, 5];
+        this.loadDistance = 9;
+        this.lodPoints = [2, 6, 40, 50];
 
         /*this.chunkSize = 32;
         this.loadDistance = 5;
@@ -61,13 +61,15 @@ export class GameScene {
 
       varying vec4 pos;
       varying vec3 nos;
+        varying vec4 ppos;
 
     
     varying vec2 v_texcoord;
 
       void main() {
         gl_Position = u_matrix *  a_position;
-        pos = gl_Position;
+        pos = a_position;
+        ppos = gl_Position;
         nos = n_position;
         v_texcoord = a_texcoord;
       }
@@ -79,6 +81,7 @@ export class GameScene {
       precision mediump float;
       uniform vec4 u_color;
       varying vec4 pos;
+          varying vec4 ppos;
       varying vec3 nos;
     varying vec2 v_texcoord;       
     uniform sampler2D u_texture;
@@ -86,8 +89,9 @@ export class GameScene {
         vec4 tex;
       void main() {
       vec2 vmod = mod(v_texcoord, 1.0);
-      tex = texture2D(u_texture, vec2((vmod.x + 1.0) / 2.0, (vmod.y + 0.0) / 1.0));
-      gl_FragColor = (tex / 5.0 * 4.0 + tex/5.0 * abs(dot(normalize(vec3(1.0, 0.5, 0.25)), normalize(nos)) ))/ max((pos.z /1000.0), 1.0);
+      float textureOffset = pos.z >-10.0 ? 0.0 : 1.0;
+      tex = texture2D(u_texture, vec2((vmod.x + textureOffset) / 2.0, (vmod.y + 0.0) / 1.0));
+      gl_FragColor = (tex / 5.0 * 4.0 + tex/5.0 * abs(dot(normalize(vec3(1.0, 0.5, 0.25)), normalize(nos)) ))/ max((ppos.z * ppos.z / 1000.0 /100.0), 1.0);
       }
     `; 
     //  tex = texture2D(u_texture, vec2((mod(v_texcoord.x, 1.0) + 1.0) / 2.0, (mod(v_texcoord.y, 1.0) + 0.0) / 1.0));
@@ -232,7 +236,7 @@ export class GameScene {
       ctx.lineWidth = 1;
       world.chunkList.forEach(it=>{
         
-        ctx.drawImage(it.map, it.position.x + offset.x, it.position.y +offset.y);  
+        it.map && ctx.drawImage(it.map, it.position.x + offset.x, it.position.y +offset.y);  
         ctx.strokeRect(it.position.x + offset.x + 0.5, it.position.y +offset.y + 0.5, this.chunkSize, this.chunkSize); 
       });
       ctx.fillStyle = '#9f9';
@@ -256,7 +260,10 @@ export class GameScene {
         // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
  // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
+ // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         
         // асинхронная загрузка изображения
         var image = new Image();

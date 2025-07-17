@@ -8,6 +8,7 @@ import dirt_top from "../assets/dirt_top.png";
 import dirt_side from "../assets/dirt_side.png";
 import wscript from "./worker.wjs";
 import { Vector } from "./vector";
+import { getScreenVector } from "./hoverRender";
 
 export class GameScene {
     canvas: HTMLCanvasElement;
@@ -23,6 +24,11 @@ export class GameScene {
     lodPoints: number[];
     fps: number = 15;
     onTick: any;
+  divPoint: HTMLDivElement;
+  divPoint1: HTMLDivElement;
+  divPoint2: HTMLDivElement;
+  divPoint3: HTMLDivElement;
+  divPointC: HTMLDivElement;
 
 
     constructor(canvas: HTMLCanvasElement, mapCanvas: HTMLCanvasElement){
@@ -32,7 +38,50 @@ export class GameScene {
         this.chunkSize =64;
         this.loadDistance = 9;
         this.lodPoints = [2, 6, 40, 50];
+        const divPoint = document.createElement('div');
+        divPoint.style.width = "10px";
+        divPoint.style.height = "10px";
+        divPoint.style.background = "#f00";
+        divPoint.style.position = "absolute";
+        document.body.style.overflow = "hidden";
+        document.body.append(divPoint);
+        this.divPoint = divPoint;
 
+        const divPoint1 = document.createElement('div');
+        divPoint1.style.width = "10px";
+        divPoint1.style.height = "10px";
+        divPoint1.style.background = "#f00";
+        divPoint1.style.position = "absolute";
+        document.body.style.overflow = "hidden";
+        document.body.append(divPoint1);
+        this.divPoint1 = divPoint1;
+
+        const divPoint2 = document.createElement('div');
+        divPoint2.style.width = "10px";
+        divPoint2.style.height = "10px";
+        divPoint2.style.background = "#f00";
+        divPoint2.style.position = "absolute";
+        document.body.style.overflow = "hidden";
+        document.body.append(divPoint2);
+        this.divPoint2 = divPoint2;
+
+        const divPoint3 = document.createElement('div');
+        divPoint3.style.width = "10px";
+        divPoint3.style.height = "10px";
+        divPoint3.style.background = "#f00";
+        divPoint3.style.position = "absolute";
+        document.body.style.overflow = "hidden";
+        document.body.append(divPoint3);
+        this.divPoint3 = divPoint3;
+        
+        const divPointC = document.createElement('div');
+        divPointC.style.width = "10px";
+        divPointC.style.height = "10px";
+        divPointC.style.background = "#f0f";
+        divPointC.style.position = "absolute";
+        document.body.style.overflow = "hidden";
+        document.body.append(divPointC);
+        this.divPointC = divPointC;
         /*this.chunkSize = 32;
         this.loadDistance = 5;
         this.lodPoints = [10, 10, 10];*/
@@ -214,8 +263,37 @@ export class GameScene {
 
       var aspect = this.canvas.clientWidth / this.canvas.clientHeight;
       var matrix = makeCameraMatrix(aspect, this.player.camRX, this.player.camRY, this.player.posX, this.player.posY, this.player.posZ);
+      const h = 40;
       gl.uniformMatrix4fv(matrixLocation, false, matrix);
+      const hovered: any = world.hover(new Vector(0.5 * this.canvas.clientWidth, 0.5 * this.canvas.clientHeight, 0), this.player.getPosVector(), matrix, this.canvas);
+      this.divPointC.style.left = 0.5 * this.canvas.clientWidth + 'px';
+            this.divPointC.style.top= 0.5 * this.canvas.clientHeight + h + 'px';
+      if (hovered){
+        //console.log(hovered);
+        
+        this.divPoint.style.left = hovered.a.x /* this.canvas.width*/ + 'px';
+         this.divPoint.style.top = hovered.a.y /* this.canvas.height*/ + 40 + 'px';
+            this.divPoint1.style.left = hovered.b.x /* this.canvas.width*/ + 'px';
+         this.divPoint1.style.top = hovered.b.y/* this.canvas.height*/+ 40 + 'px';
+               this.divPoint2.style.left = hovered.c.x /* this.canvas.width*/ + 'px';
+         this.divPoint2.style.top = hovered.c.y /* this.canvas.height*/+ 40 + 'px';
+               this.divPoint3.style.left = hovered.d.x /* this.canvas.width*/ + 'px';
+         this.divPoint3.style.top = hovered.d.y /* this.canvas.height*/+ 40 + 'px';
+        this.divPoint.style.width = 100 / hovered.a.z + 'px';
+              this.divPoint.style.height = 100 / hovered.a.z + 'px';
+              this.divPoint1.style.width = 100 / hovered.a.z + 'px';
+              this.divPoint1.style.height = 100 / hovered.a.z + 'px';
+              this.divPoint2.style.width = 100 / hovered.a.z + 'px';
+              this.divPoint2.style.height = 100 / hovered.a.z + 'px';
+              this.divPoint3.style.width = 100 / hovered.a.z + 'px';
+              this.divPoint3.style.height = 100 / hovered.a.z + 'px';
+      } else {
+        this.divPoint.style.top = -100+ 'px';
+         this.divPoint1.style.top = -100+ 'px';
+          this.divPoint2.style.top = -100+ 'px';
+           this.divPoint3.style.top = -100+ 'px';
 
+      }
       /*let wmat = m4.identity();
       ang+=0.1*deltaTime;
       wmat = m4.translate(wmat, 30, 15, 5);

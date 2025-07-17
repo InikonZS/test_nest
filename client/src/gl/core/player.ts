@@ -19,6 +19,7 @@ export class Player{
   }
   getPosVector(){
     return new Vector(-this.posX, -this.posY, - this.posZ);
+    //return new Vector(this.posX, this.posY, this.posZ);
   }
   spawn(){
     this.camRX=0;

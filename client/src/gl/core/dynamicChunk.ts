@@ -4,11 +4,13 @@ import { intersect } from "./noisy";
 import { PlaneChunk } from "./planeChunk";
 import { Vector } from "./vector";
 import { requestMap, requestNoise } from "./requestWorker";
+import { getScreenVector, inTriangle } from "./hoverRender";
 
 type AbstractLod = {
     ready: boolean, 
     render?: (positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, colorLocation: any)=>void,
-    react?: (v: Vector)=>void
+    react?: (v: Vector)=>void,
+    hover: (cursor: Vector, playerPos: Vector, viewMatrix: any, canvas: HTMLCanvasElement)=>any
 };
 export class DynamicChunk {
     //models: AABB[] = [];
@@ -38,7 +40,7 @@ export class DynamicChunk {
             //todo: fix lod edge leak, be sure all previous lod blocks are filled
             if (x % lod == 0 && y % lod == 0) {
                 const blockZ = Math.floor(noiseValue * 120 / (blockSize * lod)) * blockSize * lod;
-                for (let h = 0; h < 4; h++) {
+                for (let h = 0; h < 1; h++) {
                     let ob = new AABB(
                         new Vector((x + ox) * blockSize, (y + oy) * blockSize, -blockSize * lod + blockZ - h * blockSize * lod),
                         new Vector(((x + ox) + lod) * blockSize, ((y + oy) + lod) * blockSize, + blockZ - h * blockSize * lod),
@@ -81,6 +83,74 @@ export class DynamicChunk {
                     return Math.abs(chunk.position.x - v.x  / 2) <= chunkSize / slices + 1 && Math.abs(chunk.position.y - v.y / 2) <= chunkSize / slices + 1 && intersect(chunk.models, v.x, v.y, v.z);
                 }) != -1;
                 
+            },
+            hover: (cursor: Vector, playerPos: Vector, viewMatrix: any, canvas: HTMLCanvasElement)=>{
+
+                 const ind = subchunkList.findIndex((chunk)=>{
+                    return Math.abs(chunk.position.x - playerPos.x  / 2) <= chunkSize / slices + 1 && Math.abs(chunk.position.y - playerPos.y / 2) <= chunkSize / slices + 1;
+                });
+                let hov;
+                 const chunk = subchunkList[ind];
+                 if (!chunk){
+                    return;
+                 }
+                    const closest = chunk.models.filter(model=>{
+                        if (playerPos.subVector(model.aVector3d).abs()< 16){
+                            return true;
+                        }
+                       return false;
+                    });
+                    const tops = closest.map(it=>{
+                        const lwh = new Vector(it.bVector3d.x, it.bVector3d.y, it.bVector3d.z).subVector(it.aVector3d);
+                        /*return {
+                            a: new Vector(0,0,0),
+                            b: new Vector(2,0,0),
+                            c: new Vector(2,2,0),
+                            d: new Vector(0,2,0),
+                        }*/
+                        return {
+                            a: it.aVector3d.add(0,0,lwh.z),
+                            b: it.aVector3d.add(lwh.x,0,lwh.z),
+                            c: it.aVector3d.add(lwh.x,lwh.y,lwh.z),
+                            d: it.aVector3d.add(0,lwh.y,lwh.z),
+                        }
+                    }).map(it=>{
+                        const a = getScreenVector(viewMatrix, it.a, canvas);
+                            const b = getScreenVector(viewMatrix, it.b, canvas);
+                            const c = getScreenVector(viewMatrix, it.c, canvas);
+                            const d = getScreenVector(viewMatrix, it.d, canvas);
+                        return {a, b, c, d} 
+                    });
+                    //console.log(tops)
+                    const hovered = tops.filter(it=>{
+                        
+                    if (it.a.z <0 || it.b.z <0 || it.c.z <0 || it.d.z <0){
+                         return false
+                    } else {
+                        
+                    }
+                    //console.log(it);
+                            return inTriangle(
+                            new Vector(it.a.x, it.a.y, 0),
+                            new Vector(it.b.x, it.b.y, 0),
+                            new Vector(it.c.x, it.c.y, 0),
+                            cursor) || inTriangle(
+                            new Vector(it.a.x, it.a.y, 0),
+                            new Vector(it.c.x, it.c.y, 0),
+                            new Vector(it.d.x, it.d.y, 0),
+                            cursor);
+                        }
+                    );
+                    //console.log(hovered);
+                    hovered.sort((a, b)=>{
+                        return (a.a.z + a.b.z + a.c.z + a.d.z) - (b.a.z + b.b.z + b.c.z + b.d.z)
+                    })
+                    if (hovered[0]){
+                    hov = hovered[0];
+                    //console.log(tops);
+                    }
+               
+                return  hov
             }
         };
         this.currentLod = this.lods[lod];
@@ -136,6 +206,9 @@ export class DynamicChunk {
                     rf(positionAttributeLocation, positionNormLocation, texcoordLocation, colorLocation)
                     //console.log('ren')
                 },
+                hover: (c: Vector)=>{
+
+                }
             };
             this.currentLod = this.lods[lod]; 
             resolve()
@@ -181,6 +254,10 @@ export class DynamicChunk {
 
     react(vector: Vector){
         return this.currentLod?.react?.(vector);
+    }
+
+    hover(cursor: Vector, playerPos: Vector, viewMatrix: any, canvas: HTMLCanvasElement){
+        return this.currentLod?.hover?.(cursor, playerPos, viewMatrix, canvas);
     }
 
     render(positionAttributeLocation: any, positionNormLocation: any, texcoordLocation: number, colorLocation: any){

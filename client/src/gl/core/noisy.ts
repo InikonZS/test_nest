@@ -53,6 +53,18 @@ export class Noisy{
     //return intersect(this.modelList, v.x, v.y, v.z);
   }
 
+  hover(cursor: Vector, playerPos: Vector, viewMatrix: any, canvas: HTMLCanvasElement){
+    let hov;
+    this.chunkList.forEach(chunk => {
+      const _hov = chunk.hover(cursor, playerPos, viewMatrix, canvas);
+      if (_hov){
+        hov = _hov;
+      }
+    });
+    //console.log(hov);
+    return hov
+  }
+
   loadChunk(gl: WebGLRenderingContext, position: { x: number; y: number; }, lod: number){
     if (this.busy){
       return;

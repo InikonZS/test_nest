@@ -55,10 +55,17 @@ export class Noisy{
 
   hover(cursor: Vector, playerPos: Vector, viewMatrix: any, canvas: HTMLCanvasElement){
     let hov;
+    let zdist = Number.MAX_SAFE_INTEGER;
     this.chunkList.forEach(chunk => {
       const _hov = chunk.hover(cursor, playerPos, viewMatrix, canvas);
-      if (_hov){
-        hov = _hov;
+
+      if (_hov){      
+        const a = _hov;
+      let cdist = a.a.z + a.b.z + a.c.z + a.d.z + a.a1.z + a.b1.z + a.c1.z + a.d1.z;
+        if (zdist > cdist){
+          zdist = cdist;
+          hov = _hov;
+        }
       }
     });
     //console.log(hov);

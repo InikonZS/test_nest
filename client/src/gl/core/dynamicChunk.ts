@@ -40,7 +40,7 @@ export class DynamicChunk {
             //todo: fix lod edge leak, be sure all previous lod blocks are filled
             if (x % lod == 0 && y % lod == 0) {
                 const blockZ = Math.floor(noiseValue * 120 / (blockSize * lod)) * blockSize * lod;
-                for (let h = 0; h < 1; h++) {
+                for (let h = 0; h < 4; h++) {
                     let ob = new AABB(
                         new Vector((x + ox) * blockSize, (y + oy) * blockSize, -blockSize * lod + blockZ - h * blockSize * lod),
                         new Vector(((x + ox) + lod) * blockSize, ((y + oy) + lod) * blockSize, + blockZ - h * blockSize * lod),
@@ -86,14 +86,30 @@ export class DynamicChunk {
             },
             hover: (cursor: Vector, playerPos: Vector, viewMatrix: any, canvas: HTMLCanvasElement)=>{
 
-                 const ind = subchunkList.findIndex((chunk)=>{
+                 /*const ind = subchunkList.findIndex((chunk)=>{
                     return Math.abs(chunk.position.x - playerPos.x  / 2) <= chunkSize / slices + 1 && Math.abs(chunk.position.y - playerPos.y / 2) <= chunkSize / slices + 1;
-                });
+                });*/
                 let hov;
-                 const chunk = subchunkList[ind];
+                let hovered: Array<any> =[];
+                 //const chunk = subchunkList[ind];
+                 subchunkList.forEach((chunk)=>{
                  if (!chunk){
                     return;
                  }
+                 if (!(Math.abs(chunk.position.x - playerPos.x  / 2) <= chunkSize / slices + 1 && Math.abs(chunk.position.y - playerPos.y / 2) <= chunkSize / slices + 1)){
+                    return;
+                 }
+                  const inPlane = (a:Vector, b: Vector, c: Vector, d: Vector)=>{
+                        return inTriangle(
+                            new Vector(a.x, a.y, 0),
+                            new Vector(b.x, b.y, 0),
+                            new Vector(c.x, c.y, 0),
+                            cursor) || inTriangle(
+                            new Vector(a.x, a.y, 0),
+                            new Vector(c.x, c.y, 0),
+                            new Vector(d.x, d.y, 0),
+                            cursor);
+                    };
                     const closest = chunk.models.filter(model=>{
                         if (playerPos.subVector(model.aVector3d).abs()< 16){
                             return true;
@@ -113,37 +129,56 @@ export class DynamicChunk {
                             b: it.aVector3d.add(lwh.x,0,lwh.z),
                             c: it.aVector3d.add(lwh.x,lwh.y,lwh.z),
                             d: it.aVector3d.add(0,lwh.y,lwh.z),
+                            a1: it.aVector3d.add(0,0,0),
+                            b1: it.aVector3d.add(lwh.x,0,0),
+                            c1: it.aVector3d.add(lwh.x,lwh.y,0),
+                            d1: it.aVector3d.add(0,lwh.y,0),
+                            plane: -1,
                         }
+                        /*return {
+                            a: it.aVector3d.add(0,0,0),
+                            b: it.aVector3d.add(lwh.x,0,0),
+                            c: it.aVector3d.add(lwh.x,0,lwh.z),
+                            d: it.aVector3d.add(0,0,lwh.z),
+                        }*/
                     }).map(it=>{
                         const a = getScreenVector(viewMatrix, it.a, canvas);
                             const b = getScreenVector(viewMatrix, it.b, canvas);
                             const c = getScreenVector(viewMatrix, it.c, canvas);
                             const d = getScreenVector(viewMatrix, it.d, canvas);
-                        return {a, b, c, d} 
+
+                            const a1 = getScreenVector(viewMatrix, it.a1, canvas);
+                            const b1 = getScreenVector(viewMatrix, it.b1, canvas);
+                            const c1 = getScreenVector(viewMatrix, it.c1, canvas);
+                            const d1 = getScreenVector(viewMatrix, it.d1, canvas);
+                        return {a, b, c, d, a1, b1, c1, d1, plane: it.plane} 
                     });
                     //console.log(tops)
-                    const hovered = tops.filter(it=>{
+                    const _hovered = tops.filter(it=>{
                         
-                    if (it.a.z <0 || it.b.z <0 || it.c.z <0 || it.d.z <0){
+                    if (it.a.z <0 || it.b.z <0 || it.c.z <0 || it.d.z <0 || it.a1.z <0 || it.b1.z <0 || it.c1.z <0 || it.d1.z <0){
                          return false
                     } else {
                         
                     }
                     //console.log(it);
-                            return inTriangle(
-                            new Vector(it.a.x, it.a.y, 0),
-                            new Vector(it.b.x, it.b.y, 0),
-                            new Vector(it.c.x, it.c.y, 0),
-                            cursor) || inTriangle(
-                            new Vector(it.a.x, it.a.y, 0),
-                            new Vector(it.c.x, it.c.y, 0),
-                            new Vector(it.d.x, it.d.y, 0),
-                            cursor);
-                        }
-                    );
+                            const planes = [
+                                inPlane(it.d, it.c, it.b, it.a),
+                                inPlane(it.a1, it.b1, it.c1, it.d1),
+                                inPlane(it.a, it.b, it.b1, it.a1),
+                                inPlane(it.b, it.c, it.c1, it.b1),
+                                inPlane(it.c, it.d, it.d1, it.c1),
+                                inPlane(it.d, it.a, it.a1, it.d1),
+                            ];
+                            const pind =planes.findIndex(p=>p == true);
+                            it.plane = pind;
+                            return pind != -1;
+                    });
+                    _hovered.forEach(it=> hovered.push(it));
+                });
                     //console.log(hovered);
                     hovered.sort((a, b)=>{
-                        return (a.a.z + a.b.z + a.c.z + a.d.z) - (b.a.z + b.b.z + b.c.z + b.d.z)
+                        return (a.a.z + a.b.z + a.c.z + a.d.z + a.a1.z + a.b1.z + a.c1.z + a.d1.z) - (b.a.z + b.b.z + b.c.z + b.d.z + b.a1.z + b.b1.z + b.c1.z + b.d1.z)
                     })
                     if (hovered[0]){
                     hov = hovered[0];

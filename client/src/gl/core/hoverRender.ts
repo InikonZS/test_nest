@@ -16,6 +16,10 @@ export const getScreenVector = (viewMatrix: Array<number>, vector: Vector, canva
 }
 
 export function inTriangle(a:Vector, b:Vector, c:Vector, p:Vector){
+ const orientation = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+ if (orientation<0){
+    return false;
+ }
   let al = a.subVector(b).abs();
   let bl = b.subVector(c).abs();
   let cl = c.subVector(a).abs();

@@ -265,11 +265,27 @@ export class GameScene {
       var matrix = makeCameraMatrix(aspect, this.player.camRX, this.player.camRY, this.player.posX, this.player.posY, this.player.posZ);
       const h = 40;
       gl.uniformMatrix4fv(matrixLocation, false, matrix);
-      const hovered: any = world.hover(new Vector(0.5 * this.canvas.clientWidth, 0.5 * this.canvas.clientHeight, 0), this.player.getPosVector(), matrix, this.canvas);
+      const _hovered: any = world.hover(new Vector(0.5 * this.canvas.clientWidth, 0.5 * this.canvas.clientHeight, 0), this.player.getPosVector(), matrix, this.canvas);
       this.divPointC.style.left = 0.5 * this.canvas.clientWidth + 'px';
             this.divPointC.style.top= 0.5 * this.canvas.clientHeight + h + 'px';
-      if (hovered){
+      if (_hovered){
         //console.log(hovered);
+        let hovered = _hovered;
+        if (_hovered.plane == 1){
+          hovered = {a: _hovered.a1, b: hovered.b1, c: hovered.c1, d: hovered.d1}
+        }
+        if (_hovered.plane == 2){
+          hovered = {a: _hovered.a, b: hovered.b, c: hovered.b1, d: hovered.a1}
+        }
+        if (_hovered.plane == 3){
+          hovered = {a: _hovered.b, b: hovered.c, c: hovered.c1, d: hovered.b1}
+        }
+        if (_hovered.plane == 4){
+          hovered = {a: _hovered.c, b: hovered.d, c: hovered.d1, d: hovered.c1}
+        }
+        if (_hovered.plane == 5){
+          hovered = {a: _hovered.d, b: hovered.a, c: hovered.a1, d: hovered.d1}
+        }
         
         this.divPoint.style.left = hovered.a.x /* this.canvas.width*/ + 'px';
          this.divPoint.style.top = hovered.a.y /* this.canvas.height*/ + 40 + 'px';

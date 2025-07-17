@@ -29,13 +29,14 @@ export class GameScene {
   divPoint2: HTMLDivElement;
   divPoint3: HTMLDivElement;
   divPointC: HTMLDivElement;
+  fpsnl: number = 15;
 
 
     constructor(canvas: HTMLCanvasElement, mapCanvas: HTMLCanvasElement){
         /*this.chunkSize = 32;
         this.loadDistance = 10;
         this.lodPoints = [3, 6, 12, 18];*/
-        this.chunkSize =64;
+        this.chunkSize =32;
         this.loadDistance = 9;
         this.lodPoints = [2, 6, 40, 50];
         const divPoint = document.createElement('div');
@@ -177,6 +178,7 @@ export class GameScene {
     gl.enable(gl.DEPTH_TEST);
     
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    //console.log(gl.canvas.width);
     gl.useProgram(program);
     //gl.enable(gl.CULL_FACE);
     //gl.cullFace(gl.BACK)
@@ -206,6 +208,7 @@ export class GameScene {
     }
 
     var drawScene = (now: number)=>{
+      const fstart = Date.now();
       now *= 0.001;
       var deltaTime = now - then;
       then = now;
@@ -261,7 +264,8 @@ export class GameScene {
             checkTick = 0.005;
         //}
 
-      var aspect = this.canvas.clientWidth / this.canvas.clientHeight;
+      var aspect = this.canvas.clientWidth / this.canvas.clientHeight; //dynamic aspect with css
+      //var aspect = this.canvas.width / this.canvas.height;
       var matrix = makeCameraMatrix(aspect, this.player.camRX, this.player.camRY, this.player.posX, this.player.posY, this.player.posZ);
       const h = 40;
       gl.uniformMatrix4fv(matrixLocation, false, matrix);
@@ -295,14 +299,15 @@ export class GameScene {
          this.divPoint2.style.top = hovered.c.y /* this.canvas.height*/+ 40 + 'px';
                this.divPoint3.style.left = hovered.d.x /* this.canvas.width*/ + 'px';
          this.divPoint3.style.top = hovered.d.y /* this.canvas.height*/+ 40 + 'px';
-        this.divPoint.style.width = 100 / hovered.a.z + 'px';
-              this.divPoint.style.height = 100 / hovered.a.z + 'px';
-              this.divPoint1.style.width = 100 / hovered.a.z + 'px';
-              this.divPoint1.style.height = 100 / hovered.a.z + 'px';
-              this.divPoint2.style.width = 100 / hovered.a.z + 'px';
-              this.divPoint2.style.height = 100 / hovered.a.z + 'px';
-              this.divPoint3.style.width = 100 / hovered.a.z + 'px';
-              this.divPoint3.style.height = 100 / hovered.a.z + 'px';
+              const psize = 50;
+              this.divPoint.style.width = psize / hovered.a.z + 'px';
+              this.divPoint.style.height = psize / hovered.a.z + 'px';
+              this.divPoint1.style.width = psize / hovered.b.z + 'px';
+              this.divPoint1.style.height = psize / hovered.b.z + 'px';
+              this.divPoint2.style.width = psize / hovered.c.z + 'px';
+              this.divPoint2.style.height = psize / hovered.c.z + 'px';
+              this.divPoint3.style.width = psize / hovered.d.z + 'px';
+              this.divPoint3.style.height = psize / hovered.d.z + 'px';
       } else {
         this.divPoint.style.top = -100+ 'px';
          this.divPoint1.style.top = -100+ 'px';
@@ -336,6 +341,8 @@ export class GameScene {
       ctx.fillStyle = '#9f9';
       ctx.fillRect(-this.player.posX / 2 + offset.x, -this.player.posY / 2 + offset.y, 4, 4);
 
+      const fend = Date.now();
+      this.fpsnl = (this.fpsnl * 31 + (1000 / Math.max(fend - fstart, 1))) / 32;
       requestAnimationFrame(drawScene);
     }
     requestAnimationFrame(drawScene);

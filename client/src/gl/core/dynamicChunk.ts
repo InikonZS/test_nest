@@ -96,7 +96,7 @@ export class DynamicChunk {
                  if (!chunk){
                     return;
                  }
-                 if (!(Math.abs(chunk.position.x - playerPos.x  / 2) <= chunkSize / slices + 1 && Math.abs(chunk.position.y - playerPos.y / 2) <= chunkSize / slices + 1)){
+                 if (!(Math.abs(chunk.position.x - playerPos.x  / 2) <= chunkSize / slices + 1 + 16 && Math.abs(chunk.position.y - playerPos.y / 2) <= chunkSize / slices + 1 + 16)){
                     return;
                  }
                   const inPlane = (a:Vector, b: Vector, c: Vector, d: Vector)=>{

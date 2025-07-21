@@ -198,7 +198,7 @@ export function makeBoxModel(v0: { x: any; y: any; z: any; }, l: any, w: any, h:
   );
 }
 
-function makeBoxNormalsFromVertexList(){
+export function makeBoxNormalsFromVertexList(){
     var normals = [
     0, 0, 1,
     0, 0, 1,

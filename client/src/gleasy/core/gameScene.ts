@@ -5,7 +5,7 @@ import texImage from "../../gl/assets/dirt.png";
 import m4 from '../../gl/core/m4';
 import fragmentSource from "./fragment.glsl";
 import vertexSource from "./vertex.glsl";
-import { makeBoxModel } from "../../gl/core/aabb";
+import { makeBoxModel, makeBoxNormalsFromVertexList, setTexcoordsLWH } from "../../gl/core/aabb";
 import { Vector } from "../../gl/core/vector";
 import { getScreenVector, inPlane } from "../../gl/core/hoverRender";
 
@@ -75,7 +75,7 @@ class MyGLModel {
                 0, 0, 1,
                 0, 0, 1,
             ]
-        ));
+        ), {usage: this.gl.DYNAMIC_DRAW});
 
         this.texcoordBuffer = new GLBuffer(this.gl, new Float32Array(
             [
@@ -83,11 +83,13 @@ class MyGLModel {
                 0, 1,
                 1, 1,
             ]
-        ));
+        ), {usage: this.gl.DYNAMIC_DRAW});
     }
 
     update(field: VoxelField){
         const posData: Array<number> = [];
+        const normData: Array<number> = [];
+        const texData: Array<number> = [];
         field.iterate((point, x, y, z)=>{
             if (point){
                 /*[ 
@@ -95,13 +97,16 @@ class MyGLModel {
                     x, y + 1, z,
                     x + 1, y + 1, z,
                 ]*/ makeBoxModel({x, y, z}, 1, 1, 1).forEach((it, i)=> posData.push(it));
+                makeBoxNormalsFromVertexList().forEach(it=>normData.push(it));
+                setTexcoordsLWH(1, 1, 1).forEach(it=>texData.push(it));
+                
             }
         });
         this.pointCount = posData.length / 4;
 
         this.positionBuffer.updateBuffer(new Float32Array(posData));
-        this.normalBuffer.updateBuffer(new Float32Array(posData));
-        this.texcoordBuffer.updateBuffer(new Float32Array(posData));
+        this.normalBuffer.updateBuffer(new Float32Array(normData));
+        this.texcoordBuffer.updateBuffer(new Float32Array(texData));
     }
 }
 
@@ -196,12 +201,12 @@ export class GameScene{
     vf: VoxelField;
 
     constructor(canvas: HTMLCanvasElement){
-        const vf = new VoxelField(3, 4, 5);
-        vf.setPoint('123', 1, 2, 3);
-        vf.setPoint('222', 2, 2, 2);
-        vf.setPoint('012', 0, 1, 2);
+        const vf = new VoxelField(10, 10, 10);
+        vf.setPoint('123', 4, 4, 4);
+        //vf.setPoint('222', 2, 2, 2);
+        //vf.setPoint('012', 0, 1, 2);
         vf.iterate((point, x, y, z)=>{
-            console.log(point, x, y, z);
+           // console.log(point, x, y, z);
         });
         this.vf = vf;
 
@@ -235,12 +240,12 @@ export class GameScene{
         this.fps = (this.fps * 31 + (1000 / Math.max(deltaTime, 0.1))) / 32;
 
         this.vf.iterate((point, x, y, z)=>{
-            if (Math.random()<0.001){
+            if (Math.random()<0.0001){
                 if (!point){
 
-                    //vf.setPoint('t', x,y,z);
+                   // this.vf.setPoint('t', x,y,z);
                 } else {
-                    // vf.setPoint(null, x,y,z);
+                   //  this.vf.setPoint(null, x,y,z);
                 }
             }
         });
@@ -248,7 +253,7 @@ export class GameScene{
         const aspect = this.canvas.clientWidth / this.canvas.clientHeight;
         let matrix = m4.perspective(1, aspect, 0.1, 2000); 
         matrix = m4.translate(matrix, 0, 0, -10);
-        matrix = m4.yRotate(matrix, time / 10000);
+        matrix = m4.yRotate(matrix, time / 6000);
 
         this.hover = this.vf.checkHover(matrix, this.canvas, this.cursor);
 

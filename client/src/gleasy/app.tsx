@@ -27,11 +27,29 @@ export function App(){
         {a: 'b', b: 'c', c: 'c1', d: 'b1'},
         {a: 'c', b: 'd', c: 'd1', d: 'c1'},
         {a: 'd', b: 'a', c: 'a1', d: 'd1'},
-    ]
+    ];
+    
+    const planeNormals = [
+        {x: 0, y: 0, z: 1},
+        {x: 0, y: 0, z: -1},
+        {x: 0, y: -1, z: 0},
+        {x: 1, y: 0, z: 0},
+        {x: 0, y: 1, z: 0},
+        {x: -1, y: 0, z: 0},
+    ];
+    const clamp = (value: number, min: number, max: number)=>{
+        return Math.max(Math.min(value, max), min);
+    }
     return <div className="appgl1_wrapper">
-        <canvas className="appgl1_canvas" ref={canvasRef} width={800} height={600} style={{border: '1px solid'}}onClick={()=>{
+        <canvas className="appgl1_canvas" ref={canvasRef} width={800} height={600} style={{border: '1px solid'}} onClick={()=>{
+            console.log(hover?.plane);
             if (hover){
-                gscene.vf.setPoint('t', hover.original.x+1, hover.original.y, hover.original.z);
+                gscene.vf.setPoint(
+                    't', 
+                    clamp(hover.original.x+planeNormals[hover.plane].x, 0, gscene.vf.width - 1), 
+                    clamp(hover.original.y +planeNormals[hover.plane].y, 0, gscene.vf.height - 1), 
+                    clamp(hover.original.z+planeNormals[hover.plane].z, 0, gscene.vf.depth - 1)
+                );
             }
         }}>
         </canvas>

@@ -52,6 +52,10 @@ const config = {
             {
                 test: /\.(wjs)$/i,
                 type: 'asset/resource',
+            },
+            {
+                test: /\.(glsl)$/i,
+                type: 'asset/source',
             }
 
             // Add your rules for custom modules here

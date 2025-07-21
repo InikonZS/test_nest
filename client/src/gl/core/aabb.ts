@@ -183,7 +183,7 @@ function inQube(x1: any, y1: any, x2: any, y2: any, x3: any, y3: any, z3: number
   }
 }
 
-function makeBoxModel(v0: { x: any; y: any; z: any; }, l: any, w: any, h: any){
+export function makeBoxModel(v0: { x: any; y: any; z: any; }, l: any, w: any, h: any){
   return makeBoxModelFromVertexList(
     [
       new Vector(v0.x, v0.y, v0.z),

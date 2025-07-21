@@ -38,3 +38,15 @@ export function inTriangle(a:Vector, b:Vector, c:Vector, p:Vector){
 
   return (sa+sb+sc)<=(s+0.00001);
 }
+
+export const inPlane = (a:Vector, b: Vector, c: Vector, d: Vector, cursor: Vector)=>{
+    return inTriangle(
+        new Vector(a.x, a.y, 0),
+        new Vector(b.x, b.y, 0),
+        new Vector(c.x, c.y, 0),
+        cursor) || inTriangle(
+        new Vector(a.x, a.y, 0),
+        new Vector(c.x, c.y, 0),
+        new Vector(d.x, d.y, 0),
+        cursor);
+};

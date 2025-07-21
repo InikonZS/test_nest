@@ -5,6 +5,9 @@ import texImage from "../../gl/assets/dirt.png";
 import m4 from '../../gl/core/m4';
 import fragmentSource from "./fragment.glsl";
 import vertexSource from "./vertex.glsl";
+import { makeBoxModel } from "../../gl/core/aabb";
+import { Vector } from "../../gl/core/vector";
+import { getScreenVector, inPlane } from "../../gl/core/hoverRender";
 
 class MyGLShader extends GLShader{
     positionLocation: number;
@@ -16,10 +19,8 @@ class MyGLShader extends GLShader{
 
     constructor(gl: WebGLRenderingContext){
         let vertexShaderSource = vertexSource;  
-    //u_matrix_world *
-    //  uniform mat4 u_matrix_world;
+        let fragmentShaderSource = fragmentSource;
 
-    let fragmentShaderSource = fragmentSource;
         super(gl, vertexShaderSource, fragmentShaderSource);
         this.positionLocation = this.getAttribLocation('a_position');
         this.normalLocation = this.getAttribLocation('a_normal');
@@ -32,6 +33,7 @@ class MyGLShader extends GLShader{
     protected useProgram(): () => void {
         const destructor = super.useProgram();
         const gl = this.gl;
+        gl.enable(gl.DEPTH_TEST);
         gl.enableVertexAttribArray(this.positionLocation);
         gl.enableVertexAttribArray(this.normalLocation);
         gl.enableVertexAttribArray(this.texcoordLocation);
@@ -39,6 +41,7 @@ class MyGLShader extends GLShader{
             gl.disableVertexAttribArray(this.positionLocation);
             gl.disableVertexAttribArray(this.normalLocation);
             gl.disableVertexAttribArray(this.texcoordLocation);
+            gl.disable(gl.DEPTH_TEST);
             destructor();
         }
     }
@@ -82,6 +85,99 @@ class MyGLModel {
             ]
         ));
     }
+
+    update(field: VoxelField){
+        const posData: Array<number> = [];
+        field.iterate((point, x, y, z)=>{
+            if (point){
+                /*[ 
+                    x, y, z,
+                    x, y + 1, z,
+                    x + 1, y + 1, z,
+                ]*/ makeBoxModel({x, y, z}, 1, 1, 1).forEach((it, i)=> posData.push(it));
+            }
+        });
+        this.pointCount = posData.length / 4;
+
+        this.positionBuffer.updateBuffer(new Float32Array(posData));
+        this.normalBuffer.updateBuffer(new Float32Array(posData));
+        this.texcoordBuffer.updateBuffer(new Float32Array(posData));
+    }
+}
+
+class VoxelField {
+    height: number;
+    width: number;
+    depth: number;
+    data: any[];
+
+    constructor(width: number, height: number, depth: number){
+        this.height = height;
+        this.width = width;
+        this.depth = depth;
+        this.data = new Array(width * height * depth).fill(null);
+    }
+
+    setPoint(point: any, x: number, y: number, z: number){
+        this.data[x + y * this.width + z * this.width * this.height] = point;
+    }
+    
+    iterate(onPoint: (point:any, x: number, y: number, z: number)=>void){
+        this.data.forEach((it, i)=>{
+            const x = Math.floor(i % (this.width));
+            const y = Math.floor((i / this.width)) % this.height;
+            const z = Math.floor((i / this.width / this.height)  % (this.depth));
+            onPoint(it, x, y, z);
+        });
+    }
+
+    checkHover(matrix: number[], canvas: HTMLCanvasElement, cursor: Vector){
+        const hoveredList: Array<any> = [];
+        this.iterate((point, x, y, z)=>{
+            if (!point){
+                return;
+            } 
+            const aVector3d = new Vector(x, y, z);
+            const lwh = new Vector(1, 1, 1);
+            const procPoint = (px: number, py: number, pz: number)=>getScreenVector(matrix, aVector3d.add(px, py, pz), canvas);
+            const points = {
+                a: procPoint(0,0,lwh.z),
+                b: procPoint(lwh.x,0,lwh.z),
+                c: procPoint(lwh.x,lwh.y,lwh.z),
+                d: procPoint(0,lwh.y,lwh.z),
+                a1: procPoint(0,0,0),
+                b1: procPoint(lwh.x,0,0),
+                c1: procPoint(lwh.x,lwh.y,0),
+                d1: procPoint(0,lwh.y,0),
+                plane: -1,
+                original: new Vector(x, y, z)
+            };
+
+            if (!(points.a.z <0 || points.b.z <0 || points.c.z <0 || points.d.z <0 ||
+                points.a1.z <0 || points.b1.z <0 || points.c1.z <0 || points.d1.z <0)
+            ){
+                const it = points;
+                const planes = [
+                    inPlane(it.d, it.c, it.b, it.a, cursor),
+                    inPlane(it.a1, it.b1, it.c1, it.d1, cursor),
+                    inPlane(it.a, it.b, it.b1, it.a1, cursor),
+                    inPlane(it.b, it.c, it.c1, it.b1, cursor),
+                    inPlane(it.c, it.d, it.d1, it.c1, cursor),
+                    inPlane(it.d, it.a, it.a1, it.d1, cursor),
+                ];
+                const pind =planes.findIndex(p=>p == true);
+                it.plane = pind;
+                if (pind != -1){
+                    hoveredList.push(points);
+                }
+            };
+        });
+
+        hoveredList.sort((a, b)=>{
+            return (a.a.z + a.b.z + a.c.z + a.d.z + a.a1.z + a.b1.z + a.c1.z + a.d1.z) - (b.a.z + b.b.z + b.c.z + b.d.z + b.a1.z + b.b1.z + b.c1.z + b.d1.z)
+        });
+        return hoveredList[0];
+    }
 }
 
 export class GameScene{
@@ -95,9 +191,24 @@ export class GameScene{
     gl: WebGLRenderingContext;
     mainTexture: GLTexture;
     model: MyGLModel;
+    cursor: Vector = new Vector(0,0,0); 
+    hover: any;
+    vf: VoxelField;
 
     constructor(canvas: HTMLCanvasElement){
+        const vf = new VoxelField(3, 4, 5);
+        vf.setPoint('123', 1, 2, 3);
+        vf.setPoint('222', 2, 2, 2);
+        vf.setPoint('012', 0, 1, 2);
+        vf.iterate((point, x, y, z)=>{
+            console.log(point, x, y, z);
+        });
+        this.vf = vf;
+
         this.canvas = canvas;
+        this.canvas.onmousemove = (e)=>{
+            this.cursor = new Vector(e.offsetX, e.offsetY, 0);
+        };
         const context = canvas.getContext('webgl');
         if (!context){
             throw new Error('No webgl');
@@ -108,6 +219,7 @@ export class GameScene{
         this.ticker.onTick = this.handleTick.bind(this);
         this.mainShader = new MyGLShader(this.gl);
         this.model = new MyGLModel(this.gl);
+        this.model.update(vf);
 
         this.mainTexture = new GLTexture(this.gl, texImage);
 
@@ -122,9 +234,28 @@ export class GameScene{
 
         this.fps = (this.fps * 31 + (1000 / Math.max(deltaTime, 0.1))) / 32;
 
+        this.vf.iterate((point, x, y, z)=>{
+            if (Math.random()<0.001){
+                if (!point){
+
+                    //vf.setPoint('t', x,y,z);
+                } else {
+                    // vf.setPoint(null, x,y,z);
+                }
+            }
+        });
+
+        const aspect = this.canvas.clientWidth / this.canvas.clientHeight;
+        let matrix = m4.perspective(1, aspect, 0.1, 2000); 
+        matrix = m4.translate(matrix, 0, 0, -10);
+        matrix = m4.yRotate(matrix, time / 10000);
+
+        this.hover = this.vf.checkHover(matrix, this.canvas, this.cursor);
+
+        this.model.update(this.vf);
         this.mainShader.run((shader)=>{
             shader.setBuffer(shader.positionLocation, this.model.positionBuffer.buffer, {
-                size: 3
+                size: 4
             });
             shader.setBuffer(shader.normalLocation, this.model.normalBuffer.buffer, {
                 size: 3
@@ -134,9 +265,6 @@ export class GameScene{
             });
             shader.setTexture(this.mainTexture.texture, 0, this.gl.TEXTURE_2D);
 
-            const aspect = this.canvas.clientWidth / this.canvas.clientHeight;
-            let matrix = m4.perspective(1, aspect, 0.1, 2000); 
-            matrix = m4.translate(matrix, 0, 0, -3);
             shader.setMatrix(matrix);
 
             shader.draw(this.gl.TRIANGLES, 0, this.model.pointCount);

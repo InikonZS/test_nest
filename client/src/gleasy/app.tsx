@@ -28,7 +28,7 @@ export function App(){
         {a: 'c', b: 'd', c: 'd1', d: 'c1'},
         {a: 'd', b: 'a', c: 'a1', d: 'd1'},
     ];
-    
+
     const planeNormals = [
         {x: 0, y: 0, z: 1},
         {x: 0, y: 0, z: -1},
@@ -41,11 +41,21 @@ export function App(){
         return Math.max(Math.min(value, max), min);
     }
     return <div className="appgl1_wrapper">
-        <canvas className="appgl1_canvas" ref={canvasRef} width={800} height={600} style={{border: '1px solid'}} onClick={()=>{
+        <canvas className="appgl1_canvas" ref={canvasRef} width={800} height={600} style={{border: '1px solid'}} onContextMenu={(e)=>{
+            e.preventDefault();
+            if (hover){
+                gscene.vf.setPoint(
+                    null, 
+                    clamp(hover.original.x, 0, gscene.vf.width - 1), 
+                    clamp(hover.original.y, 0, gscene.vf.height - 1), 
+                    clamp(hover.original.z, 0, gscene.vf.depth - 1)
+                );
+            }
+        }} onClick={(e)=>{
             console.log(hover?.plane);
             if (hover){
                 gscene.vf.setPoint(
-                    't', 
+                    {mx: Math.floor(Math.random() * 4), my: Math.floor(Math.random() * 2)}, 
                     clamp(hover.original.x+planeNormals[hover.plane].x, 0, gscene.vf.width - 1), 
                     clamp(hover.original.y +planeNormals[hover.plane].y, 0, gscene.vf.height - 1), 
                     clamp(hover.original.z+planeNormals[hover.plane].z, 0, gscene.vf.depth - 1)

@@ -1,7 +1,8 @@
 import { TickerSystem } from "./tickerSystem";
 import { KeyboardSystem } from "./keyboardSystem";
 import { GLShader, GLBuffer, GLTexture } from "./glSystem";
-import texImage from "../../gl/assets/dirt.png";
+//import texImage from "../../gl/assets/dirt.png";
+import texImage from "../assets/colors2.png";
 import m4 from '../../gl/core/m4';
 import fragmentSource from "./fragment.glsl";
 import vertexSource from "./vertex.glsl";
@@ -79,9 +80,9 @@ class MyGLModel {
 
         this.texcoordBuffer = new GLBuffer(this.gl, new Float32Array(
             [
-                0, 0,
-                0, 1,
-                1, 1,
+                0, 0, 0, 0,
+                0, 1, 0, 0,
+                1, 1, 0, 0
             ]
         ), {usage: this.gl.DYNAMIC_DRAW});
     }
@@ -98,7 +99,14 @@ class MyGLModel {
                     x + 1, y + 1, z,
                 ]*/ makeBoxModel({x, y, z}, 1, 1, 1).forEach((it, i)=> posData.push(it));
                 makeBoxNormalsFromVertexList().forEach(it=>normData.push(it));
-                setTexcoordsLWH(1, 1, 1).forEach(it=>texData.push(it));
+                setTexcoordsLWH(2, 2, 2).forEach((it, i)=>{
+                    texData.push(it);
+                    if (i % 2 != 0){
+                        texData.push(point?.mx || 0);
+                        texData.push(point?.my || 0);
+                    }
+                }
+                );
                 
             }
         });
@@ -115,6 +123,7 @@ class VoxelField {
     width: number;
     depth: number;
     data: any[];
+    updated: boolean = false;
 
     constructor(width: number, height: number, depth: number){
         this.height = height;
@@ -125,6 +134,7 @@ class VoxelField {
 
     setPoint(point: any, x: number, y: number, z: number){
         this.data[x + y * this.width + z * this.width * this.height] = point;
+        this.updated = true;
     }
     
     iterate(onPoint: (point:any, x: number, y: number, z: number)=>void){
@@ -257,7 +267,10 @@ export class GameScene{
 
         this.hover = this.vf.checkHover(matrix, this.canvas, this.cursor);
 
-        this.model.update(this.vf);
+        if (this.vf.updated){
+            this.model.update(this.vf);
+            this.vf.updated = false;
+        }
         this.mainShader.run((shader)=>{
             shader.setBuffer(shader.positionLocation, this.model.positionBuffer.buffer, {
                 size: 4
@@ -266,7 +279,7 @@ export class GameScene{
                 size: 3
             });
             shader.setBuffer(shader.texcoordLocation, this.model.texcoordBuffer.buffer, {
-                size: 2
+                size: 4
             });
             shader.setTexture(this.mainTexture.texture, 0, this.gl.TEXTURE_2D);
 

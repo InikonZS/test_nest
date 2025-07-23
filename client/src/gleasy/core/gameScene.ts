@@ -2,13 +2,14 @@ import { TickerSystem } from "./tickerSystem";
 import { KeyboardSystem } from "./keyboardSystem";
 import { GLShader, GLBuffer, GLTexture } from "./glSystem";
 //import texImage from "../../gl/assets/dirt.png";
-import texImage from "../assets/colors2.png";
+import texImage from "../assets/colors3.png";
 import m4 from '../../gl/core/m4';
 import fragmentSource from "./fragment.glsl";
 import vertexSource from "./vertex.glsl";
 import { makeBoxModel, makeBoxNormalsFromVertexList, setTexcoordsLWH } from "../../gl/core/aabb";
 import { Vector } from "../../gl/core/vector";
 import { getScreenVector, inPlane } from "../../gl/core/hoverRender";
+import { remip }from "./remip";
 
 class MyGLShader extends GLShader{
     positionLocation: number;
@@ -52,6 +53,94 @@ class MyGLShader extends GLShader{
     }
 }
 
+const makeChunk = (_list: {point: any, vector: Vector}[], _corners: {point: any, vector: Vector}[], blockSize: number) => {
+    const mp: Record<string, number> = {};
+    _list.forEach(((it, i) => mp[`${it.vector.x}_${it.vector.y}_${it.vector.z}`] = i));
+    _corners.forEach(((it, i) => mp[`${it.vector.x}_${it.vector.y}_${it.vector.z}`] = i));
+    //const models = [];
+    const vertexList: Array<number> = [];
+    const normList: Array<number> = [];
+    const uvList: Array<number> = [];
+    for (let plane = 0; plane < 6; plane++) {
+        if ([].includes(plane)) {
+
+        } else {
+
+        let dx = 0;
+        let dy =0;
+        let dz = 0;
+        if (plane == 5){
+            dx = -blockSize;
+        }
+        if (plane == 3){
+            dx = blockSize;
+        }
+        if (plane == 2){
+            dy = -blockSize;
+        }
+        if (plane == 4){
+            dy = blockSize;
+        }
+        if (plane == 0){
+            dz = -blockSize;
+        }
+        if (plane == 1){
+            dz = blockSize;
+        }
+
+        let list = _list.filter((it, i)=>mp[(it.vector.x + dx) +'_'+(it.vector.y + dy)+'_'+(it.vector.z + dz)] == undefined);
+        //const cutted = cut24(list, plane, _list[0].aVector3d, blockSize, chunkSize ) || cut35(list, plane, _list[0].aVector3d, blockSize, chunkSize ) ||cut01(list, plane, _list[0].aVector3d, blockSize, chunkSize );
+    let cutted = list;
+        //const vertexList: Array<number> = [];
+        cutted.forEach((it, i)=>{
+            makeBoxModel(it.vector, blockSize, blockSize, blockSize).forEach((jt, j)=>{
+                const _plane = Math.floor(j/(6*4));
+                if (plane == undefined || plane == _plane){
+                    vertexList.push(jt);
+                }
+            })
+        });
+        //const vertexes = new Float32Array(vertexList);
+
+        //const normList: Array<number> = [];
+        cutted.forEach((it, i)=>{
+            makeBoxNormalsFromVertexList().forEach((jt, j)=>{
+                const _plane = Math.floor(j/(6* 3));
+                if (plane == undefined || plane == _plane){
+                    normList.push(jt);
+                }
+            })
+        });
+        //const norm = new Float32Array(normList);
+
+        //const uvList: Array<number> = [];
+        cutted.forEach((it, i)=>{
+            setTexcoordsLWH(1, 1, 1).forEach((jt, j)=>{
+                const _plane = Math.floor(j/(6* 2));
+                if (plane == undefined || plane == _plane){
+                    uvList.push(jt);
+                    if (j % 2 != 0){
+                        const mpy = Math.floor(plane / 3);
+                        const mpx = Math.floor(plane % 3);
+                        uvList.push(((it.point?.mx1 || 0)*3 + mpx) % 4);
+                        uvList.push( ((it.point?.my1 || 1)*2  + mpy) % 4);
+                    }
+                }
+            })
+        });
+        //const uv = new Float32Array(uvList)
+        /*models.push({
+            vertexes, normals: norm, uv
+        })*/
+    }
+}
+return {
+    vertexes: new Float32Array(vertexList),
+    normals:new Float32Array(normList),
+    uv: new Float32Array(uvList)
+};
+}
+
 class MyGLModel {
     gl: WebGLRenderingContext;
     positionBuffer: GLBuffer;
@@ -88,16 +177,18 @@ class MyGLModel {
     }
 
     update(field: VoxelField){
-        const posData: Array<number> = [];
-        const normData: Array<number> = [];
-        const texData: Array<number> = [];
+        const pointList: Array<{point: any, vector: Vector}> = [];
+        //const posData: Array<number> = [];
+        //const normData: Array<number> = [];
+        //const texData: Array<number> = [];
         field.iterate((point, x, y, z)=>{
             if (point){
+                pointList.push({point, vector: new Vector(x, y, z)});
                 /*[ 
                     x, y, z,
                     x, y + 1, z,
                     x + 1, y + 1, z,
-                ]*/ makeBoxModel({x, y, z}, 1, 1, 1).forEach((it, i)=> posData.push(it));
+                ]*/ /*makeBoxModel({x, y, z}, 1, 1, 1).forEach((it, i)=> posData.push(it));
                 makeBoxNormalsFromVertexList().forEach(it=>normData.push(it));
                 setTexcoordsLWH(2, 2, 2).forEach((it, i)=>{
                     texData.push(it);
@@ -106,15 +197,20 @@ class MyGLModel {
                         texData.push(point?.my || 0);
                     }
                 }
-                );
+                );*/
                 
             }
         });
-        this.pointCount = posData.length / 4;
+        const res = makeChunk(pointList, [], 1);
+        console.log('sliced: ', pointList.length * 36, '/', res.vertexes.length / 4);
+        this.pointCount = res.vertexes.length / 4;
 
-        this.positionBuffer.updateBuffer(new Float32Array(posData));
-        this.normalBuffer.updateBuffer(new Float32Array(normData));
-        this.texcoordBuffer.updateBuffer(new Float32Array(texData));
+        //this.positionBuffer.updateBuffer(new Float32Array(posData));
+        //this.normalBuffer.updateBuffer(new Float32Array(normData));
+        //this.texcoordBuffer.updateBuffer(new Float32Array(texData));
+         this.positionBuffer.updateBuffer(res.vertexes);
+        this.normalBuffer.updateBuffer(res.normals);
+        this.texcoordBuffer.updateBuffer(res.uv);
     }
 }
 
@@ -209,6 +305,9 @@ export class GameScene{
     cursor: Vector = new Vector(0,0,0); 
     hover: any;
     vf: VoxelField;
+    cx: number =0;
+    cy: number =0;
+    ds: number = -10;
 
     constructor(canvas: HTMLCanvasElement){
         const vf = new VoxelField(10, 10, 10);
@@ -224,6 +323,26 @@ export class GameScene{
         this.canvas.onmousemove = (e)=>{
             this.cursor = new Vector(e.offsetX, e.offsetY, 0);
         };
+
+        this.canvas.onwheel = (e)=>{
+            //console.log(e.deltaX);
+            this.ds-=e.deltaY / 10;
+        };
+
+
+        this.canvas.onmousedown = (e)=>{
+            const hm = (em: MouseEvent)=>{
+                this.cx += em.movementX;
+                this.cy += em.movementY;
+            }
+            window.addEventListener('mousemove', hm);
+
+            const hu = (em: MouseEvent)=>{
+                window.removeEventListener('mouseup', hu);
+                window.removeEventListener('mousemove', hm);
+            }
+            window.addEventListener('mouseup', hu);
+        }
         const context = canvas.getContext('webgl');
         if (!context){
             throw new Error('No webgl');
@@ -262,8 +381,10 @@ export class GameScene{
 
         const aspect = this.canvas.clientWidth / this.canvas.clientHeight;
         let matrix = m4.perspective(1, aspect, 0.1, 2000); 
-        matrix = m4.translate(matrix, 0, 0, -10);
-        matrix = m4.yRotate(matrix, time / 6000);
+        matrix = m4.translate(matrix, 0, 0, /*-10*/ this.ds);
+        //matrix = m4.yRotate(matrix, time / 6000);
+        matrix = m4.yRotate(matrix, this.cx / 200);
+        matrix = m4.xRotate(matrix, this.cy / 200);
 
         this.hover = this.vf.checkHover(matrix, this.canvas, this.cursor);
 

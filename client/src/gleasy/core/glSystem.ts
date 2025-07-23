@@ -1,4 +1,5 @@
 import { GLBufferOptions } from "./glTypes";
+import { remip } from "./remip";
 
 export class GLBuffer {
     buffer: WebGLBuffer;
@@ -162,20 +163,31 @@ export class GLTexture {
             new Uint8Array([0, 0, 255, 255]));
          //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
          //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-            //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+        //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR_MIPMAP_LINEAR);
         // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-        //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        //gl.texParameterf(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER, gl.LINEAR );
+        //gl.texParameterf(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER, gl.LINEAR );
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        /*const ext =
+            gl.getExtension("EXT_texture_filter_anisotropic") ||
+            gl.getExtension("MOZ_EXT_texture_filter_anisotropic") ||
+            gl.getExtension("WEBKIT_EXT_texture_filter_anisotropic");
+        if (ext) {
+            const max = gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+            gl.texParameterf(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, max);
+        }*/
 
         // асинхронная загрузка изображения
         var image = new Image();
         image.src = src;
         image.addEventListener('load', () => {
             // теперь, когда изображение загрузилось, копируем его в текстуру
+            const c = remip(image, 4, 32);
             gl.bindTexture(gl.TEXTURE_2D, texture);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
             gl.generateMipmap(gl.TEXTURE_2D);
             this.onLoad?.();
         });

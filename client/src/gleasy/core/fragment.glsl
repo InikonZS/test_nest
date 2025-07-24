@@ -16,5 +16,7 @@ void main() {
     tex = texture2D(u_texture, vec2(((vmod.x/2.0 + 0.25 + v_texcoord.z) ) / 4.0, ((vmod.y/2.0 + 0.25 + v_texcoord.w) ) / 4.0));
      //vec4 tex2 = texture2D(u_texture, vec2(((vmod.x/2.0 + 0.27 + v_texcoord.z) ) / 4.0, ((vmod.y/2.0 + 0.27 + v_texcoord.w) ) / 4.0));
 //tex //= abs(((vmod.x  -0.5)* (vmod.x -0.5)) * ((vmod.y - 0.5) * (vmod.y-0.5))) * (tex2 + tex1) /2.0 + (1.0-abs(((vmod.x - 0.5) * (vmod.x -0.5)) * ((vmod.y -0.5) * (vmod.y-0.5)))) * tex1;
-    gl_FragColor = (tex / 5.0 * 4.0 + tex / 5.0 * abs(dot(normalize(vec3(1.0, 0.5, 0.25)), normalize(nos)))) / max((ppos.z * ppos.z / 1000.0 / 100.0), 1.0);
+    //gl_FragColor = (tex / 5.0 * 1.0 + 4.0*tex / 5.0 * abs(dot(normalize(vec3(1.0, 0.5, 0.25)), (nos)))) / max((ppos.z * ppos.z / 1000.0 / 100.0), 1.0);
+    //gl_FragColor = vec4(nos.x * vec3(1.0, 1.0, 1.0), 1.0); 
+    gl_FragColor = vec4(nos.x * tex.xyz, 1.0); 
 }

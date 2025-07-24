@@ -53,7 +53,7 @@ class MyGLShader extends GLShader{
     }
 }
 
-const makeChunk = (_list: {point: any, vector: Vector}[], _corners: {point: any, vector: Vector}[], blockSize: number) => {
+const makeChunk = (vf: VoxelField, _list: {point: any, vector: Vector}[], _corners: {point: any, vector: Vector}[], blockSize: number) => {
     const mp: Record<string, number> = {};
     _list.forEach(((it, i) => mp[`${it.vector.x}_${it.vector.y}_${it.vector.z}`] = i));
     _corners.forEach(((it, i) => mp[`${it.vector.x}_${it.vector.y}_${it.vector.z}`] = i));
@@ -107,7 +107,7 @@ const makeChunk = (_list: {point: any, vector: Vector}[], _corners: {point: any,
             makeBoxNormalsFromVertexList().forEach((jt, j)=>{
                 const _plane = Math.floor(j/(6* 3));
                 if (plane == undefined || plane == _plane){
-                    normList.push(jt);
+                        normList.push( (it.point.lights?.[plane] || it.point.light)  / 16);
                 }
             })
         });
@@ -181,8 +181,9 @@ class MyGLModel {
         //const posData: Array<number> = [];
         //const normData: Array<number> = [];
         //const texData: Array<number> = [];
+        field.raytrace();
         field.iterate((point, x, y, z)=>{
-            if (point){
+            if (point && point.type!=='air'){
                 pointList.push({point, vector: new Vector(x, y, z)});
                 /*[ 
                     x, y, z,
@@ -201,7 +202,7 @@ class MyGLModel {
                 
             }
         });
-        const res = makeChunk(pointList, [], 1);
+        const res = makeChunk(field, pointList, [], 1);
         console.log('sliced: ', pointList.length * 36, '/', res.vertexes.length / 4);
         this.pointCount = res.vertexes.length / 4;
 
@@ -225,12 +226,16 @@ class VoxelField {
         this.height = height;
         this.width = width;
         this.depth = depth;
-        this.data = new Array(width * height * depth).fill(null);
+        this.data = new Array(width * height * depth).fill(null).map(it=>({type: 'air', light: 0, lights: [0, 0, 0, 0, 0 ,0]}));
     }
 
     setPoint(point: any, x: number, y: number, z: number){
         this.data[x + y * this.width + z * this.width * this.height] = point;
         this.updated = true;
+    }
+
+    getPoint(x: number, y: number, z: number){
+        return this.data[x + y * this.width + z * this.width * this.height];
     }
     
     iterate(onPoint: (point:any, x: number, y: number, z: number)=>void){
@@ -242,10 +247,54 @@ class VoxelField {
         });
     }
 
+    raytrace(){
+        const steps = [
+        {x: 0, y: 0, z: 1},
+        {x: 0, y: 0, z: -1},
+        {x: 0, y: -1, z: 0},
+        {x: 1, y: 0, z: 0},
+        {x: 0, y: 1, z: 0},
+        {x: -1, y: 0, z: 0},
+        ];
+        this.iterate((point, x,y,z)=>{
+            if (point.type == 'light'){
+                this.setPoint({...point, light: 15}, x, y, z);
+            } else {
+                this.setPoint({...point, light: 1}, x, y, z);
+            }
+        });
+
+        for (let i =0; i< 16; i++){
+        this.iterate((point, x,y,z)=>{
+            steps.forEach((step, si)=>{
+                const stepPoint = this.getPoint(x+step.x, y+step.y, z+step.z);
+                if (stepPoint && point.type != 'block'){
+                    this.setPoint({...stepPoint, light: Math.max( point.light - 1, stepPoint.light, 0)}, x+step.x, y+step.y, z+step.z)
+                }
+                //if (stepPoint.type != 'air'){
+                //    this.setPoint({...stepPoint, light: Math.max( point.light - 1, 0)}, x+step.x, y+step.y, z+step.z)
+                //}
+            })
+        });
+
+        this.iterate((point, x,y,z)=>{
+            if (point.type == 'block'){
+                const lights = steps.map((step, si)=>{
+                    const stepPoint = this.getPoint(x+step.x, y+step.y, z-step.z);
+                    if (stepPoint?.type == 'air'){
+                        return stepPoint.light;
+                    }
+                })
+                this.setPoint({...point, lights}, x, y, z);
+            }
+        });
+    }
+    }
+
     checkHover(matrix: number[], canvas: HTMLCanvasElement, cursor: Vector){
         const hoveredList: Array<any> = [];
         this.iterate((point, x, y, z)=>{
-            if (!point){
+            if (!point || point.type == 'air'){
                 return;
             } 
             const aVector3d = new Vector(x, y, z);
@@ -310,8 +359,8 @@ export class GameScene{
     ds: number = -10;
 
     constructor(canvas: HTMLCanvasElement){
-        const vf = new VoxelField(10, 10, 10);
-        vf.setPoint('123', 4, 4, 4);
+        const vf = new VoxelField(16, 16, 16);
+        vf.setPoint({type: 'light', light: 15}, 7, 7, 7);
         //vf.setPoint('222', 2, 2, 2);
         //vf.setPoint('012', 0, 1, 2);
         vf.iterate((point, x, y, z)=>{

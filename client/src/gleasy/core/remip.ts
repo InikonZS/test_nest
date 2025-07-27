@@ -23,6 +23,6 @@ export const remip = (image: HTMLImageElement, tiles: number, tileSize: number)=
             }
         }
     }
-        console.log(canvas.toDataURL());
+       // console.log(canvas.toDataURL());
     return canvas;
 }

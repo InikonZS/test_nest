@@ -41,9 +41,10 @@ export function App(){
         return Math.max(Math.min(value, max), min);
     }
     return <div className="appgl1_wrapper">
-        <canvas className="appgl1_canvas" ref={canvasRef} width={800} height={600} style={{border: '1px solid'}} onContextMenu={(e)=>{
-            e.preventDefault();
-            if (hover){
+        <canvas className="appgl1_canvas" ref={canvasRef} width={800} height={600} style={{border: '1px solid'}} onMouseUp={(e)=>{
+            //e.preventDefault();
+            console.log('right click')
+            if (hover && e.button == 2){
                 gscene.vf.setPoint(
                     {type: 'air', light: 0}, 
                     clamp(hover.original.x, 0, gscene.vf.width - 1), 
@@ -52,8 +53,8 @@ export function App(){
                 );
             }
         }} onClick={(e)=>{
-            console.log(hover?.plane);
-            if (hover){
+            console.log(hover?.plane, 'button - ', e.button);
+            if (hover && e.button == 0){
                 gscene.vf.setPoint(
                     {type: 'block', mx: Math.floor(Math.random() * 4), my: Math.floor(Math.random() * 2)}, 
                     clamp(hover.original.x+planeNormals[hover.plane].x, 0, gscene.vf.width - 1), 
@@ -75,6 +76,7 @@ export function App(){
                 const size =  50 / hover[it].z + 'px';
                 return <div className="appgl1_hover_point" style={{left:hover[it].x + 'px', top: hover[it].y + 'px', width: size, height: size, backgroundColor: color}}></div>
             })}
+            <div className="appgl1_hover_point" style={{left:canvasRef.current?.clientWidth/2 + 'px', top: canvasRef.current?.clientHeight/2+ 'px', width: '3px', height: '3px', backgroundColor: '#0ff'}}></div>
         </div>
         <div className="appgl1_map_block">
             <div>fps: {fps.limited.toFixed(2)} / {fps.framed.toFixed(2)}</div>

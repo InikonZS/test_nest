@@ -4,54 +4,14 @@ import { GLShader, GLBuffer, GLTexture } from "./glSystem";
 //import texImage from "../../gl/assets/dirt.png";
 import texImage from "../assets/colors3.png";
 import m4 from '../../gl/core/m4';
-import fragmentSource from "./fragment.glsl";
-import vertexSource from "./vertex.glsl";
 import { makeBoxModel, makeBoxNormalsFromVertexList, setTexcoordsLWH } from "../../gl/core/aabb";
 import { Vector } from "../../gl/core/vector";
 import { getScreenVector, inPlane } from "../../gl/core/hoverRender";
 import { remip }from "./remip";
+import { MyGLShader } from "./mainShader";
+import { Player } from "./player";
+import { Collider, ColliderList } from "./collider";
 
-class MyGLShader extends GLShader{
-    positionLocation: number;
-    normalLocation: number;
-    texcoordLocation: number;
-    matrixLocation: WebGLUniformLocation;
-    colorLocation: WebGLUniformLocation;
-    textureLocation: WebGLUniformLocation;
-
-    constructor(gl: WebGLRenderingContext){
-        let vertexShaderSource = vertexSource;  
-        let fragmentShaderSource = fragmentSource;
-
-        super(gl, vertexShaderSource, fragmentShaderSource);
-        this.positionLocation = this.getAttribLocation('a_position');
-        this.normalLocation = this.getAttribLocation('a_normal');
-        this.texcoordLocation = this.getAttribLocation('a_texcoord');
-        this.matrixLocation = this.getUniformLocation('u_matrix');
-        this.colorLocation = this.getUniformLocation('u_color');
-        this.textureLocation = this.getUniformLocation('u_texture');
-    }
-
-    protected useProgram(): () => void {
-        const destructor = super.useProgram();
-        const gl = this.gl;
-        gl.enable(gl.DEPTH_TEST);
-        gl.enableVertexAttribArray(this.positionLocation);
-        gl.enableVertexAttribArray(this.normalLocation);
-        gl.enableVertexAttribArray(this.texcoordLocation);
-        return ()=>{
-            gl.disableVertexAttribArray(this.positionLocation);
-            gl.disableVertexAttribArray(this.normalLocation);
-            gl.disableVertexAttribArray(this.texcoordLocation);
-            gl.disable(gl.DEPTH_TEST);
-            destructor();
-        }
-    }
-
-    setMatrix(matrix: Array<number>){
-        this.gl.uniformMatrix4fv(this.matrixLocation, false, matrix);
-    }
-}
 
 const makeChunk = (vf: VoxelField, _list: {point: any, vector: Vector}[], _corners: {point: any, vector: Vector}[], blockSize: number) => {
     const mp: Record<string, number> = {};
@@ -203,7 +163,7 @@ class MyGLModel {
             }
         });
         const res = makeChunk(field, pointList, [], 1);
-        console.log('sliced: ', pointList.length * 36, '/', res.vertexes.length / 4);
+        //console.log('sliced: ', pointList.length * 36, '/', res.vertexes.length / 4);
         this.pointCount = res.vertexes.length / 4;
 
         //this.positionBuffer.updateBuffer(new Float32Array(posData));
@@ -357,8 +317,13 @@ export class GameScene{
     cx: number =0;
     cy: number =0;
     ds: number = -10;
+    player: Player;
+    colliderList: ColliderList;
 
     constructor(canvas: HTMLCanvasElement){
+        this.player = new Player();
+        this.player.spawn();
+        this.colliderList = new ColliderList();
         const vf = new VoxelField(16, 16, 16);
         vf.setPoint({type: 'light', light: 15}, 7, 7, 7);
         //vf.setPoint('222', 2, 2, 2);
@@ -370,7 +335,9 @@ export class GameScene{
 
         this.canvas = canvas;
         this.canvas.onmousemove = (e)=>{
-            this.cursor = new Vector(e.offsetX, e.offsetY, 0);
+            //this.cursor = new Vector(e.offsetX, e.offsetY, 0);
+            this.cursor = new Vector(canvas.clientWidth/ 2, canvas.clientHeight/2, 0);
+            this.player.rotateCam(e.movementX, e.movementY);
         };
 
         this.canvas.onwheel = (e)=>{
@@ -380,6 +347,10 @@ export class GameScene{
 
 
         this.canvas.onmousedown = (e)=>{
+            console.log('down - ', e.button);
+            if (e.button == 0){
+            this.canvas.requestPointerLock();
+            }
             const hm = (em: MouseEvent)=>{
                 this.cx += em.movementX;
                 this.cy += em.movementY;
@@ -403,6 +374,12 @@ export class GameScene{
         this.mainShader = new MyGLShader(this.gl);
         this.model = new MyGLModel(this.gl);
         this.model.update(vf);
+        this.colliderList.list = [];
+        this.vf.iterate((point, x, y, z)=>{
+            if (point && point.type !=='air'){
+                this.colliderList.list.push(new Collider(new Vector(x,y,z), new Vector(x+1, y+1, z+1)));
+            }
+        });
 
         this.mainTexture = new GLTexture(this.gl, texImage);
 
@@ -429,16 +406,31 @@ export class GameScene{
         });
 
         const aspect = this.canvas.clientWidth / this.canvas.clientHeight;
-        let matrix = m4.perspective(1, aspect, 0.1, 2000); 
-        matrix = m4.translate(matrix, 0, 0, /*-10*/ this.ds);
-        //matrix = m4.yRotate(matrix, time / 6000);
-        matrix = m4.yRotate(matrix, this.cx / 200);
-        matrix = m4.xRotate(matrix, this.cy / 200);
+        const matrix = this.player.getMatrix(aspect);
+
+        this.player.procMoves(this.colliderList, /*deltatime*/0.01);
+
+        if (this.player.posZ > 130) {
+            console.log('respawn');
+            this.player.spawn();
+        } 
+
+        //let matrix = m4.perspective(1, aspect, 0.1, 2000); 
+        //matrix = m4.translate(matrix, 0, 0, this.ds);
+        ////matrix = m4.yRotate(matrix, time / 6000);
+        //matrix = m4.yRotate(matrix, this.cx / 200);
+        //matrix = m4.xRotate(matrix, this.cy / 200);
 
         this.hover = this.vf.checkHover(matrix, this.canvas, this.cursor);
 
         if (this.vf.updated){
             this.model.update(this.vf);
+            this.colliderList.list = [];
+            this.vf.iterate((point, x, y, z)=>{
+                if (point && point.type !=='air'){
+                    this.colliderList.list.push(new Collider(new Vector(x,y,z), new Vector(x+1, y+1, z+1)));
+                }
+            });
             this.vf.updated = false;
         }
         this.mainShader.run((shader)=>{
@@ -464,7 +456,8 @@ export class GameScene{
     }
 
     handleKeyboardState(){
-
+        this.player.tryJump = this.keyboardSystem.tryJump;
+        this.player.forward = this.keyboardSystem.forward;
     }
 
     handleMainShaderDraw(){

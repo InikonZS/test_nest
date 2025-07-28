@@ -124,13 +124,14 @@ export class VoxelField {
 
     checkHover(matrix: number[], canvas: HTMLCanvasElement, cursor: Vector){
         const hoveredList: Array<any> = [];
+        const fixedCanvasSizes = {clientWidth: canvas.clientWidth, clientHeight: canvas.clientHeight}; //fastify 100 times
         this.iterate((point, x, y, z)=>{
             if (!point || point.type == 'air'){
                 return;
             } 
             const aVector3d = new Vector(x, y, z);
             const lwh = new Vector(1, 1, 1);
-            const procPoint = (px: number, py: number, pz: number)=>getScreenVector(matrix, aVector3d.add(px, py, pz), canvas);
+            const procPoint = (px: number, py: number, pz: number)=>getScreenVector(matrix, aVector3d.add(px, py, pz), fixedCanvasSizes);
             const points = {
                 a: procPoint(0,0,lwh.z),
                 b: procPoint(lwh.x,0,lwh.z),

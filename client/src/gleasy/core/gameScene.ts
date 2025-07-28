@@ -11,95 +11,11 @@ import { remip }from "./remip";
 import { MyGLShader } from "./mainShader";
 import { Player } from "./player";
 import { Collider, ColliderList } from "./collider";
-
-
-const makeChunk = (vf: VoxelField, _list: {point: any, vector: Vector}[], _corners: {point: any, vector: Vector}[], blockSize: number) => {
-    const mp: Record<string, number> = {};
-    _list.forEach(((it, i) => mp[`${it.vector.x}_${it.vector.y}_${it.vector.z}`] = i));
-    _corners.forEach(((it, i) => mp[`${it.vector.x}_${it.vector.y}_${it.vector.z}`] = i));
-    //const models = [];
-    const vertexList: Array<number> = [];
-    const normList: Array<number> = [];
-    const uvList: Array<number> = [];
-    for (let plane = 0; plane < 6; plane++) {
-        if ([].includes(plane)) {
-
-        } else {
-
-        let dx = 0;
-        let dy =0;
-        let dz = 0;
-        if (plane == 5){
-            dx = -blockSize;
-        }
-        if (plane == 3){
-            dx = blockSize;
-        }
-        if (plane == 2){
-            dy = -blockSize;
-        }
-        if (plane == 4){
-            dy = blockSize;
-        }
-        if (plane == 0){
-            dz = -blockSize;
-        }
-        if (plane == 1){
-            dz = blockSize;
-        }
-
-        let list = _list.filter((it, i)=>mp[(it.vector.x + dx) +'_'+(it.vector.y + dy)+'_'+(it.vector.z + dz)] == undefined);
-        //const cutted = cut24(list, plane, _list[0].aVector3d, blockSize, chunkSize ) || cut35(list, plane, _list[0].aVector3d, blockSize, chunkSize ) ||cut01(list, plane, _list[0].aVector3d, blockSize, chunkSize );
-    let cutted = list;
-        //const vertexList: Array<number> = [];
-        cutted.forEach((it, i)=>{
-            makeBoxModel(it.vector, blockSize, blockSize, blockSize).forEach((jt, j)=>{
-                const _plane = Math.floor(j/(6*4));
-                if (plane == undefined || plane == _plane){
-                    vertexList.push(jt);
-                }
-            })
-        });
-        //const vertexes = new Float32Array(vertexList);
-
-        //const normList: Array<number> = [];
-        cutted.forEach((it, i)=>{
-            makeBoxNormalsFromVertexList().forEach((jt, j)=>{
-                const _plane = Math.floor(j/(6* 3));
-                if (plane == undefined || plane == _plane){
-                        normList.push( (it.point.lights?.[plane] || it.point.light)  / 16);
-                }
-            })
-        });
-        //const norm = new Float32Array(normList);
-
-        //const uvList: Array<number> = [];
-        cutted.forEach((it, i)=>{
-            setTexcoordsLWH(1, 1, 1).forEach((jt, j)=>{
-                const _plane = Math.floor(j/(6* 2));
-                if (plane == undefined || plane == _plane){
-                    uvList.push(jt);
-                    if (j % 2 != 0){
-                        const mpy = Math.floor(plane / 3);
-                        const mpx = Math.floor(plane % 3);
-                        uvList.push(((it.point?.mx1 || 0)*3 + mpx) % 4);
-                        uvList.push( ((it.point?.my1 || 1)*2  + mpy) % 4);
-                    }
-                }
-            })
-        });
-        //const uv = new Float32Array(uvList)
-        /*models.push({
-            vertexes, normals: norm, uv
-        })*/
-    }
-}
-return {
-    vertexes: new Float32Array(vertexList),
-    normals:new Float32Array(normList),
-    uv: new Float32Array(uvList)
-};
-}
+import { ChunkSystem } from "./chunk";
+import { ChunkGrid } from "./chunkGrid";
+import { makeChunk } from "./makeChunk";
+import { IVoxelData, VoxelField } from "./voxelField";
+import { generateChunkUni } from "../../gl/core/noise";
 
 class MyGLModel {
     gl: WebGLRenderingContext;
@@ -137,7 +53,7 @@ class MyGLModel {
     }
 
     update(field: VoxelField){
-        const pointList: Array<{point: any, vector: Vector}> = [];
+        const pointList: Array<{point: IVoxelData, vector: Vector}> = [];
         //const posData: Array<number> = [];
         //const normData: Array<number> = [];
         //const texData: Array<number> = [];
@@ -162,7 +78,7 @@ class MyGLModel {
                 
             }
         });
-        const res = makeChunk(field, pointList, [], 1);
+        const res = makeChunk( pointList, [], 1);
         //console.log('sliced: ', pointList.length * 36, '/', res.vertexes.length / 4);
         this.pointCount = res.vertexes.length / 4;
 
@@ -172,131 +88,6 @@ class MyGLModel {
          this.positionBuffer.updateBuffer(res.vertexes);
         this.normalBuffer.updateBuffer(res.normals);
         this.texcoordBuffer.updateBuffer(res.uv);
-    }
-}
-
-class VoxelField {
-    height: number;
-    width: number;
-    depth: number;
-    data: any[];
-    updated: boolean = false;
-
-    constructor(width: number, height: number, depth: number){
-        this.height = height;
-        this.width = width;
-        this.depth = depth;
-        this.data = new Array(width * height * depth).fill(null).map(it=>({type: 'air', light: 0, lights: [0, 0, 0, 0, 0 ,0]}));
-    }
-
-    setPoint(point: any, x: number, y: number, z: number){
-        this.data[x + y * this.width + z * this.width * this.height] = point;
-        this.updated = true;
-    }
-
-    getPoint(x: number, y: number, z: number){
-        return this.data[x + y * this.width + z * this.width * this.height];
-    }
-    
-    iterate(onPoint: (point:any, x: number, y: number, z: number)=>void){
-        this.data.forEach((it, i)=>{
-            const x = Math.floor(i % (this.width));
-            const y = Math.floor((i / this.width)) % this.height;
-            const z = Math.floor((i / this.width / this.height)  % (this.depth));
-            onPoint(it, x, y, z);
-        });
-    }
-
-    raytrace(){
-        const steps = [
-        {x: 0, y: 0, z: 1},
-        {x: 0, y: 0, z: -1},
-        {x: 0, y: -1, z: 0},
-        {x: 1, y: 0, z: 0},
-        {x: 0, y: 1, z: 0},
-        {x: -1, y: 0, z: 0},
-        ];
-        this.iterate((point, x,y,z)=>{
-            if (point.type == 'light'){
-                this.setPoint({...point, light: 15}, x, y, z);
-            } else {
-                this.setPoint({...point, light: 1}, x, y, z);
-            }
-        });
-
-        for (let i =0; i< 16; i++){
-        this.iterate((point, x,y,z)=>{
-            steps.forEach((step, si)=>{
-                const stepPoint = this.getPoint(x+step.x, y+step.y, z+step.z);
-                if (stepPoint && point.type != 'block'){
-                    this.setPoint({...stepPoint, light: Math.max( point.light - 1, stepPoint.light, 0)}, x+step.x, y+step.y, z+step.z)
-                }
-                //if (stepPoint.type != 'air'){
-                //    this.setPoint({...stepPoint, light: Math.max( point.light - 1, 0)}, x+step.x, y+step.y, z+step.z)
-                //}
-            })
-        });
-
-        this.iterate((point, x,y,z)=>{
-            if (point.type == 'block'){
-                const lights = steps.map((step, si)=>{
-                    const stepPoint = this.getPoint(x+step.x, y+step.y, z-step.z);
-                    if (stepPoint?.type == 'air'){
-                        return stepPoint.light;
-                    }
-                })
-                this.setPoint({...point, lights}, x, y, z);
-            }
-        });
-    }
-    }
-
-    checkHover(matrix: number[], canvas: HTMLCanvasElement, cursor: Vector){
-        const hoveredList: Array<any> = [];
-        this.iterate((point, x, y, z)=>{
-            if (!point || point.type == 'air'){
-                return;
-            } 
-            const aVector3d = new Vector(x, y, z);
-            const lwh = new Vector(1, 1, 1);
-            const procPoint = (px: number, py: number, pz: number)=>getScreenVector(matrix, aVector3d.add(px, py, pz), canvas);
-            const points = {
-                a: procPoint(0,0,lwh.z),
-                b: procPoint(lwh.x,0,lwh.z),
-                c: procPoint(lwh.x,lwh.y,lwh.z),
-                d: procPoint(0,lwh.y,lwh.z),
-                a1: procPoint(0,0,0),
-                b1: procPoint(lwh.x,0,0),
-                c1: procPoint(lwh.x,lwh.y,0),
-                d1: procPoint(0,lwh.y,0),
-                plane: -1,
-                original: new Vector(x, y, z)
-            };
-
-            if (!(points.a.z <0 || points.b.z <0 || points.c.z <0 || points.d.z <0 ||
-                points.a1.z <0 || points.b1.z <0 || points.c1.z <0 || points.d1.z <0)
-            ){
-                const it = points;
-                const planes = [
-                    inPlane(it.d, it.c, it.b, it.a, cursor),
-                    inPlane(it.a1, it.b1, it.c1, it.d1, cursor),
-                    inPlane(it.a, it.b, it.b1, it.a1, cursor),
-                    inPlane(it.b, it.c, it.c1, it.b1, cursor),
-                    inPlane(it.c, it.d, it.d1, it.c1, cursor),
-                    inPlane(it.d, it.a, it.a1, it.d1, cursor),
-                ];
-                const pind =planes.findIndex(p=>p == true);
-                it.plane = pind;
-                if (pind != -1){
-                    hoveredList.push(points);
-                }
-            };
-        });
-
-        hoveredList.sort((a, b)=>{
-            return (a.a.z + a.b.z + a.c.z + a.d.z + a.a1.z + a.b1.z + a.c1.z + a.d1.z) - (b.a.z + b.b.z + b.c.z + b.d.z + b.a1.z + b.b1.z + b.c1.z + b.d1.z)
-        });
-        return hoveredList[0];
     }
 }
 
@@ -324,8 +115,22 @@ export class GameScene{
         this.player = new Player();
         this.player.spawn();
         this.colliderList = new ColliderList();
-        const vf = new VoxelField(16, 16, 16);
-        vf.setPoint({type: 'light', light: 15}, 7, 7, 7);
+        const chunkSize = 64;
+        const vf = new VoxelField(chunkSize, chunkSize, 16);
+
+        const lod = 1;
+        const ox = 0;
+        const oy = 0;
+        const blockSize = 1;
+        generateChunkUni(ox-1*lod, oy-1*lod, chunkSize + 2*lod, (noiseValue, x, y)=>{
+            console.log(x, y);
+            if (x % lod == 0 && y % lod == 0) {
+                const blockZ = Math.floor(noiseValue * 20 / (blockSize * lod)) * blockSize * lod;
+                vf.setPoint({type: 'block', light: 0}, x, y, blockZ + 10);
+            }
+        });
+        vf.setPoint({type: 'light', light: 15}, 7, 7, 9);
+        vf.setPoint({type: 'light', light: 15}, 27, 27, 9);
         //vf.setPoint('222', 2, 2, 2);
         //vf.setPoint('012', 0, 1, 2);
         vf.iterate((point, x, y, z)=>{

@@ -56,7 +56,7 @@ export function App(){
             console.log(hover?.plane, 'button - ', e.button);
             if (hover && e.button == 0){
                 gscene.vf.setPoint(
-                    {type: 'block', mx: Math.floor(Math.random() * 4), my: Math.floor(Math.random() * 2)}, 
+                    {type: 'block', mx: Math.floor(Math.random() * 4), my: Math.floor(Math.random() * 2), light: 0}, 
                     clamp(hover.original.x+planeNormals[hover.plane].x, 0, gscene.vf.width - 1), 
                     clamp(hover.original.y +planeNormals[hover.plane].y, 0, gscene.vf.height - 1), 
                     clamp(hover.original.z+planeNormals[hover.plane].z, 0, gscene.vf.depth - 1)

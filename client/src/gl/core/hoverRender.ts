@@ -1,7 +1,7 @@
 import m4 from "./m4";
 import { Vector } from "./vector";
 
-export const getScreenVector = (viewMatrix: Array<number>, vector: Vector, canvas: HTMLCanvasElement)=>{
+export const getScreenVector = (viewMatrix: Array<number>, vector: Vector, canvas: /*HTMLCanvasElement*/ {clientWidth: number, clientHeight: number})=>{
   var point = [vector.x, vector.y, vector.z, 1];  
   // это верхний правый угол фронтальной части
   // вычисляем координаты пространства отсечения,
@@ -10,6 +10,7 @@ export const getScreenVector = (viewMatrix: Array<number>, vector: Vector, canva
   // делим X и Y на W аналогично видеокарте
   clipspace[0] /= clipspace[3];
   clipspace[1] /= clipspace[3];
+  //dont use real clientWidthgetter 10-100 times worse, never use getBoundingClientRect 1000 times worse
   var pixelX = (clipspace[0] *  0.5 + 0.5) * canvas.clientWidth //* canvas.width;
   var pixelY = (clipspace[1] * -0.5 + 0.5) * canvas.clientHeight //* canvas.height;
   return new Vector(pixelX, pixelY, clipspace[3]);

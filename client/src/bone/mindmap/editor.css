@@ -1,0 +1,193 @@
+.MindmapEditor{
+    height: 100%;
+    padding: 10px;
+}
+
+.MindmapEditor_wrapper{
+    background: #FFFFFF;
+    border: 1px solid #E2E9FC;
+    border-radius: 24px;
+    overflow: hidden;
+
+    display: flex;
+    height: 100%;
+    min-height: 400px;
+}
+
+.MindmapEditor_tools{
+    border-right: 1px solid #E2E9FC;
+    width: 200px;
+    flex-shrink: 0;
+}
+
+.MindmapEditor_tools_header{
+    padding: 18px 23px;
+    border-bottom: 1px solid #E2E9FC;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.MindmapEditor_tools_header_title{
+    display: flex;
+    justify-content: flex-start;
+    flex-grow: 1;
+}
+
+
+.MindmapEditor_tools_categories{
+
+}
+
+.MindmapEditor_right{
+    width: 100%;
+}
+
+.MindmapEditor_right_header{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid #E2E9FC;
+    padding: 8px;
+}
+
+.MindmapEditor_right_header_title{
+    display: flex;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.MindmapEditor_workspace{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    user-select: none;
+    overflow: hidden;
+
+    background-size: 10px 10px;
+    background-position: -5px -5px;
+    background-color: #fff5ec;
+    background-image: radial-gradient(#999 0%, #999 9%, transparent 12%);
+}
+
+.MindmapEditor_object{
+    position: absolute;
+    background-color: #fc0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #f90;
+   /* transform-origin: left top;*/
+}
+
+
+.MindmapEditor_object--box{
+
+}
+
+.MindmapEditor_object--round{
+    border-radius: 100%;
+}
+
+.MindmapEditor_toolsCollapser_head{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px;
+}
+
+.MindmapEditor_toolsCollapser_head_title{
+
+}
+
+.MindmapEditor_toolsCollapser_head_arrow{
+    flex-shrink: 0;
+    font-size: 0;
+    width: 9px;
+    height: 9px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    /* background-image: url("../../assets/open-arrow.svg"); */
+}
+
+.MindmapEditor_toolsCollapser_collapser{
+    padding: 0px 10px;
+    background-color: #f6f6f9;
+}
+
+.MindmapEditor_toolsCollapser_items{
+    padding: 10px 0px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.MindmapEditor_tool{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #f30;
+    flex-shrink: 0;
+    cursor: pointer;
+    user-select: none;
+    font-size: 10px;
+}
+
+.MindmapEditor_tool--box{
+    background-color: #fa0;
+    border: 1px solid #f30;
+    width: 42px;
+    height: 42px;
+}
+
+.MindmapEditor_tool--round{
+    background-color: #fa0;
+    border: 1px solid #f30;
+    width: 42px;
+    height: 42px;
+    border-radius: 100%;
+}
+
+.MindmapEditor_object_markers{
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+}
+
+.MindmapEditor_object_marker{
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    pointer-events: all;
+
+    background-color: #999;
+}
+
+.MindmapEditor_object_marker_lt{
+    right: 100%;
+    bottom: 100%;
+}
+.MindmapEditor_object_marker_lb{
+    right: 100%;
+    top: 100%;
+}
+.MindmapEditor_object_marker_rt{
+    left: 100%;
+    bottom: 100%;
+}
+.MindmapEditor_object_marker_rb{
+    left: 100%;
+    top: 100%;
+}
+.MindmapEditor_object_marker_rotate{
+    border-radius: 100%;
+    left: calc(50% - 5px);
+    bottom: 100%;
+}

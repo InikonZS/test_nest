@@ -36,7 +36,7 @@ export class GameScene {
         /*this.chunkSize = 32;
         this.loadDistance = 10;
         this.lodPoints = [3, 6, 12, 18];*/
-        this.chunkSize =32;
+        this.chunkSize = 32;
         this.loadDistance = 9;
         this.lodPoints = [2, 6, 40, 50];
         const divPoint = document.createElement('div');

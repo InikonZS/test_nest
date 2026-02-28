@@ -13,6 +13,7 @@ import { NeirView } from './neir/app';
 import { App as MainPage} from "./pg/app";
 import { App as GlPage} from "./gl/app";
 import { App as GlEasyPage} from "./gleasy/app";
+import { Bone } from "./bone/bone";
 import  './root.css';
 
 export function App() {
@@ -31,6 +32,7 @@ export function App() {
         'vectorizer': Vectorizer,
         'gl': GlPage,
         'gleasy': GlEasyPage,
+        'bone': Bone,
         'main': MainPage
     }
 

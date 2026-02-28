@@ -1,0 +1,125 @@
+.boneTimeTrackScroll{
+    width: 100%;
+    height: 100%;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    scrollbar-color: var(--bg-panel) rgba(0, 0, 0, var(--alphaDark));
+    scrollbar-width: thin;
+    position: relative;
+}
+
+.boneTimeTrack{
+    overflow: hidden;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding-top: 20px;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.boneTimeTrackContent{
+    width: calc(1000px + 30px);
+    height: 100%;
+    position: absolute;
+    top: 0;
+}
+
+.boneTimeTrackPosition{
+    pointer-events: all;
+    top:0;
+    --position: 0;
+    user-select: none;
+    position: absolute;
+    left: var(--position);
+    width: 11px;
+    height: 20px;
+    background-color: #40a8ff;
+}
+
+.boneTimeTrackPositionMeasure{
+    top:0;
+    pointer-events: none;
+    position: absolute;
+    width: 100%;
+    height: 10px;
+    background-image: repeating-linear-gradient(90deg, #fff0 5px, #fff 6px, #fff0 7px, #fff0 35px);
+}
+
+.boneTimeTrackPositionMeasureSub{
+    top:0;
+    pointer-events: none;
+    position: absolute;
+    width: 100%;
+    height: 5px;
+    background-image: repeating-linear-gradient(90deg, #fff0 5px, #fff0 20px, #fff 20px, #fff0 21px, #fff0 35px)
+    /* background-image: repeating-linear-gradient(90deg, #fff0 5px, #fff 6px, #fff0 7px, #fff0 20px); */
+}
+
+.boneTimeTrackPositionLine{
+    top:0;
+    --position: 0;
+    user-select: none;
+    pointer-events: none;
+    position: absolute;
+    left: var(--position);
+    width: 1px;
+    margin-left: 5px;
+    height: 100%;
+    background-color: #40a8ff99;
+}
+
+.boneTimeTrackList{
+    position: relative;
+    overflow-y: scroll;
+    overflow-x: scroll;
+    height: calc(100% - 20px);
+    scrollbar-color: var(--bg-panel) rgba(0, 0, 0, var(--alphaDark));
+    scrollbar-width: thin;
+    margin-top: 20px;
+}
+
+.boneTimeTrackListContent{
+    position: absolute;
+}
+
+.boneTimeTrackListItem{
+    background-image: repeating-linear-gradient(90deg, #fff0 5px, #fff0 20px, #fff3 21px, #fff0 22px, #fff0 35px);
+    height: 20px;
+    width: 1000px;
+    background-color: var(--bg-panel);
+    border-bottom: 1px solid var(--base);
+}
+
+.boneTimeTrackWrap{
+    display: flex;
+    height: 100%;
+}
+
+.boneTimeTrackNameList{
+    position: relative;
+    margin-top: 20px;
+    width: 100px;
+    flex-shrink: 0;
+    overflow: hidden;
+    height: calc(100% - 20px);
+}
+
+.boneTimeTrackNameListContent{
+    position: absolute;
+    width: 100%;
+}
+
+.boneTimeTrackNameListContent::after{
+    content: "";
+    display: block;
+    height: 30px;
+}
+
+.boneTimeTrackNameListItem{
+    display: flex;
+    /* align-items: center; */
+    width: 100%;
+    height: 20px;
+    border-bottom: 1px solid var(--bg-panel);
+}

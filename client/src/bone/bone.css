@@ -1,0 +1,90 @@
+.boneRoot{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    --base: #474747;
+    --bg-panel: #252525;
+    --bg-button: #5d5d5d;
+    --bg-buttonOver: #6a6a6a;
+    --text-color: #d5d5d5;
+    --alphaDark: 0.25;
+
+    color: var(--text-color);
+}
+
+.boneVerticalCenter{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.boneMain{
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-panel);
+}
+
+.boneBottom{
+    background-color: var(--base);
+    height: 200px;
+}
+
+.boneRight{
+    background-color: var(--base);
+    width: 300px;
+    height: 100%;
+    border-left: 4px solid var(--bg-panel);
+}
+
+.boneLayers{
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    scrollbar-color: var(--bg-panel) rgba(0, 0, 0, var(--alphaDark));
+    scrollbar-width: thin;
+}
+
+.boneAnimations{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.boneAnimationsTimeline{
+    height: 140px;
+    background-color: var(--bg-button);
+}
+
+.boneAnimationsList{
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    scrollbar-color: var(--bg-panel) rgba(0, 0, 0, var(--alphaDark));
+    scrollbar-width: thin;
+}
+
+.boneAnimationsItem{
+    height: 20px;
+    border-top: 2px solid var(--bg-panel);
+    display: flex;
+}
+
+.boneAnimationsItemName{
+    background-color: var(--bg-button);
+    height: 100%;
+    width: 120px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.boneAnimationsItemTrack{
+    background-color: var(--bg-panel);
+    height: 100%;
+    width: 100%;
+}
+

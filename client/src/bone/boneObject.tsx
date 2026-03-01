@@ -63,13 +63,13 @@ export const BoneObject = ({objectData, time, onChange}: any)=>{
         const keyframes = objectData.keyframes.sort((a:any,b:any)=>a.time - b.time).map((keframeData: any)=>{
             return {
                 easing: 'linear',
-                offset: keframeData.time/objectData.keyframes[objectData.keyframes.length -1].time,
+                offset: (objectData.keyframes.length >1) ? keframeData.time/objectData.keyframes[objectData.keyframes.length -1].time:0,
                 left: keframeData.position.x + 'px',
                 top: keframeData.position.y + 'px'
             }
         });
         AnimationTimeline
-        const effect = new KeyframeEffect(ref.current, keyframes, { duration: objectData.keyframes[objectData.keyframes.length -1].time, fill: "forwards", direction: 'normal'});
+        const effect = new KeyframeEffect(ref.current, keyframes, { duration: (objectData.keyframes.length >1) ? objectData.keyframes[objectData.keyframes.length -1].time : 1, fill: "forwards", direction: 'normal'});
         const animation = new Animation(effect);
         animation.pause();
           animation.currentTime = time;
@@ -93,10 +93,16 @@ export const BoneObject = ({objectData, time, onChange}: any)=>{
         }}
         ref={ref}
         style={{
-            width: objectData.width,
-            height: objectData.height,
-            left: objectData.position.x,
-            top: objectData.position.y
+            width: objectData.width / 1 + 'px',
+            height: objectData.height / 1 + 'px',
+            //left: objectData.position.x / 1 + 'px',
+            //top: objectData.position.y / 1 + 'px',
+            top: 0,
+            left: 0,
+            transform: `translate(${objectData.position.x / 1 + 'px'}, ${objectData.position.y / 1 + 'px'})`,
+            transformOrigin: `50% 50%`,
+            backgroundImage: `url(${objectData.imageURL})`,
+            backgroundColor: objectData.imageURL ? "transparent" : ""
         }}>
         </div>
     </div>

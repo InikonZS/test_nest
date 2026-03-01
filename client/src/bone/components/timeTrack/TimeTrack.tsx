@@ -88,7 +88,7 @@ export const TimeTrack = ({onTime, model}: {onTime:(time: number)=>void, model: 
                     model.objects.map((objectData: any)=>{
                         return <div className="boneTimeTrackListItem">
                             {
-                                objectData.keyframes.map((keyframeData: any)=>{
+                                (objectData.keyframes || []).map((keyframeData: any)=>{
                                     return <div className={`boneTimeTrackListKey ${framePosition == keyframeData.time ? "boneTimeTrackListKeyCurrent" : ''}`} style={{"--time": keyframeData.time}}>
 
                                     </div>

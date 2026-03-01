@@ -57,6 +57,9 @@ export const BoneObject = ({objectData, time, onChange}: any)=>{
     }, [time, animation]);
     useEffect(()=>{
         setTemp({position: {x: 0, y: 0}});
+        if (!(objectData.keyframes && objectData.keyframes.length)){
+            return;
+        }
         const keyframes = objectData.keyframes.sort((a:any,b:any)=>a.time - b.time).map((keframeData: any)=>{
             return {
                 easing: 'linear',
@@ -74,7 +77,10 @@ export const BoneObject = ({objectData, time, onChange}: any)=>{
         //(window as any).a = (v: number)=>animation.currentTime=v;
         setAnimation(animation);
         //new Animation()
-        return ()=>animation.cancel();
+        return ()=>{
+            //animation.commitStyles();
+            animation.cancel();
+        }
     }, [objectData.keyframes])
     return  <div ref={tempRef} className="boneObjectTemp" style={{
             left: temp.position.x,

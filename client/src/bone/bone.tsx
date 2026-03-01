@@ -29,6 +29,16 @@ export const Bone = () => {
                         time: 400
                     },
                 ]
+            },
+            {
+                name: 'box2',
+                position: { x: 240, y: 100 },
+                width: 50,
+                height: 50,
+                angle: 0,
+                text: "test1",
+                style: 'box',
+                keyframes: []
             }
         ]
     });

@@ -8,9 +8,10 @@ export const TimeTrack = ({onTime, model}: {onTime:(time: number)=>void, model: 
     const namesRef = useRef<HTMLDivElement>();
     const scrollRef = useRef<HTMLDivElement>();
 
+    const framePosition = Math.floor(position / 10) * 10;
     useEffect(()=>{
-        onTime(position);
-    }, [position])
+        onTime(framePosition);
+    }, [framePosition])
 
     useEffect(()=>{
         if (!dragStart){
@@ -21,7 +22,7 @@ export const TimeTrack = ({onTime, model}: {onTime:(time: number)=>void, model: 
         const moveHandler = (moveEvent: MouseEvent)=>{
             const dx = moveEvent.clientX - lastPos;
             lastPos = moveEvent.clientX;
-            setPosition(last => last + dx);
+            setPosition(last => (last + dx));
         }
         const upHandler = (moveEvent: MouseEvent)=>{
             setDragStart(null);
@@ -60,11 +61,11 @@ export const TimeTrack = ({onTime, model}: {onTime:(time: number)=>void, model: 
             <div className="boneTimeTrackContent">
                 <div className="boneTimeTrackPositionMeasure"></div>
                 <div className="boneTimeTrackPositionMeasureSub"></div>
-                <div className="boneTimeTrackPosition" style={{"--position": position+'px'}} onDragStart={(e)=>e.preventDefault()} onMouseDown={(e)=>{
+                <div className="boneTimeTrackPosition" style={{"--position": framePosition+'px'}} onDragStart={(e)=>e.preventDefault()} onMouseDown={(e)=>{
                     setDragStart(e);
                 }}>
                 </div>
-                <div className="boneTimeTrackPositionLine" style={{"--position": position+'px'}}>
+                <div className="boneTimeTrackPositionLine" style={{"--position": framePosition+'px'}}>
                 </div>
             </div>
         </div>
@@ -88,7 +89,7 @@ export const TimeTrack = ({onTime, model}: {onTime:(time: number)=>void, model: 
                         return <div className="boneTimeTrackListItem">
                             {
                                 objectData.keyframes.map((keyframeData: any)=>{
-                                    return <div className="boneTimeTrackListKey" style={{"--time": keyframeData.time}}>
+                                    return <div className={`boneTimeTrackListKey ${framePosition == keyframeData.time ? "boneTimeTrackListKeyCurrent" : ''}`} style={{"--time": keyframeData.time}}>
 
                                     </div>
                                 })

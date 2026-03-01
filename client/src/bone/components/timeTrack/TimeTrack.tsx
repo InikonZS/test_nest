@@ -1,12 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./TimeTrack.css";
 
-export const TimeTrack = () => {
+export const TimeTrack = ({onTime, model}: {onTime:(time: number)=>void, model: any}) => {
     const [dragStart, setDragStart] = useState<React.MouseEvent>(null);
     const [position, setPosition] = useState(0);
     const trackRef = useRef<HTMLDivElement>();
     const namesRef = useRef<HTMLDivElement>();
     const scrollRef = useRef<HTMLDivElement>();
+
+    useEffect(()=>{
+        onTime(position);
+    }, [position])
 
     useEffect(()=>{
         if (!dragStart){
@@ -33,8 +37,14 @@ export const TimeTrack = () => {
     return <div className="boneTimeTrackWrap">
         <div ref={namesRef} className="boneTimeTrackNameList">
              <div className="boneTimeTrackNameListContent">
-            
-            <div className="boneTimeTrackNameListItem">
+            {
+                model.objects.map((objectData: any)=>{
+                        return <div className="boneTimeTrackNameListItem">
+                            {objectData.name}
+                        </div>
+                    })
+            }
+            {/* <div className="boneTimeTrackNameListItem">
                 track 0
             </div>
             <div className="boneTimeTrackNameListItem">
@@ -42,7 +52,7 @@ export const TimeTrack = () => {
             </div>
             <div className="boneTimeTrackNameListItem">
                 track very long 2
-            </div>
+            </div> */}
             </div>
         </div>
         <div className="boneTimeTrackScroll">
@@ -64,7 +74,7 @@ export const TimeTrack = () => {
             console.log('scroll ', scrollRef.current.scrollLeft)
         }}>
             <div className="boneTimeTrackListContent">
-                <div className="boneTimeTrackListItem">
+                {/* <div className="boneTimeTrackListItem">
                     item
                 </div>
                 <div className="boneTimeTrackListItem">
@@ -72,7 +82,20 @@ export const TimeTrack = () => {
                 </div>
                 <div className="boneTimeTrackListItem">
                     item 2
-                </div>
+                </div> */}
+                {
+                    model.objects.map((objectData: any)=>{
+                        return <div className="boneTimeTrackListItem">
+                            {
+                                objectData.keyframes.map((keyframeData: any)=>{
+                                    return <div className="boneTimeTrackListKey" style={{"--time": keyframeData.time}}>
+
+                                    </div>
+                                })
+                            }
+                        </div>
+                    })
+                }
             </div>
         </div>
     </div>

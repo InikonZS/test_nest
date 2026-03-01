@@ -88,3 +88,18 @@
     width: 100%;
 }
 
+.boneCanvas{
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.boneObject{
+    position: absolute;
+    background-color: #d5d5d5;
+}
+
+.boneObjectTemp{
+    position: absolute;
+}
+

@@ -4,6 +4,7 @@ import { TimeTrack } from "./components/timeTrack/TimeTrack";
 import { useWheelFix } from "./useWheelFix";
 import { BoneObject } from "./boneObject";
 import { SceneLoader } from "./components/sceneLoader/SceneLoader";
+import { LayersTree, LayersTreeEditor } from "./components/layersTree/LayersTree";
 import "./bone.css";
 
 
@@ -29,6 +30,18 @@ export const Bone = () => {
                         position: { x: 150, y: 120 },
                         time: 400
                     },
+                ],
+                objects: [
+                     {
+                        name: 'box3',
+                        position: { x: 340, y: 100 },
+                        width: 50,
+                        height: 50,
+                        angle: 0,
+                        text: "test1",
+                        style: 'box',
+                        keyframes: []
+                    }
                 ]
             },
             {
@@ -145,9 +158,10 @@ export const Bone = () => {
                 setModel(last=> ({...last, objects: objects}));
             }}></SceneLoader>
             <div className="boneLayers">
-                <div className="boneLayersLayer">
+                {/* <div className="boneLayersLayer">
                     Layer name
-                </div>
+                </div> */}
+                <LayersTreeEditor model={model} onChange={(m)=>{setModel(m)}}></LayersTreeEditor>
             </div>
         </div>
 

@@ -93,6 +93,7 @@ export const BoneObject = ({objectData, time, onChange}: any)=>{
         }}
         ref={ref}
         style={{
+            display: (objectData.visible ?? true) ? '' : 'none',
             width: objectData.width / 1 + 'px',
             height: objectData.height / 1 + 'px',
             //left: objectData.position.x / 1 + 'px',

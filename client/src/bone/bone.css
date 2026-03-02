@@ -37,6 +37,8 @@
     width: 300px;
     height: 100%;
     border-left: 4px solid var(--bg-panel);
+    display: flex;
+    flex-direction: column;
 }
 
 .boneLayers{
@@ -45,6 +47,7 @@
     overflow-y: scroll;
     scrollbar-color: var(--bg-panel) rgba(0, 0, 0, var(--alphaDark));
     scrollbar-width: thin;
+    position: relative;
 }
 
 .boneAnimations{

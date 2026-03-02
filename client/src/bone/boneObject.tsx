@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react"
+import { getGlobalTransform } from "./utils";
 
 export const BoneObject = ({objectData, time, onChange}: any)=>{
     const ref = useRef<HTMLDivElement>();
@@ -17,38 +18,69 @@ export const BoneObject = ({objectData, time, onChange}: any)=>{
         let lastPosX = dragStart.clientX;
         let lastPosY = dragStart.clientY;
         dragStart.stopPropagation();
+        const matrix = getGlobalTransform(tempRef.current.parentElement);
         const moveHandler = (moveEvent: MouseEvent)=>{
             const dx = moveEvent.clientX - lastPosX;
             const dy = moveEvent.clientY - lastPosY;
             lastPosX = moveEvent.clientX;
             lastPosY = moveEvent.clientY;
             console.log(dx, tempRef.current.style.left);
-            setTemp(last => ({
-                position: {
+            setTemp(last => {
+                const globalPos = matrix.transformPoint(new DOMPoint(last.position.x, last.position.y));
+                const localPos = matrix.inverse().transformPoint(new DOMPoint(globalPos.x + dx, globalPos.y + dy));
+                /*return {position: {
                     x: last.position.x + dx,
                     y: last.position.y + dy,
-                }
-            }))
+                }}*/
+               return {position: {
+                    x: localPos.x,
+                    y: localPos.y,
+                }}
+            })
             console.log(JSON.stringify(_temp));
             //tempRef.current.style.left = tempRef.current.clientLeft + dx + 'px',
             //tempRef.current.style.top = tempRef.current.clientTop + dy + 'px'
            // setPosition(last => last + dx);
         }
-        const upHandler = (moveEvent: MouseEvent)=>{
+        /*const upHandler = (moveEvent: MouseEvent)=>{
             setDragStart(null);
             onChange?.({position: {
                 x: _temp.current.position.x + Number(getComputedStyle(ref.current).left.replace('px', "")),
                 y: _temp.current.position.y + Number(getComputedStyle(ref.current).top.replace('px', "")),
             }});
             setTemp({position: {x: 0, y: 0}});
-        }
+        }*/
         window.addEventListener('mousemove', moveHandler);
-        window.addEventListener('mouseup', upHandler);
+        //window.addEventListener('mouseup', upHandler);
         return ()=>{
             window.removeEventListener('mousemove', moveHandler);
-            window.removeEventListener('mouseup', upHandler);
+           // window.removeEventListener('mouseup', upHandler);
         }
     }, [dragStart]);
+
+    useEffect(()=>{
+        const upHandler = (moveEvent: MouseEvent)=>{
+            setDragStart(null);
+            if (temp.position.x == 0 && temp.position.y == 0){
+                return;
+            }
+            const objMatrix = new DOMMatrix(getComputedStyle(ref.current).transform);
+            //const tempMatrix = new DOMMatrix(getComputedStyle(tempRef.current).transform);
+            const point = objMatrix.transformPoint(new DOMPoint(temp.position.x, temp.position.y));
+            //objMatrix.tra
+            onChange?.({position: {
+                x: point.x,//temp.position.x,//_temp.current.position.x + Number(getComputedStyle(ref.current).left.replace('px', "")),
+                y: point.y//temp.position.y//_temp.current.position.y + Number(getComputedStyle(ref.current).top.replace('px', "")),
+            }});
+            setTemp({position: {x: 0, y: 0}});
+        }
+         //window.addEventListener('mousemove', moveHandler);
+        window.addEventListener('mouseup', upHandler);
+        return ()=>{
+            //window.removeEventListener('mousemove', moveHandler);
+            window.removeEventListener('mouseup', upHandler);
+        }
+    }, [dragStart, temp])
 
     useEffect(()=>{
         if (!animation){return};
@@ -64,8 +96,9 @@ export const BoneObject = ({objectData, time, onChange}: any)=>{
             return {
                 easing: 'linear',
                 offset: (objectData.keyframes.length >1) ? keframeData.time/objectData.keyframes[objectData.keyframes.length -1].time:0,
-                left: keframeData.position.x + 'px',
-                top: keframeData.position.y + 'px'
+                 transform: `translate(${keframeData.position.x / 1 + 'px'}, ${keframeData.position.y / 1 + 'px'})`,
+                //left: keframeData.position.x + 'px',
+                //top: keframeData.position.y + 'px'
             }
         });
         AnimationTimeline
@@ -83,8 +116,9 @@ export const BoneObject = ({objectData, time, onChange}: any)=>{
         }
     }, [objectData.keyframes])
     return  <div ref={tempRef} className="boneObjectTemp" style={{
-            left: temp.position.x,
-            top: temp.position.y
+            //left: temp.position.x,
+            //top: temp.position.y
+            transform: `translate(${temp.position.x / 1 + 'px'}, ${temp.position.y / 1 + 'px'})`,
         }}>
         <div className="boneObject"
         onDragStart={(e)=>e.preventDefault()} 

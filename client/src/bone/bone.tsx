@@ -107,7 +107,7 @@ export const Bone = () => {
             </div>
             <div className="boneBottom">
                 <div className="boneAnimations">
-                      <TimeTrack onTime = {(currentTime)=>setTime(currentTime)} model={model}></TimeTrack>
+                      <TimeTrack onTime = {(currentTime)=>setTime(currentTime)} model={model} onChange={(model)=>setModel(model)}></TimeTrack>
                     {/* <div className="boneAnimationsTimeline">
                         <TimeTrack></TimeTrack>
                     </div>

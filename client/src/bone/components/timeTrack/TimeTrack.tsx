@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
+import { KeyFrameBar } from "./KeyFrameBar";
 import "./TimeTrack.css";
 
-export const TimeTrack = ({onTime, model}: {onTime:(time: number)=>void, model: any}) => {
+export const TimeTrack = ({onTime, model, onChange}: {onTime:(time: number)=>void, model: any, onChange: (model: any)=>void}) => {
     const [dragStart, setDragStart] = useState<React.MouseEvent>(null);
     const [position, setPosition] = useState(0);
     const trackRef = useRef<HTMLDivElement>();
@@ -88,10 +89,22 @@ export const TimeTrack = ({onTime, model}: {onTime:(time: number)=>void, model: 
                     model.objects.map((objectData: any)=>{
                         return <div className="boneTimeTrackListItem">
                             {
-                                (objectData.keyframes || []).map((keyframeData: any)=>{
-                                    return <div className={`boneTimeTrackListKey ${framePosition == keyframeData.time ? "boneTimeTrackListKeyCurrent" : ''}`} style={{"--time": keyframeData.time}}>
+                                (objectData.keyframes || []).map((keyframeData: any, kfindex:number)=>{
+                                    return <KeyFrameBar keyframeData={keyframeData} framePosition={framePosition} onTime={(time)=>{
+                                        onChange(()=>{
+                                            const nextModel = {...model};
+                                            const ind = model.objects.findIndex((it: any)=>it == objectData);
+                                            model.objects[ind] = {...objectData, keyframes: [...model.objects[ind].keyframes]}
+                                            model.objects[ind].keyframes[kfindex] = {...model.objects[ind].keyframes[kfindex], time:time}
+                                            return nextModel;
+                                        })
+                                    }}></KeyFrameBar>/*<div className={`boneTimeTrackListKey ${framePosition == keyframeData.time ? "boneTimeTrackListKeyCurrent" : ''}`} style={{"--time": keyframeData.time}}
+                                        onMouseDown={()=>{
 
-                                    </div>
+                                        }}
+                                    >
+
+                                    </div>*/
                                 })
                             }
                         </div>

@@ -11,6 +11,7 @@ import { getGlobalTransform } from "./utils";
 
 export const Bone = () => {
     const cameraRef = useRef<HTMLDivElement>();
+    const refMap = useRef<Record<string, HTMLDivElement>>({});
     const [model, setModel] = useState({
         id: '1',
         name: 'Dashboard',
@@ -68,7 +69,8 @@ export const Bone = () => {
                     //getGlobalTransform()
                     const hoverList = model.objects.filter((it, i)=>{
                         //if (i !=0 ) return;
-                        const objectTransform = new DOMMatrix().translate(it.position.x, it.position.y).translate(it.width / 2, it.height/2);
+                        if (!refMap.current[it.name]) return;
+                        const objectTransform = new DOMMatrix(getComputedStyle(refMap.current[it.name]).transform).translate(it.width / 2, it.height/2)//new DOMMatrix().translate(it.position.x, it.position.y).translate(it.width / 2, it.height/2);
                         const cameraBounds = cameraRef.current.parentElement.getBoundingClientRect();
                         const cameraTransform = getGlobalTransform(cameraRef.current)// new DOMMatrix().translate(cameraBounds.left, cameraBounds.top);
                         const worldTransform = cameraTransform.multiply(objectTransform);//.translate(it.width / 2 + cameraBounds.width/2, it.height/2 + cameraBounds.height/2);
@@ -84,12 +86,12 @@ export const Bone = () => {
                        //console.log(worldTransform.inverse().transformPoint(localPoint))
                         return (Math.abs(localPoint.x) <= it.width/2 && Math.abs(localPoint.y) <= it.height/2)
                     });
-                    //console.log(hoverList)
+                    console.log(hoverList)
                 }}>
                     <div className="boneCamera" ref={cameraRef}>
                     {
                         model.objects.map((objectData, i)=>{
-                            return <BoneObject objectData={objectData} time={time} onChange={(data: any)=>{
+                            return <BoneObject objectData={objectData} time={time} refMap={refMap} onChange={(data: any)=>{
                                 console.log(JSON.stringify(data));
                                 setModel((last)=>{
                                     const next = {...last}

@@ -1,0 +1,39 @@
+.MindmapEditor_object_markers{
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+}
+
+.MindmapEditor_object_marker{
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    pointer-events: all;
+
+    background-color: #999;
+}
+
+.MindmapEditor_object_marker_lt{
+    right: 100%;
+    bottom: 100%;
+}
+.MindmapEditor_object_marker_lb{
+    right: 100%;
+    top: 100%;
+}
+.MindmapEditor_object_marker_rt{
+    left: 100%;
+    bottom: 100%;
+}
+.MindmapEditor_object_marker_rb{
+    left: 100%;
+    top: 100%;
+}
+.MindmapEditor_object_marker_rotate{
+    border-radius: 100%;
+    left: calc(50% - 5px);
+    bottom: 100%;
+}

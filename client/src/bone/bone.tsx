@@ -5,14 +5,25 @@ import { useWheelFix } from "./useWheelFix";
 import { BoneObject } from "./boneObject";
 import { SceneLoader } from "./components/sceneLoader/SceneLoader";
 import { LayersTree, LayersTreeEditor } from "./components/layersTree/LayersTree";
+import { boneContext, BoneModelProvider, IBoneNode, useBoneContext } from "./boneModel";
+import { BoneCanvas } from "./boneCanvas";
 import "./bone.css";
 import { getGlobalTransform } from "./utils";
 
+export const Bone = ()=>{
+    return <BoneModelProvider>
+        <BoneContent />
+    </BoneModelProvider>
+}
 
-export const Bone = () => {
+export const BoneContent = () => {
     const cameraRef = useRef<HTMLDivElement>();
     const refMap = useRef<Record<string, HTMLDivElement>>({});
-    const [model, setModel] = useState({
+    const {model, setModel, setObjectKeyframe} = useBoneContext();
+    /*useEffect(()=>{
+        setObjectKeyframe("4");
+    }, [])*/
+    /*const [model, setModel] = useState({
         id: '1',
         name: 'Dashboard',
         objects: [
@@ -58,42 +69,18 @@ export const Bone = () => {
                 keyframes: []
             }
         ]
-    });
+    });*/
     const [time, setTime] = useState(0);
     useWheelFix();
     return <div className="boneRoot">
         <div className="boneVerticalCenter">
             <div className="boneMain">
-                <div className="boneCanvas" onMouseMove={(e)=>{
-                    //console.log(e);
-                    //getGlobalTransform()
-                    const hoverList = model.objects.filter((it, i)=>{
-                        //if (i !=0 ) return;
-                        if (!refMap.current[it.name]) return;
-                        const objectTransform = new DOMMatrix(getComputedStyle(refMap.current[it.name]).transform).translate(it.width / 2, it.height/2)//new DOMMatrix().translate(it.position.x, it.position.y).translate(it.width / 2, it.height/2);
-                        const cameraBounds = cameraRef.current.parentElement.getBoundingClientRect();
-                        const cameraTransform = getGlobalTransform(cameraRef.current)// new DOMMatrix().translate(cameraBounds.left, cameraBounds.top);
-                        const worldTransform = cameraTransform.multiply(objectTransform);//.translate(it.width / 2 + cameraBounds.width/2, it.height/2 + cameraBounds.height/2);
-                        //console.log(cameraTransform)
-                       // const localPoint = cameraTransform.inverse().transformPoint(new DOMPoint(e.clientX + cameraBounds.left, e.clientY - cameraBounds.top))//cameraTransform.inverse().translate(- cameraBounds.width/2, -cameraBounds.height/2).transformPoint(new DOMPoint(e.clientX, e.clientY));
-                       const trans = new DOMMatrix().translate( - cameraBounds.left - cameraBounds.width / 2,  - cameraBounds.top - cameraBounds.height / 2);
-                       const trans2 = new DOMMatrix().translate( cameraBounds.width / 2,  cameraBounds.height / 2);
-                       //console.log(cameraTransform.multiply(trans))
-                       let localPoint = trans2.multiply(cameraTransform.inverse().multiply(trans))/*.multiply(cameraTransform)*/.transformPoint(new DOMPoint(e.clientX, e.clientY))//(new DOMPoint(e.clientX - cameraBounds.left - 0*cameraBounds.width / 2, e.clientY - cameraBounds.top - 0*cameraBounds.height / 2)) 
-                       localPoint = objectTransform.inverse().transformPoint(localPoint);
-                       //console.log(localPoint, new DOMPoint(e.clientX - cameraBounds.left - cameraBounds.width / 2, e.clientY - cameraBounds.top - cameraBounds.height / 2));
-                       //console.log(cameraTransform.multiply(objectTransform).inverse().transformPoint(new DOMPoint(e.clientX + cameraBounds.left - cameraBounds.width / 2, e.clientY - cameraBounds.top - cameraBounds.height / 2)))
-                       //console.log(worldTransform.inverse().transformPoint(localPoint))
-                        return (Math.abs(localPoint.x) <= it.width/2 && Math.abs(localPoint.y) <= it.height/2)
-                    });
-                    console.log(hoverList)
-                }}>
-                    <div className="boneCamera" ref={cameraRef}>
+                <BoneCanvas>
                     {
                         model.objects.map((objectData, i)=>{
-                            return <BoneObject objectData={objectData} time={time} refMap={refMap} onChange={(data: any)=>{
+                            return <BoneObject objectData={objectData} time={time} refMap={refMap} onChange={(id, data)=>{
                                 console.log(JSON.stringify(data));
-                                setModel((last)=>{
+                                /*setModel((last)=>{
                                     const next = {...last}
                                     const foundFrameIndex = (next.objects[i].keyframes || []).findIndex((frame, frameIndex)=>{
                                         return frame.time == time;
@@ -110,12 +97,13 @@ export const Bone = () => {
                                     }
                                     console.log(next);
                                     return next;
-                                })
+                                })*/
+                               setObjectKeyframe(id, time, data)
                             }}></BoneObject>
                         })
                     }
-                    </div>
-                </div>
+                </BoneCanvas>
+
                 {/* <MindmapEditor data={{
                     id: '1',
                     name: 'Dashboard',
@@ -153,7 +141,7 @@ export const Bone = () => {
 
         <div className="boneRight">
             <SceneLoader onLoad={async (scene, resMap)=>{
-                const objects: Array<any> = scene.reverse().map((it: any)=>{
+                const objects: Array<IBoneNode & {imagePath: string}> = scene.reverse().map((it: any)=>{
                     return {
                         name: it.image,
                         imagePath: it.image,

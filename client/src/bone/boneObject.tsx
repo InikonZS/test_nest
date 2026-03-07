@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react"
 import { getGlobalTransform } from "./utils";
 import "./boneObject.css";
+import { IBoneNode, IKeyFrame } from "./boneModel";
 
-export const BoneObject = ({ objectData, time, onChange, refMap }: any) => {
+export const BoneObject = ({ objectData, time, onChange, refMap }: {objectData: IBoneNode, time: number, onChange: (id: string, data: Omit<IKeyFrame, 'time'>)=>void, refMap: React.MutableRefObject<Record<string, HTMLDivElement>>}) => {
     const ref = useRef<HTMLDivElement>();
     const tempRef = useRef<HTMLDivElement>();
     const [animation, setAnimation] = useState<Animation>(null);
@@ -10,6 +11,49 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: any) => {
     const [temp, setTemp] = useState({ position: { x: 0, y: 0 }, angle: 0 })
     const _temp = useRef<any>()
 
+    const getCurrentTransform = ()=>{ 
+        if (!objectData.keyframes || !objectData.keyframes.length){
+            return {
+                translate: {x: objectData.position.x, y: objectData.position.y},
+                rotate: 0,
+                scale: {x: 1, y: 1}
+            }
+        }  
+        const transformTRS = {
+            translate: {x: 0, y: 0},
+            rotate: 0,
+            scale: {x: 1, y: 1}
+        }
+        if (!ref.current){
+            return transformTRS;
+        }
+        const transforms = ref.current.computedStyleMap().get('transform');
+        if (transforms instanceof CSSTransformValue){
+            let trs = '';
+         
+            transforms.forEach((value)=>{
+                if (value instanceof CSSTranslate){
+                    trs = trs + 't';
+                    transformTRS.translate.x = value.x.to('px').value;
+                    transformTRS.translate.y = value.y.to('px').value;
+                }
+                if (value instanceof CSSRotate){
+                    trs = trs + 'r';
+                    transformTRS.rotate = value.angle.to('deg').value;
+                }
+                if (value instanceof CSSScale){
+                    trs = trs + 's';
+                    transformTRS.scale.x = Number(value.x);
+                    transformTRS.scale.y = Number(value.y);
+                }
+            });
+            if (!['trs', 'rs', 'ts', 'tr', 't', 'r', 's'].includes(trs)){
+                console.log('unsupported transform, readed partially');
+            }
+            return transformTRS;
+        }
+    }
+    //getCurrentTransform();
     useEffect(()=>{
         refMap.current[objectData.name] = ref.current;
         return ()=>{
@@ -97,17 +141,24 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: any) => {
                 return;
             }
             const objMatrix = new DOMMatrix(getComputedStyle(ref.current).transform);
-            //const tempMatrix = new DOMMatrix(getComputedStyle(tempRef.current).transform);
-            const point = objMatrix.transformPoint(new DOMPoint(temp.position.x, temp.position.y));
+            const tempMatrix = new DOMMatrix(getComputedStyle(tempRef.current).transform);
+            //const point = objMatrix.transformPoint(new DOMPoint(temp.position.x, temp.position.y));
+            const resMatrix = tempMatrix.multiply(objMatrix);
+            const point = {
+                x: getCurrentTransform().translate.x + temp.position.x,//temp.angle == 0 ? resMatrix.e : getCurrentTransform().translate.x,
+                y: getCurrentTransform().translate.y + temp.position.y//temp.angle == 0 ? resMatrix.f : getCurrentTransform().translate.y
+            }
+            //const angle = Math.atan2(resMatrix.b, resMatrix.a) * 180 / Math.PI;
             //objMatrix.tra
-            const m = new DOMMatrix(getComputedStyle(ref.current).transform);
-                    const rotation = Math.atan2(m.b, m.a);
-            onChange?.({
+            //const m = new DOMMatrix(getComputedStyle(ref.current).transform);
+            //const rotation = Math.atan2(m.b, m.a);
+            console.log(temp.angle, currentTransform.rotate)
+            onChange?.(objectData.id, {
                 position: {
                     x: point.x,//temp.position.x,//_temp.current.position.x + Number(getComputedStyle(ref.current).left.replace('px', "")),
                     y: point.y//temp.position.y//_temp.current.position.y + Number(getComputedStyle(ref.current).top.replace('px', "")),
                 },
-                angle: temp.angle + rotation * 180 / Math.PI
+                angle: temp.angle + currentTransform.rotate
             });
             setTemp({ position: { x: 0, y: 0 }, angle: 0 });
         }
@@ -155,15 +206,18 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: any) => {
             animation.cancel();
         }
     }, [objectData.keyframes])
+    const currentTransform = getCurrentTransform();
     return <div ref={tempRef} className="boneObjectTemp" style={{
         //left: temp.position.x,
         //top: temp.position.y
-        transformOrigin: `${objectData.position.x + objectData.width/2}px ${objectData.position.y + objectData.height/2}px`,
+        //transformOrigin: `${objectData.position.x + objectData.width/2}px ${objectData.position.y + objectData.height/2}px`,
+        transformOrigin: `${currentTransform.translate.x + objectData.width/2}px ${currentTransform.translate.y + objectData.height/2}px`,
         transform: `translate(${temp.position.x / 1 + 'px'}, ${temp.position.y / 1 + 'px'}) rotate(${temp.angle}deg)`,
     }}>
         <div className="boneObject"
             onDragStart={(e) => e.preventDefault()}
             onMouseDown={(e) => {
+                e.stopPropagation()
                 setDragStart(e);
             }}
             ref={ref}
@@ -175,12 +229,18 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: any) => {
                 //top: objectData.position.y / 1 + 'px',
                 top: 0,
                 left: 0,
-                transform: `translate(${objectData.position.x / 1 + 'px'}, ${objectData.position.y / 1 + 'px'}) rotate(${objectData.angle || 0}deg)`,
+                //transform: `translate(${objectData.position.x / 1 + 'px'}, ${objectData.position.y / 1 + 'px'}) rotate(${objectData.angle || 0}deg)`,
+                transform: `translate(${currentTransform.translate.x / 1 + 'px'}, ${currentTransform.translate.y / 1 + 'px'}) rotate(${currentTransform.rotate || 0}deg)`,
                 transformOrigin: `50% 50%`,
                 backgroundImage: `url(${objectData.imageURL})`,
                 backgroundColor: objectData.imageURL ? "transparent" : ""
             }}>
-                        <div className="MindmapEditor_object_markers">
+            <div>
+                {objectData.objects && objectData.objects.map(it=>{
+                    return <BoneObject objectData={it} time = {time} onChange={onChange} refMap={refMap}></BoneObject>
+                })}
+            </div>
+            <div className="MindmapEditor_object_markers">
 
             <div className="MindmapEditor_object_marker MindmapEditor_object_marker_rt"
                 onMouseDown={(downEvent) => {
@@ -249,13 +309,17 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: any) => {
                 onMouseDown={(downEvent) => {
                     //downEvent.stopPropagation();
                     //const it = objectData;
-                    const m = new DOMMatrix(getComputedStyle(ref.current).transform);
+                    /*const m = new DOMMatrix(getComputedStyle(ref.current).transform);
                     const rotation = Math.atan2(m.b, m.a);
                     const scaleX = Math.hypot(m.a, m.b);
-                    const scaleY = Math.hypot(m.c, m.d);
+                    const scaleY = Math.hypot(m.c, m.d);*/
+                    const trs = getCurrentTransform();
+                    console.log(trs.rotate)
                     const it = {
-                        angle: rotation / Math.PI * 180,
-                        position: {x: m.m41, y: m.m42},
+                        //angle: rotation / Math.PI * 180,
+                        //position: {x: m.m41, y: m.m42},
+                        angle: trs.rotate,
+                        position: trs.translate,
                         width: objectData.width,
                         height: objectData.height
                     }
@@ -270,17 +334,39 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: any) => {
                         y: it.position.y + it.height / 2
                     }
                     
-                    const lastAng = it.angle;
+                    const lastAng = (it.angle + 3600000 + 180) % 360 - 180;
                     //setCursorPoint(startPoint);
+                    let lastInputAngle = 0;
+                    let sumAngle = 0;
                     handleMarkerSize(downEvent, (last, moveEvent) => {
                         
-                        console.log(startPoint, last.angle, it.angle);
+                        //console.log(startPoint, last.angle, it.angle);
                         startPoint.x += moveEvent.movementX;
                         startPoint.y += moveEvent.movementY;
                         const next = {...last};
                         //console.log(Math.sin(next[i].angle / 180 * Math.PI) + Math.cos(next[i].angle / 180 * Math.PI), );
-                        next.angle = Math.atan2(startPoint.x - centerPoint.x, -(startPoint.y - centerPoint.y)) / Math.PI * 180 - it.angle;
-                        const difAng = next.angle - lastAng;
+                        const inputAngle = Math.atan2(startPoint.x - centerPoint.x, -(startPoint.y - centerPoint.y)) / Math.PI * 180 //- it.angle;
+                        const diff1 = inputAngle - lastInputAngle;
+                        const diff2 = inputAngle - lastInputAngle + 360;
+                        const diff3 = inputAngle - lastInputAngle - 360;
+                        const difs = [
+                            {abs: Math.abs(diff1), val: diff1},
+                            {abs: Math.abs(diff2), val: diff2},
+                            {abs: Math.abs(diff3), val: diff3},
+                        ];
+                        difs.sort((a,b)=>a.abs - b.abs);
+                        const minInputDiff = difs[0].val;
+                        lastInputAngle = inputAngle;
+                        //const difAng2 = next.angle - lastAng;
+                        // Приводим разницу к [-180, 180]
+                        // Новый угол, максимально близкий к oldAngle
+                        //const nextAngle1 = inputAngle - it.angle
+                        //const nextAngle2 = inputAngle - it.angle + 360;
+                        //next.angle = inputAngle - it.angle//last.angle + minInputDiff//Math.abs(nextAngle1 - last.angle) < Math.abs(nextAngle2 - last.angle) ? nextAngle1 : nextAngle2;
+                        sumAngle = sumAngle + minInputDiff;
+                        next.angle = sumAngle - lastAng;
+                        console.log(sumAngle, lastAng, next.angle);
+                        //console.log(sumAngle)
                         //next[i].position.x += Math.cos(difAng) * moveEvent.movementY + Math.sin(difAng) * moveEvent.movementX;
                         //next[i].position.y += Math.cos(difAng) * moveEvent.movementX - Math.sin(difAng) * moveEvent.movementY;
                         return next

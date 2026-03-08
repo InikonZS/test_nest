@@ -90,16 +90,19 @@ const testMock: IBoneNode = {
 
 export const boneContext = React.createContext<{
     model: IBoneNode,
+    history: {action: string, model: IBoneNode}[],
     setModel?: React.Dispatch<React.SetStateAction<IBoneNode>>,
     setObjectKeyframe?: (id: string, time: number, data: IKeyFrame) => void;
 }>({
     model: testMock,
+    history: [],
     setModel: null,
     setObjectKeyframe: null
 });
 
 export const BoneModelProvider = ({ children }: React.PropsWithChildren<{}>) => {
     const [model, setModel] = useState<IBoneNode>(testMock);
+    const [history, setHistory] = useState<{action: string, model: IBoneNode}[]>([{action: 'Init', model: testMock}]);
 
     const setObjectKeyframe = (id: string, time: number, data: IKeyFrame) => {
         const findRecursive = (item: IBoneNode, path: Array<number>) => {
@@ -143,12 +146,18 @@ export const BoneModelProvider = ({ children }: React.PropsWithChildren<{}>) => 
                 nextKeyframes.push({ ...data, time: time });
             }
             currentObject.keyframes = nextKeyframes;
+            setHistory(lastHist=>{
+                const histIndex = history.findIndex(jt=>jt.model == last);
+                const nextHist = [...lastHist.slice(0, histIndex + 1), {action: 'Keyframe', model:next}];
+                return nextHist;
+            });
             return next;
         })
     }
 
     return <boneContext.Provider value={{
         model,
+        history,
         setModel,
         setObjectKeyframe
     }}>

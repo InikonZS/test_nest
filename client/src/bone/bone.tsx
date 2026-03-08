@@ -19,7 +19,8 @@ export const Bone = ()=>{
 export const BoneContent = () => {
     const cameraRef = useRef<HTMLDivElement>();
     const refMap = useRef<Record<string, HTMLDivElement>>({});
-    const {model, setModel, setObjectKeyframe} = useBoneContext();
+    const [playState, setPlayState] = useState(false);
+    const {model, history, setModel, setObjectKeyframe} = useBoneContext();
     /*useEffect(()=>{
         setObjectKeyframe("4");
     }, [])*/
@@ -78,7 +79,7 @@ export const BoneContent = () => {
                 <BoneCanvas refMap={refMap}>
                     {
                         model.objects.map((objectData, i)=>{
-                            return <BoneObject objectData={objectData} time={time} refMap={refMap} onChange={(id, data)=>{
+                            return <BoneObject objectData={objectData} time={time} playState={playState} refMap={refMap} onChange={(id, data)=>{
                                 console.log(JSON.stringify(data));
                                 /*setModel((last)=>{
                                     const next = {...last}
@@ -121,6 +122,9 @@ export const BoneContent = () => {
             </div>
             <div className="boneBottom">
                 <div className="boneAnimations">
+                    <div onClick={()=>{
+                        setPlayState(last =>!last);
+                    }}>{playState?'stop':'play'}</div>
                       <TimeTrack onTime = {(currentTime)=>setTime(currentTime)} model={model} onChange={(model)=>setModel(model)}></TimeTrack>
                     {/* <div className="boneAnimationsTimeline">
                         <TimeTrack></TimeTrack>
@@ -140,6 +144,12 @@ export const BoneContent = () => {
         </div>
 
         <div className="boneRight">
+            <div className="boneHistory">
+                {history.map((it, i)=>{
+                    const histIndex = history.findIndex(jt=>jt.model == model);
+                    return <div className={`boneHistoryItem ${histIndex == i ? "boneHistoryActive" : ""} ${histIndex < i ? "boneHistoryTail" : ""}`} onClick={()=>setModel(it.model)}>{it.action}</div>
+                })}
+            </div>
             <SceneLoader onLoad={async (scene, resMap)=>{
                 const objects: Array<IBoneNode & {imagePath: string}> = scene.reverse().map((it: any)=>{
                     return {

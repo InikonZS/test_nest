@@ -18,6 +18,9 @@ export const BoneCanvas = ({children, refMap}: React.PropsWithChildren<{refMap: 
     });
 
     useEffect(()=>{
+        if (!viewRef.current){
+            return;
+        }
         const handler = (e: WheelEvent) => {
         if (e.ctrlKey) {
             const rect = viewRef.current.getBoundingClientRect();
@@ -46,6 +49,9 @@ export const BoneCanvas = ({children, refMap}: React.PropsWithChildren<{refMap: 
         }
         viewRef.current.addEventListener("wheel", handler, { passive: false });
         return ()=>{
+            if (!viewRef.current){
+                return;
+            }
             viewRef.current.removeEventListener("wheel", handler);
         }
     }, []);

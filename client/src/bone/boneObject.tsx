@@ -4,7 +4,7 @@ import "./boneObject.css";
 import { IBoneNode, IKeyFrame } from "./boneModel";
 import { useCanvasContext } from "./boneCanvas";
 
-export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData: IBoneNode, time: number, onChange: (id: string, data: Omit<IKeyFrame, 'time'>) => void, refMap: React.MutableRefObject<Record<string, HTMLDivElement>> }) => {
+export const BoneObject = ({ objectData, time, playState, onChange, refMap }: { objectData: IBoneNode, time: number, playState:boolean, onChange: (id: string, data: Omit<IKeyFrame, 'time'>) => void, refMap: React.MutableRefObject<Record<string, HTMLDivElement>> }) => {
     const ref = useRef<HTMLDivElement>();
     const tempRef = useRef<HTMLDivElement>();
     const scaleRef = useRef<HTMLDivElement>();
@@ -217,7 +217,22 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData:
             //animation.commitStyles();
             animation.cancel();
         }
-    }, [objectData.keyframes])
+    }, [objectData.keyframes]);
+    
+    useEffect(()=>{
+        if (!animation){
+            return;
+        }
+        if (playState){
+            animation.play();
+            animation.onfinish=()=>{
+                //animation.play();
+            }
+        } else {
+            animation.pause();
+        }
+        
+    }, [playState, animation]);
     const currentTransform = getCurrentTransform();
     return <div ref={tempRef} className="boneObjectTemp" style={{
         //left: temp.position.x,
@@ -272,7 +287,7 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData:
            
             <div>
                 {objectData.objects && objectData.objects.map(it => {
-                    return <BoneObject objectData={it} time={time} onChange={onChange} refMap={refMap}></BoneObject>
+                    return <BoneObject objectData={it} time={time} playState={playState} onChange={onChange} refMap={refMap}></BoneObject>
                 })}
             </div>
             <div className="MindmapEditor_object_markers">

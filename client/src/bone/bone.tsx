@@ -75,7 +75,7 @@ export const BoneContent = () => {
     return <div className="boneRoot">
         <div className="boneVerticalCenter">
             <div className="boneMain">
-                <BoneCanvas>
+                <BoneCanvas refMap={refMap}>
                     {
                         model.objects.map((objectData, i)=>{
                             return <BoneObject objectData={objectData} time={time} refMap={refMap} onChange={(id, data)=>{
@@ -143,6 +143,7 @@ export const BoneContent = () => {
             <SceneLoader onLoad={async (scene, resMap)=>{
                 const objects: Array<IBoneNode & {imagePath: string}> = scene.reverse().map((it: any)=>{
                     return {
+                        id: it.image,
                         name: it.image,
                         imagePath: it.image,
                         position: { x: it.position.x, y: it.position.y },

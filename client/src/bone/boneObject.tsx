@@ -2,8 +2,9 @@ import React, { useEffect, useRef, useState } from "react"
 import { getGlobalTransform } from "./utils";
 import "./boneObject.css";
 import { IBoneNode, IKeyFrame } from "./boneModel";
+import { useCanvasContext } from "./boneCanvas";
 
-export const BoneObject = ({ objectData, time, onChange, refMap }: {objectData: IBoneNode, time: number, onChange: (id: string, data: Omit<IKeyFrame, 'time'>)=>void, refMap: React.MutableRefObject<Record<string, HTMLDivElement>>}) => {
+export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData: IBoneNode, time: number, onChange: (id: string, data: Omit<IKeyFrame, 'time'>) => void, refMap: React.MutableRefObject<Record<string, HTMLDivElement>> }) => {
     const ref = useRef<HTMLDivElement>();
     const tempRef = useRef<HTMLDivElement>();
     const [animation, setAnimation] = useState<Animation>(null);
@@ -11,53 +12,55 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: {objectData: 
     const [temp, setTemp] = useState({ position: { x: 0, y: 0 }, angle: 0 })
     const _temp = useRef<any>()
 
-    const getCurrentTransform = ()=>{ 
-        if (!objectData.keyframes || !objectData.keyframes.length){
+    const { getLocalCursor } = useCanvasContext();
+
+    const getCurrentTransform = () => {
+        if (!objectData.keyframes || !objectData.keyframes.length) {
             return {
-                translate: {x: objectData.position.x, y: objectData.position.y},
+                translate: { x: objectData.position.x, y: objectData.position.y },
                 rotate: 0,
-                scale: {x: 1, y: 1}
+                scale: { x: 1, y: 1 }
             }
-        }  
-        const transformTRS = {
-            translate: {x: 0, y: 0},
-            rotate: 0,
-            scale: {x: 1, y: 1}
         }
-        if (!ref.current){
+        const transformTRS = {
+            translate: { x: 0, y: 0 },
+            rotate: 0,
+            scale: { x: 1, y: 1 }
+        }
+        if (!ref.current) {
             return transformTRS;
         }
         const transforms = ref.current.computedStyleMap().get('transform');
-        if (transforms instanceof CSSTransformValue){
+        if (transforms instanceof CSSTransformValue) {
             let trs = '';
-         
-            transforms.forEach((value)=>{
-                if (value instanceof CSSTranslate){
+
+            transforms.forEach((value) => {
+                if (value instanceof CSSTranslate) {
                     trs = trs + 't';
                     transformTRS.translate.x = value.x.to('px').value;
                     transformTRS.translate.y = value.y.to('px').value;
                 }
-                if (value instanceof CSSRotate){
+                if (value instanceof CSSRotate) {
                     trs = trs + 'r';
                     transformTRS.rotate = value.angle.to('deg').value;
                 }
-                if (value instanceof CSSScale){
+                if (value instanceof CSSScale) {
                     trs = trs + 's';
                     transformTRS.scale.x = Number(value.x);
                     transformTRS.scale.y = Number(value.y);
                 }
             });
-            if (!['trs', 'rs', 'ts', 'tr', 't', 'r', 's'].includes(trs)){
+            if (!['trs', 'rs', 'ts', 'tr', 't', 'r', 's'].includes(trs)) {
                 console.log('unsupported transform, readed partially');
             }
             return transformTRS;
         }
     }
     //getCurrentTransform();
-    useEffect(()=>{
+    useEffect(() => {
         refMap.current[objectData.name] = ref.current;
-        return ()=>{
-           refMap.current[objectData.name] = undefined; 
+        return () => {
+            refMap.current[objectData.name] = undefined;
         }
     }, []);
 
@@ -65,7 +68,7 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: {objectData: 
         downEvent.stopPropagation();
         console.log('down marker')
         const moveHandler = (moveEvent: MouseEvent) => {
-            setTemp(last=>{
+            setTemp(last => {
                 return setter(last, moveEvent)
             });
             /*setObjects(last=>{
@@ -211,7 +214,7 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: {objectData: 
         //left: temp.position.x,
         //top: temp.position.y
         //transformOrigin: `${objectData.position.x + objectData.width/2}px ${objectData.position.y + objectData.height/2}px`,
-        transformOrigin: `${currentTransform.translate.x + objectData.width/2}px ${currentTransform.translate.y + objectData.height/2}px`,
+        transformOrigin: `${currentTransform.translate.x + objectData.width / 2}px ${currentTransform.translate.y + objectData.height / 2}px`,
         transform: `translate(${temp.position.x / 1 + 'px'}, ${temp.position.y / 1 + 'px'}) rotate(${temp.angle}deg)`,
     }}>
         <div className="boneObject"
@@ -236,145 +239,176 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: {objectData: 
                 backgroundColor: objectData.imageURL ? "transparent" : ""
             }}>
             <div>
-                {objectData.objects && objectData.objects.map(it=>{
-                    return <BoneObject objectData={it} time = {time} onChange={onChange} refMap={refMap}></BoneObject>
+                {objectData.objects && objectData.objects.map(it => {
+                    return <BoneObject objectData={it} time={time} onChange={onChange} refMap={refMap}></BoneObject>
                 })}
             </div>
             <div className="MindmapEditor_object_markers">
 
-            <div className="MindmapEditor_object_marker MindmapEditor_object_marker_rt"
-                onMouseDown={(downEvent) => {
-                    /*const ang = it.angle / 180 * Math.PI;
-                    handleMarkerSize(downEvent, (last, moveEvent) => {
-                        const next = [...last];
-                        const mx = moveEvent.movementX * Math.cos(ang) + moveEvent.movementY * Math.sin(ang);
-                        const my = moveEvent.movementY * Math.cos(ang) - moveEvent.movementX * Math.sin(ang);
-                        next[i].width += mx;
-                        next[i].position.x += -my * Math.sin(ang) / 2 + mx * Math.cos(ang) / 2;
-                        next[i].height -= my;
-                        next[i].position.y += my * Math.cos(ang) / 2 + mx * Math.sin(ang) / 2;
-                        return next
-                    })*/
-                }}
-            >
+                <div className="MindmapEditor_object_marker MindmapEditor_object_marker_rt"
+                    onMouseDown={(downEvent) => {
+                        /*const ang = it.angle / 180 * Math.PI;
+                        handleMarkerSize(downEvent, (last, moveEvent) => {
+                            const next = [...last];
+                            const mx = moveEvent.movementX * Math.cos(ang) + moveEvent.movementY * Math.sin(ang);
+                            const my = moveEvent.movementY * Math.cos(ang) - moveEvent.movementX * Math.sin(ang);
+                            next[i].width += mx;
+                            next[i].position.x += -my * Math.sin(ang) / 2 + mx * Math.cos(ang) / 2;
+                            next[i].height -= my;
+                            next[i].position.y += my * Math.cos(ang) / 2 + mx * Math.sin(ang) / 2;
+                            return next
+                        })*/
+                    }}
+                >
+                </div>
+                <div className="MindmapEditor_object_marker MindmapEditor_object_marker_rb"
+                    onMouseDown={(downEvent) => {
+                        /*const ang = it.angle / 180 * Math.PI;
+                        handleMarkerSize(downEvent, (last, moveEvent) => {
+                            const next = [...last];
+                            next[i].width += moveEvent.movementX * Math.cos(ang) + moveEvent.movementY * Math.sin(ang);
+                            next[i].position.x += moveEvent.movementX / 2;
+                            next[i].height += moveEvent.movementY * Math.cos(ang) - moveEvent.movementX * Math.sin(ang);
+                            next[i].position.y += moveEvent.movementY / 2;
+                            //next[i].position.y +=moveEvent.movementY;
+                            return next
+                        })*/
+                    }}
+                ></div>
+                <div className="MindmapEditor_object_marker MindmapEditor_object_marker_lb"
+                    onMouseDown={(downEvent) => {
+                        /*const ang = it.angle / 180 * Math.PI;
+                        handleMarkerSize(downEvent, (last, moveEvent) => {
+                            const next = [...last];
+                            const mx = moveEvent.movementX * Math.cos(ang) + moveEvent.movementY * Math.sin(ang);
+                            const my = moveEvent.movementY * Math.cos(ang) - moveEvent.movementX * Math.sin(ang);
+                            next[i].width -= mx;
+                            next[i].position.x += mx * Math.cos(ang) / 2 - my * Math.sin(ang) / 2;
+                            next[i].height += my;
+                            next[i].position.y += mx * Math.sin(ang) / 2 + my * Math.cos(ang) / 2;
+                            return next
+                        })*/
+                    }}
+                ></div>
+                <div className="MindmapEditor_object_marker MindmapEditor_object_marker_lt"
+                    onMouseDown={(downEvent) => {
+                        /*const ang = it.angle / 180 * Math.PI;
+                        console.log(ang, Math.cos(ang));
+                        handleMarkerSize(downEvent, (last, moveEvent) => {
+                            const next = [...last];
+                            const mx = moveEvent.movementX * Math.cos(ang) + moveEvent.movementY * Math.sin(ang);
+                            const my = moveEvent.movementY * Math.cos(ang) - moveEvent.movementX * Math.sin(ang);
+                            next[i].width -= mx;
+                            next[i].position.x += moveEvent.movementX / 2;
+    
+                            next[i].height -= my;
+                            next[i].position.y += moveEvent.movementY / 2;
+                            return next
+                        })*/
+                    }}
+                ></div>
+
+                <div className="MindmapEditor_object_marker MindmapEditor_object_marker_rotate"
+                    onMouseDown={(downEvent) => {
+                        //downEvent.stopPropagation();
+                        //const it = objectData;
+                        /*const m = new DOMMatrix(getComputedStyle(ref.current).transform);
+                        const rotation = Math.atan2(m.b, m.a);
+                        const scaleX = Math.hypot(m.a, m.b);
+                        const scaleY = Math.hypot(m.c, m.d);*/
+                        const trs = getCurrentTransform();
+                        console.log(trs.rotate)
+                        const it = {
+                            //angle: rotation / Math.PI * 180,
+                            //position: {x: m.m41, y: m.m42},
+                            angle: trs.rotate,
+                            position: trs.translate,
+                            width: objectData.width,
+                            height: objectData.height
+                        }
+                        console.log(objectData);
+                        const ang = it.angle / 180 * Math.PI;
+                        /*const startPoint = {
+                            x: (it.position.x + it.width / 2) + Math.sin(ang) * (it.height / 2),
+                            y: (it.position.y + it.height / 2) - Math.cos(ang) * (it.height / 2)
+                        }
+                        const centerPoint = {
+                            x: it.position.x + it.width / 2,
+                            y: it.position.y + it.height / 2
+                        }*/
+
+                        const startPoint = {
+                            x: (it.width / 2) + Math.sin(ang) * (it.height / 2),
+                            y: (it.height / 2) - Math.cos(ang) * (it.height / 2)
+                        }
+                        const centerPoint = {
+                            x: it.width / 2,
+                            y: it.height / 2
+                        }
+
+                        const lastAng = (it.angle + 3600000 + 180) % 360 - 180;
+                        //setCursorPoint(startPoint);
+                        let lastInputAngle = 0;
+                        let sumAngle = 0;
+                        //let startMove = getLocalCursor(objectData, { x: downEvent.clientX, y: downEvent.clientY })
+
+                        let lastPosX = downEvent.clientX;
+                        let lastPosY = downEvent.clientY;
+                        //dragStart.stopPropagation();
+                        const matrix = getGlobalTransform(tempRef.current.parentElement);
+                        //const moveHandler = (moveEvent: MouseEvent) => {
+
+                        //console.log(dx, tempRef.current.style.left);
+                        //setTemp(last => {
+                        handleMarkerSize(downEvent, (last, moveEvent) => {
+                            const dx = moveEvent.clientX - lastPosX;
+                            const dy = moveEvent.clientY - lastPosY;
+                            lastPosX = moveEvent.clientX;
+                            lastPosY = moveEvent.clientY;
+                            const globalPos = matrix.transformPoint(new DOMPoint(startPoint.x, startPoint.y));
+                            const localPos = matrix.inverse().transformPoint(new DOMPoint(globalPos.x + dx, globalPos.y + dy));
+
+                            //const currentMove = getLocalCursor(objectData, { x: moveEvent.clientX, y: moveEvent.clientY })
+                            //console.log(startPoint, last.angle, it.angle);
+                            //startPoint.x += currentMove.x - startMove.x;//moveEvent.movementX;
+                            //startPoint.y += currentMove.y - startMove.y;//moveEvent.movementY;
+                            //startMove = currentMove;
+                            //startPoint.x += moveEvent.movementX * 3;
+                            //startPoint.y += moveEvent.movementY * 3;
+                            startPoint.x = localPos.x
+                            startPoint.y = localPos.y
+                            const next = { ...last };
+                            //console.log(Math.sin(next[i].angle / 180 * Math.PI) + Math.cos(next[i].angle / 180 * Math.PI), );
+                            const inputAngle = Math.atan2(startPoint.x - centerPoint.x, -(startPoint.y - centerPoint.y)) / Math.PI * 180 //- it.angle;
+                            const diff1 = inputAngle - lastInputAngle;
+                            const diff2 = inputAngle - lastInputAngle + 360;
+                            const diff3 = inputAngle - lastInputAngle - 360;
+                            const difs = [
+                                { abs: Math.abs(diff1), val: diff1 },
+                                { abs: Math.abs(diff2), val: diff2 },
+                                { abs: Math.abs(diff3), val: diff3 },
+                            ];
+                            difs.sort((a, b) => a.abs - b.abs);
+                            const minInputDiff = difs[0].val;
+                            lastInputAngle = inputAngle;
+                            //const difAng2 = next.angle - lastAng;
+                            // Приводим разницу к [-180, 180]
+                            // Новый угол, максимально близкий к oldAngle
+                            //const nextAngle1 = inputAngle - it.angle
+                            //const nextAngle2 = inputAngle - it.angle + 360;
+                            //next.angle = inputAngle - it.angle//last.angle + minInputDiff//Math.abs(nextAngle1 - last.angle) < Math.abs(nextAngle2 - last.angle) ? nextAngle1 : nextAngle2;
+                            sumAngle = sumAngle + minInputDiff;
+                            next.angle = sumAngle - lastAng;
+                            //console.log(sumAngle, lastAng, next.angle);
+                            //console.log(sumAngle)
+                            //next[i].position.x += Math.cos(difAng) * moveEvent.movementY + Math.sin(difAng) * moveEvent.movementX;
+                            //next[i].position.y += Math.cos(difAng) * moveEvent.movementX - Math.sin(difAng) * moveEvent.movementY;
+                            return next
+                        })
+                    }}
+                ></div>
+
             </div>
-            <div className="MindmapEditor_object_marker MindmapEditor_object_marker_rb"
-                onMouseDown={(downEvent) => {
-                    /*const ang = it.angle / 180 * Math.PI;
-                    handleMarkerSize(downEvent, (last, moveEvent) => {
-                        const next = [...last];
-                        next[i].width += moveEvent.movementX * Math.cos(ang) + moveEvent.movementY * Math.sin(ang);
-                        next[i].position.x += moveEvent.movementX / 2;
-                        next[i].height += moveEvent.movementY * Math.cos(ang) - moveEvent.movementX * Math.sin(ang);
-                        next[i].position.y += moveEvent.movementY / 2;
-                        //next[i].position.y +=moveEvent.movementY;
-                        return next
-                    })*/
-                }}
-            ></div>
-            <div className="MindmapEditor_object_marker MindmapEditor_object_marker_lb"
-                onMouseDown={(downEvent) => {
-                    /*const ang = it.angle / 180 * Math.PI;
-                    handleMarkerSize(downEvent, (last, moveEvent) => {
-                        const next = [...last];
-                        const mx = moveEvent.movementX * Math.cos(ang) + moveEvent.movementY * Math.sin(ang);
-                        const my = moveEvent.movementY * Math.cos(ang) - moveEvent.movementX * Math.sin(ang);
-                        next[i].width -= mx;
-                        next[i].position.x += mx * Math.cos(ang) / 2 - my * Math.sin(ang) / 2;
-                        next[i].height += my;
-                        next[i].position.y += mx * Math.sin(ang) / 2 + my * Math.cos(ang) / 2;
-                        return next
-                    })*/
-                }}
-            ></div>
-            <div className="MindmapEditor_object_marker MindmapEditor_object_marker_lt"
-                onMouseDown={(downEvent) => {
-                    /*const ang = it.angle / 180 * Math.PI;
-                    console.log(ang, Math.cos(ang));
-                    handleMarkerSize(downEvent, (last, moveEvent) => {
-                        const next = [...last];
-                        const mx = moveEvent.movementX * Math.cos(ang) + moveEvent.movementY * Math.sin(ang);
-                        const my = moveEvent.movementY * Math.cos(ang) - moveEvent.movementX * Math.sin(ang);
-                        next[i].width -= mx;
-                        next[i].position.x += moveEvent.movementX / 2;
-
-                        next[i].height -= my;
-                        next[i].position.y += moveEvent.movementY / 2;
-                        return next
-                    })*/
-                }}
-            ></div>
-
-            <div className="MindmapEditor_object_marker MindmapEditor_object_marker_rotate"
-                onMouseDown={(downEvent) => {
-                    //downEvent.stopPropagation();
-                    //const it = objectData;
-                    /*const m = new DOMMatrix(getComputedStyle(ref.current).transform);
-                    const rotation = Math.atan2(m.b, m.a);
-                    const scaleX = Math.hypot(m.a, m.b);
-                    const scaleY = Math.hypot(m.c, m.d);*/
-                    const trs = getCurrentTransform();
-                    console.log(trs.rotate)
-                    const it = {
-                        //angle: rotation / Math.PI * 180,
-                        //position: {x: m.m41, y: m.m42},
-                        angle: trs.rotate,
-                        position: trs.translate,
-                        width: objectData.width,
-                        height: objectData.height
-                    }
-                    console.log(objectData);
-                    const ang = it.angle / 180 * Math.PI;
-                    const startPoint = {
-                        x: (it.position.x + it.width / 2) + Math.sin(ang) * (it.height / 2),
-                        y: (it.position.y + it.height / 2) - Math.cos(ang) * (it.height / 2)
-                    }
-                    const centerPoint = {
-                        x: it.position.x + it.width / 2,
-                        y: it.position.y + it.height / 2
-                    }
-                    
-                    const lastAng = (it.angle + 3600000 + 180) % 360 - 180;
-                    //setCursorPoint(startPoint);
-                    let lastInputAngle = 0;
-                    let sumAngle = 0;
-                    handleMarkerSize(downEvent, (last, moveEvent) => {
-                        
-                        //console.log(startPoint, last.angle, it.angle);
-                        startPoint.x += moveEvent.movementX;
-                        startPoint.y += moveEvent.movementY;
-                        const next = {...last};
-                        //console.log(Math.sin(next[i].angle / 180 * Math.PI) + Math.cos(next[i].angle / 180 * Math.PI), );
-                        const inputAngle = Math.atan2(startPoint.x - centerPoint.x, -(startPoint.y - centerPoint.y)) / Math.PI * 180 //- it.angle;
-                        const diff1 = inputAngle - lastInputAngle;
-                        const diff2 = inputAngle - lastInputAngle + 360;
-                        const diff3 = inputAngle - lastInputAngle - 360;
-                        const difs = [
-                            {abs: Math.abs(diff1), val: diff1},
-                            {abs: Math.abs(diff2), val: diff2},
-                            {abs: Math.abs(diff3), val: diff3},
-                        ];
-                        difs.sort((a,b)=>a.abs - b.abs);
-                        const minInputDiff = difs[0].val;
-                        lastInputAngle = inputAngle;
-                        //const difAng2 = next.angle - lastAng;
-                        // Приводим разницу к [-180, 180]
-                        // Новый угол, максимально близкий к oldAngle
-                        //const nextAngle1 = inputAngle - it.angle
-                        //const nextAngle2 = inputAngle - it.angle + 360;
-                        //next.angle = inputAngle - it.angle//last.angle + minInputDiff//Math.abs(nextAngle1 - last.angle) < Math.abs(nextAngle2 - last.angle) ? nextAngle1 : nextAngle2;
-                        sumAngle = sumAngle + minInputDiff;
-                        next.angle = sumAngle - lastAng;
-                        console.log(sumAngle, lastAng, next.angle);
-                        //console.log(sumAngle)
-                        //next[i].position.x += Math.cos(difAng) * moveEvent.movementY + Math.sin(difAng) * moveEvent.movementX;
-                        //next[i].position.y += Math.cos(difAng) * moveEvent.movementX - Math.sin(difAng) * moveEvent.movementY;
-                        return next
-                    })
-                }}
-            ></div>
-
-        </div>
         </div>
     </div>
 }

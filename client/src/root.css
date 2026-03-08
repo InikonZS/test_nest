@@ -16,6 +16,8 @@ body{
     padding-bottom: 0px;
     border-bottom: 3px solid #001;
     background-color: #223;
+    overflow: auto;
+    scrollbar-width: none;
 }
 
 .header_button {

@@ -17,10 +17,12 @@
 }
 
 .MindmapEditor_object_marker_lt{
+    display: none;
     right: 100%;
     bottom: 100%;
 }
 .MindmapEditor_object_marker_lb{
+        display: none;
     right: 100%;
     top: 100%;
 }
@@ -29,6 +31,7 @@
     bottom: 100%;
 }
 .MindmapEditor_object_marker_rb{
+        display: none;
     left: 100%;
     top: 100%;
 }

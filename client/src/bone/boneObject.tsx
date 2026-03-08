@@ -188,7 +188,7 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData:
         animation.currentTime = time;
         animation.commitStyles();
         //document.body.computedStyleMap()
-        console.log(ref.current.style.transform);
+        //console.log(ref.current.style.transform);
     }, [time, animation]);
     useEffect(() => {
         setTemp({ position: { x: 0, y: 0 }, angle: 0, scale: {x: 1, y: 1} });
@@ -291,17 +291,17 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData:
                             width: objectData.width,
                             height: objectData.height
                         }
-                        console.log(it);
+                        //console.log(it);
                         //const ang = it.angle / 180 * Math.PI;
                         let lastPosX = downEvent.clientX;
                         let lastPosY = downEvent.clientY;
                         //dragStart.stopPropagation();
                         const matrix = getGlobalTransform(scaleRef.current.parentElement);
                         const ang = it.angle / 180 * Math.PI;
-                        console.log('ang', ang)
+                        //console.log('ang', ang)
                         const startPoint = {
                             x: (it.width / 1), //+ Math.sin(ang) * (it.height / 2)  + Math.cos(ang) * (it.width / 2) ,
-                            y: (it.height / 1)// - Math.cos(ang) * (it.height / 2)  + Math.sin(ang) * (it.width / 2) 
+                            y: -(it.height / 1)// - Math.cos(ang) * (it.height / 2)  + Math.sin(ang) * (it.width / 2) 
                             //x: (it.width),// * Math.sin(ang), //* (it.height / 2),
                             //y: (it.height)// * Math.cos(ang)// * (it.height / 2)
                         }
@@ -317,12 +317,12 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData:
                             lastPosX = moveEvent.clientX;
                             lastPosY = moveEvent.clientY;
                             const globalPos = matrix.transformPoint(new DOMPoint(startPoint.x, startPoint.y));
-                            const localPos = matrix.inverse().transformPoint(new DOMPoint(globalPos.x + dx/* * Math.cos(ang) + dy * Math.sin(ang)*/ , globalPos.y/* + dx * Math.sin(ang)*/ - dy/* * Math.cos(ang) */));
+                            const localPos = matrix.inverse().transformPoint(new DOMPoint(globalPos.x + dx/* * Math.cos(ang) + dy * Math.sin(ang)*/ , globalPos.y/* + dx * Math.sin(ang)*/ + dy/* * Math.cos(ang) */));
                             startPoint.x = localPos.x,
                             startPoint.y = localPos.y
 
-                            next.scale.x = startPoint.x / objectData.width * 2 - 1 ; //(startPoint.x) / objectData.width * 2 // it.scale.x;
-                            next.scale.y = (startPoint.y) / objectData.height * 2 -1;// / it.scale.y;
+                            next.scale.x = startPoint.x / objectData.width * 2 - 1; //(startPoint.x) / objectData.width * 2 // it.scale.x;
+                            next.scale.y = -(startPoint.y) / objectData.height * 2 -1;// / it.scale.y;
                             //next.scale.y = localPos.y/10;
                             //const mx = moveEvent.movementX * Math.cos(ang) + moveEvent.movementY * Math.sin(ang);
                             //const my = moveEvent.movementY * Math.cos(ang) - moveEvent.movementX * Math.sin(ang);

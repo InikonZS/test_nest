@@ -1,4 +1,4 @@
-import { useContext, useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { IBoneNode, useBoneContext } from "./boneModel";
 import { getGlobalTransform } from "./utils";
 import React from "react";
@@ -9,8 +9,46 @@ export const useCanvasContext = ()=>useContext(canvasContext);
 
 export const BoneCanvas = ({children, refMap}: React.PropsWithChildren<{refMap: any}>) => {
     const cameraRef = useRef<HTMLDivElement>();
+    const viewRef = useRef<HTMLDivElement>();
     //const refMap = useRef<Record<string, HTMLDivElement>>({});
     const {model, setModel} = useBoneContext();
+    const [cameraData, setCameraData] = useState({
+        scale: 0.5,
+        position: {x: 0, y: 0}
+    });
+
+    useEffect(()=>{
+        const handler = (e: WheelEvent) => {
+        if (e.ctrlKey) {
+            const rect = viewRef.current.getBoundingClientRect();
+            const mouse = {
+                x: e.clientX - rect.left - rect.width /2,
+                y: e.clientY - rect.top - rect.height /2
+            };
+            
+            const scaleChange = 1 - e.deltaY * 0.01;
+            //console.log("pinch trackpad scale:", scaleChange);
+            setCameraData(last=>{
+                            const newPos = {
+                x: mouse.x - (mouse.x - last.position.x) * scaleChange,
+                y: mouse.y - (mouse.y - last.position.y) * scaleChange
+            };
+                return {...last, scale: last.scale * scaleChange, position: newPos}
+            })
+            e.preventDefault();
+        } else {
+            //console.log("trackpad scroll:", e.deltaY, e.deltaX);
+            setCameraData(last=>{
+                return {...last, position: {x: last.position.x - e.deltaX, y: last.position.y - e.deltaY}}
+            })
+            e.preventDefault();
+        }
+        }
+        viewRef.current.addEventListener("wheel", handler, { passive: false });
+        return ()=>{
+            viewRef.current.removeEventListener("wheel", handler);
+        }
+    }, []);
     
     const getLocalCursor = (it: IBoneNode, pos: {x: number, y: number})=>{
          //if (i !=0 ) return;
@@ -32,7 +70,7 @@ export const BoneCanvas = ({children, refMap}: React.PropsWithChildren<{refMap: 
             return localPoint;//(Math.abs(localPoint.x) <= it.width / 2 && Math.abs(localPoint.y) <= it.height / 2)
     }
 
-    return <canvasContext.Provider value={{getLocalCursor: getLocalCursor}}><div className="boneCanvas" onMouseMove={(e) => {
+    return <canvasContext.Provider value={{getLocalCursor: getLocalCursor}}><div ref={viewRef} className="boneCanvas" onMouseMove={(e) => {
         //console.log(e);
         //getGlobalTransform()
         
@@ -57,7 +95,9 @@ export const BoneCanvas = ({children, refMap}: React.PropsWithChildren<{refMap: 
         });
         //console.log(hoverList)
     }}>
-        <div className="boneCamera" ref={cameraRef}>
+        <div className="boneCamera" ref={cameraRef} style={{
+            transform: `translate(${cameraData.position.x}px, ${cameraData.position.y}px) scale(${cameraData.scale})`
+        }}>
             {children}
         </div>
     </div>

@@ -7,9 +7,10 @@ import { useCanvasContext } from "./boneCanvas";
 export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData: IBoneNode, time: number, onChange: (id: string, data: Omit<IKeyFrame, 'time'>) => void, refMap: React.MutableRefObject<Record<string, HTMLDivElement>> }) => {
     const ref = useRef<HTMLDivElement>();
     const tempRef = useRef<HTMLDivElement>();
+    const scaleRef = useRef<HTMLDivElement>();
     const [animation, setAnimation] = useState<Animation>(null);
     const [dragStart, setDragStart] = useState<React.MouseEvent>(null);
-    const [temp, setTemp] = useState({ position: { x: 0, y: 0 }, angle: 0 })
+    const [temp, setTemp] = useState({ position: { x: 0, y: 0 }, angle: 0, scale: {x:0, y:0} })
     const _temp = useRef<any>()
 
     const { getLocalCursor } = useCanvasContext();
@@ -100,7 +101,7 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData:
             const dy = moveEvent.clientY - lastPosY;
             lastPosX = moveEvent.clientX;
             lastPosY = moveEvent.clientY;
-            console.log(dx, tempRef.current.style.left);
+            //console.log(dx, tempRef.current.style.left);
             setTemp(last => {
                 const globalPos = matrix.transformPoint(new DOMPoint(last.position.x, last.position.y));
                 const localPos = matrix.inverse().transformPoint(new DOMPoint(globalPos.x + dx, globalPos.y + dy));
@@ -113,10 +114,14 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData:
                         x: localPos.x,
                         y: localPos.y,
                     },
-                    angle: last.angle
+                    angle: last.angle,
+                    scale: {
+                        x: last.scale?.x ?? 1,
+                        y: last.scale?.y ?? 1
+                    }
                 }
             })
-            console.log(JSON.stringify(_temp));
+            //console.log(JSON.stringify(_temp));
             //tempRef.current.style.left = tempRef.current.clientLeft + dx + 'px',
             //tempRef.current.style.top = tempRef.current.clientTop + dy + 'px'
             // setPosition(last => last + dx);
@@ -140,7 +145,7 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData:
     useEffect(() => {
         const upHandler = (moveEvent: MouseEvent) => {
             setDragStart(null);
-            if (temp.position.x == 0 && temp.position.y == 0 && temp.angle == 0) {
+            if (temp.position.x == 0 && temp.position.y == 0 && temp.angle == 0 && temp.scale.x == 1 && temp.scale.y == 1) {
                 return;
             }
             const objMatrix = new DOMMatrix(getComputedStyle(ref.current).transform);
@@ -161,9 +166,13 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData:
                     x: point.x,//temp.position.x,//_temp.current.position.x + Number(getComputedStyle(ref.current).left.replace('px', "")),
                     y: point.y//temp.position.y//_temp.current.position.y + Number(getComputedStyle(ref.current).top.replace('px', "")),
                 },
-                angle: temp.angle + currentTransform.rotate
+                angle: temp.angle + currentTransform.rotate,
+                scale: {
+                    x: getCurrentTransform().scale.x * temp.scale.x,//temp.angle == 0 ? resMatrix.e : getCurrentTransform().translate.x,
+                    y: getCurrentTransform().scale.y * temp.scale.y
+                }
             });
-            setTemp({ position: { x: 0, y: 0 }, angle: 0 });
+            setTemp({ position: { x: 0, y: 0 }, angle: 0, scale: {x: 1, y: 1} });
         }
         //window.addEventListener('mousemove', moveHandler);
         window.addEventListener('mouseup', upHandler);
@@ -175,14 +184,14 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData:
 
     useEffect(() => {
         if (!animation) { return };
-        setTemp({ position: { x: 0, y: 0 }, angle: 0 });
+        setTemp({ position: { x: 0, y: 0 }, angle: 0, scale: {x: 1, y: 1} });
         animation.currentTime = time;
         animation.commitStyles();
         //document.body.computedStyleMap()
         console.log(ref.current.style.transform);
     }, [time, animation]);
     useEffect(() => {
-        setTemp({ position: { x: 0, y: 0 }, angle: 0 });
+        setTemp({ position: { x: 0, y: 0 }, angle: 0, scale: {x: 1, y: 1} });
         if (!(objectData.keyframes && objectData.keyframes.length)) {
             return;
         }
@@ -190,7 +199,7 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData:
             return {
                 easing: 'linear',
                 offset: (objectData.keyframes.length > 1) ? keframeData.time / objectData.keyframes[objectData.keyframes.length - 1].time : 0,
-                transform: `translate(${keframeData.position.x / 1 + 'px'}, ${keframeData.position.y / 1 + 'px'}) rotate(${keframeData.angle || 0}deg)`,
+                transform: `translate(${keframeData.position.x / 1 + 'px'}, ${keframeData.position.y / 1 + 'px'}) rotate(${keframeData.angle || 0}deg) scale(${keframeData.scale?.x ?? 1}, ${keframeData.scale?.y ?? 1})`,
                 //left: keframeData.position.x + 'px',
                 //top: keframeData.position.y + 'px'
             }
@@ -225,7 +234,9 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData:
             }}
             ref={ref}
             style={{
-                display: (objectData.visible ?? true) ? '' : 'none',
+                //display: (objectData.visible ?? true) ? '' : 'none',
+                pointerEvents: (objectData.visible ?? true) ? '' : 'none',
+                visibility: (objectData.visible ?? true) ? '' : 'hidden',
                 width: objectData.width / 1 + 'px',
                 height: objectData.height / 1 + 'px',
                 //left: objectData.position.x / 1 + 'px',
@@ -233,11 +244,32 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData:
                 top: 0,
                 left: 0,
                 //transform: `translate(${objectData.position.x / 1 + 'px'}, ${objectData.position.y / 1 + 'px'}) rotate(${objectData.angle || 0}deg)`,
-                transform: `translate(${currentTransform.translate.x / 1 + 'px'}, ${currentTransform.translate.y / 1 + 'px'}) rotate(${currentTransform.rotate || 0}deg)`,
+                transform: `translate(${currentTransform.translate.x / 1 + 'px'}, ${currentTransform.translate.y / 1 + 'px'}) rotate(${currentTransform.rotate || 0}deg) scale(${currentTransform.scale.x}, ${currentTransform.scale.y})`,
                 transformOrigin: `50% 50%`,
                 backgroundImage: `url(${objectData.imageURL})`,
                 backgroundColor: objectData.imageURL ? "transparent" : ""
             }}>
+            <div className="boneScaleWrapper"
+            ref={scaleRef}
+            style={{
+                //display: (objectData.visible ?? true) ? '' : 'none',
+                pointerEvents: (objectData.visible ?? true) ? '' : 'none',
+                visibility: (objectData.visible ?? true) ? '' : 'hidden',
+                width: objectData.width / 1 + 'px',
+                height: objectData.height / 1 + 'px',
+                //left: objectData.position.x / 1 + 'px',
+                //top: objectData.position.y / 1 + 'px',
+                top: 0,
+                left: 0,
+                //transform: `translate(${objectData.position.x / 1 + 'px'}, ${objectData.position.y / 1 + 'px'}) rotate(${objectData.angle || 0}deg)`,
+                transform: `scale(${temp.scale.x}, ${temp.scale.y})`,
+                transformOrigin: `50% 50%`,
+                backgroundImage: `url(${objectData.imageURL})`,
+                backgroundColor: objectData.imageURL ? "transparent" : ""
+            }}
+            >
+
+           
             <div>
                 {objectData.objects && objectData.objects.map(it => {
                     return <BoneObject objectData={it} time={time} onChange={onChange} refMap={refMap}></BoneObject>
@@ -247,17 +279,59 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData:
 
                 <div className="MindmapEditor_object_marker MindmapEditor_object_marker_rt"
                     onMouseDown={(downEvent) => {
-                        /*const ang = it.angle / 180 * Math.PI;
+                        downEvent.stopPropagation();
+                        const trs = getCurrentTransform();
+                        console.log(trs.rotate)
+                        const it = {
+                            //angle: rotation / Math.PI * 180,
+                            //position: {x: m.m41, y: m.m42},
+                            angle: trs.rotate,
+                            position: trs.translate,
+                            scale: trs.scale,
+                            width: objectData.width,
+                            height: objectData.height
+                        }
+                        console.log(it);
+                        //const ang = it.angle / 180 * Math.PI;
+                        let lastPosX = downEvent.clientX;
+                        let lastPosY = downEvent.clientY;
+                        //dragStart.stopPropagation();
+                        const matrix = getGlobalTransform(scaleRef.current.parentElement);
+                        const ang = it.angle / 180 * Math.PI;
+                        console.log('ang', ang)
+                        const startPoint = {
+                            x: (it.width / 1), //+ Math.sin(ang) * (it.height / 2)  + Math.cos(ang) * (it.width / 2) ,
+                            y: (it.height / 1)// - Math.cos(ang) * (it.height / 2)  + Math.sin(ang) * (it.width / 2) 
+                            //x: (it.width),// * Math.sin(ang), //* (it.height / 2),
+                            //y: (it.height)// * Math.cos(ang)// * (it.height / 2)
+                        }
+                        const centerPoint = {
+                            x: it.width / 2,
+                            y: it.height / 2
+                        }
+
                         handleMarkerSize(downEvent, (last, moveEvent) => {
-                            const next = [...last];
-                            const mx = moveEvent.movementX * Math.cos(ang) + moveEvent.movementY * Math.sin(ang);
-                            const my = moveEvent.movementY * Math.cos(ang) - moveEvent.movementX * Math.sin(ang);
-                            next[i].width += mx;
-                            next[i].position.x += -my * Math.sin(ang) / 2 + mx * Math.cos(ang) / 2;
-                            next[i].height -= my;
-                            next[i].position.y += my * Math.cos(ang) / 2 + mx * Math.sin(ang) / 2;
+                            const next = {...last};
+                            const dx = moveEvent.clientX - lastPosX;
+                            const dy = moveEvent.clientY - lastPosY;
+                            lastPosX = moveEvent.clientX;
+                            lastPosY = moveEvent.clientY;
+                            const globalPos = matrix.transformPoint(new DOMPoint(startPoint.x, startPoint.y));
+                            const localPos = matrix.inverse().transformPoint(new DOMPoint(globalPos.x + dx/* * Math.cos(ang) + dy * Math.sin(ang)*/ , globalPos.y/* + dx * Math.sin(ang)*/ - dy/* * Math.cos(ang) */));
+                            startPoint.x = localPos.x,
+                            startPoint.y = localPos.y
+
+                            next.scale.x = startPoint.x / objectData.width * 2 - 1 ; //(startPoint.x) / objectData.width * 2 // it.scale.x;
+                            next.scale.y = (startPoint.y) / objectData.height * 2 -1;// / it.scale.y;
+                            //next.scale.y = localPos.y/10;
+                            //const mx = moveEvent.movementX * Math.cos(ang) + moveEvent.movementY * Math.sin(ang);
+                            //const my = moveEvent.movementY * Math.cos(ang) - moveEvent.movementX * Math.sin(ang);
+                            //next.scale.x += mx;
+                            //next.position.x += -my * Math.sin(ang) / 2 + mx * Math.cos(ang) / 2;
+                            //next.scale.y -= my;
+                            //next.position.y += my * Math.cos(ang) / 2 + mx * Math.sin(ang) / 2;
                             return next
-                        })*/
+                        })
                     }}
                 >
                 </div>
@@ -338,8 +412,8 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData:
                         }*/
 
                         const startPoint = {
-                            x: (it.width / 2) + Math.sin(ang) * (it.height / 2),
-                            y: (it.height / 2) - Math.cos(ang) * (it.height / 2)
+                            x: (it.width / 2) + Math.sin(ang) * (it.height / 2) * trs.scale.y,
+                            y: (it.height / 2) - Math.cos(ang) * (it.height / 2) * trs.scale.y
                         }
                         const centerPoint = {
                             x: it.width / 2,
@@ -407,7 +481,7 @@ export const BoneObject = ({ objectData, time, onChange, refMap }: { objectData:
                         })
                     }}
                 ></div>
-
+ </div>
             </div>
         </div>
     </div>

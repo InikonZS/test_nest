@@ -3,6 +3,7 @@ import React, { useContext, useState } from "react";
 export interface IKeyFrame {
     time?: number,
     position: { x: number, y: number },
+    scale? : { x: number, y: number },
     angle: number,
 }
 

@@ -140,6 +140,11 @@ export const BoneModelProvider = ({ children }: React.PropsWithChildren<{}>) => 
                 currentObject.objects = [...currentObject.objects];
                 currentObject.objects[pathIndex] = { ...currentObject.objects[pathIndex] }
                 currentObject = currentObject.objects[pathIndex];
+                //bad
+                if (currentObject.id == activeObject.id){
+                    setActiveObject(currentObject);
+                }
+                //
             })
             const nextKeyframes = [...(currentObject.keyframes || [])];
             const foundFrameIndex = nextKeyframes.findIndex((frame) => {

@@ -4,32 +4,220 @@ import { getGlobalTransform, getGlobalTransform2 } from "./utils";
 import React from "react";
 import "./boneCanvas.css";
 
-const canvasContext = React.createContext<{getLocalCursor: (it: IBoneNode, pos: {x: number, y: number})=>{x: number, y: number}}>({getLocalCursor: null});
+const canvasContext = React.createContext<{
+    getLocalCursor: (it: IBoneNode, pos: {x: number, y: number})=>{x: number, y: number},
+    dragStart: React.MouseEvent<Element, MouseEvent>, setDragStart: React.Dispatch<React.SetStateAction<React.MouseEvent<Element, MouseEvent>>>,
+    temp: { position: { x: number, y: number }, angle: number, scale: {x:number, y:number} }, 
+    setTemp: React.Dispatch<React.SetStateAction<{
+    position: {
+        x: number;
+        y: number;
+    };
+    angle: number;
+    scale: {
+        x: number;
+        y: number;
+    };
+}>>
+}>({
+    getLocalCursor: null,
+    dragStart: null, 
+    setDragStart: null,
+    temp: null, 
+    setTemp: null
+});
 
 export const useCanvasContext = ()=>useContext(canvasContext);
 
-export const BoneCanvas = ({children, refMap}: React.PropsWithChildren<{refMap: any}>) => {
+export const BoneCanvas = ({children, refMap, time}: React.PropsWithChildren<{refMap: any, time: number}>) => {
     const cameraRef = useRef<HTMLDivElement>();
     const viewRef = useRef<HTMLDivElement>();
+        const [dragStart, setDragStart] = useState<React.MouseEvent>(null);
+        const [temp, setTemp] = useState({ position: { x: 0, y: 0 }, angle: 0, scale: {x:1, y:1} })
     //const refMap = useRef<Record<string, HTMLDivElement>>({});
-    const {model, setModel, activeObject} = useBoneContext();
+    const {model, setModel, activeObject, setObjectKeyframe} = useBoneContext();
     const [cameraData, setCameraData] = useState({
         scale: 0.5,
         position: {x: 0, y: 0}
     });
 
-    const activeElement = refMap.current[activeObject?.name];
-    //console.log(activeElement);
-    const activeTransform = activeElement ? getGlobalTransform(activeElement) : null;
-   // const centerPos = activeTransform ? activeTransform.transformPoint(new DOMPoint(0, 0)) : {x:0, y:0};
-    /*const cameraBounds = cameraRef.current.parentElement.getBoundingClientRect();
-    const trans = new DOMMatrix().translate(- cameraBounds.left - cameraBounds.width / 2, - cameraBounds.top - cameraBounds.height / 2);
-    const trans2 = new DOMMatrix().translate(cameraBounds.width / 2, cameraBounds.height / 2);
-    const centerPos = activeTransform ? (activeTransform.multiply(trans2)).transformPoint(new DOMPoint(0, 0)) : {x:0, y:0};
-    /*let localPoint = trans2.multiply(activeTransform.multiply(trans))
-    const centerPos = */
-            //console.log(cameraTransform.multiply(trans))
-    //let localPoint = trans2.multiply(cameraTransform.inverse().multiply(trans)
+        const getCurrentTransform = () => {
+            console.log(activeObject)
+            const objectData = activeObject;
+            const ref = {current: refMap.current[objectData?.name]};
+        if (!objectData.keyframes || !objectData.keyframes.length) {
+            return {
+                translate: { x: objectData.position.x, y: objectData.position.y },
+                rotate: 0,
+                scale: { x: 1, y: 1 }
+            }
+        }
+        const transformTRS = {
+            translate: { x: 0, y: 0 },
+            rotate: 0,
+            scale: { x: 1, y: 1 }
+        }
+        if (!ref.current) {
+            return transformTRS;
+        }
+        const transforms = ref.current.computedStyleMap().get('transform');
+        if (transforms instanceof CSSTransformValue) {
+            let trs = '';
+
+            transforms.forEach((value) => {
+                if (value instanceof CSSTranslate) {
+                    trs = trs + 't';
+                    transformTRS.translate.x = value.x.to('px').value;
+                    transformTRS.translate.y = value.y.to('px').value;
+                }
+                if (value instanceof CSSRotate) {
+                    trs = trs + 'r';
+                    transformTRS.rotate = value.angle.to('deg').value;
+                }
+                if (value instanceof CSSScale) {
+                    trs = trs + 's';
+                    transformTRS.scale.x = Number(value.x);
+                    transformTRS.scale.y = Number(value.y);
+                }
+            });
+            if (!['trs', 'rs', 'ts', 'tr', 't', 'r', 's'].includes(trs)) {
+                console.log('unsupported transform, readed partially');
+            }
+            return transformTRS;
+        }
+    }
+      useEffect(() => {
+        console.log('drag ', dragStart)
+            if (!dragStart) {
+                return;
+            }
+            let lastPosX = dragStart.clientX;
+            let lastPosY = dragStart.clientY;
+            dragStart.stopPropagation();
+            const matrix = getGlobalTransform(refMap.current[activeObject?.name].parentElement.parentElement);
+            const moveHandler = (moveEvent: MouseEvent) => {
+                const dx = moveEvent.clientX - lastPosX;
+                const dy = moveEvent.clientY - lastPosY;
+                lastPosX = moveEvent.clientX;
+                lastPosY = moveEvent.clientY;
+                //console.log(dx, tempRef.current.style.left);
+                setTemp(last => {
+                    const globalPos = matrix.transformPoint(new DOMPoint(last.position.x, last.position.y));
+                    const localPos = matrix.inverse().transformPoint(new DOMPoint(globalPos.x + dx, globalPos.y + dy));
+                    /*return {position: {
+                        x: last.position.x + dx,
+                        y: last.position.y + dy,
+                    }}*/
+                    return {
+                        position: {
+                            x: localPos.x,
+                            y: localPos.y,
+                        },
+                        angle: last.angle,
+                        scale: {
+                            x: last.scale?.x ?? 1,
+                            y: last.scale?.y ?? 1
+                        }
+                    }
+                })
+                //console.log(JSON.stringify(_temp));
+                //tempRef.current.style.left = tempRef.current.clientLeft + dx + 'px',
+                //tempRef.current.style.top = tempRef.current.clientTop + dy + 'px'
+                // setPosition(last => last + dx);
+            }
+            /*const upHandler = (moveEvent: MouseEvent)=>{
+                setDragStart(null);
+                onChange?.({position: {
+                    x: _temp.current.position.x + Number(getComputedStyle(ref.current).left.replace('px', "")),
+                    y: _temp.current.position.y + Number(getComputedStyle(ref.current).top.replace('px', "")),
+                }});
+                setTemp({position: {x: 0, y: 0}});
+            }*/
+            window.addEventListener('mousemove', moveHandler);
+            //window.addEventListener('mouseup', upHandler);
+            return () => {
+                window.removeEventListener('mousemove', moveHandler);
+                // window.removeEventListener('mouseup', upHandler);
+            }
+        }, [dragStart, model, activeObject]);
+    
+        useEffect(() => {
+             console.log('drag setup')
+            const upHandler = (moveEvent: MouseEvent) => {
+                console.log('dragup')
+                //window.removeEventListener('mouseup', upHandler);
+                setDragStart(null);
+                if (temp.position.x == 0 && temp.position.y == 0 && temp.angle == 0 && temp.scale.x == 1 && temp.scale.y == 1) {
+                    return;
+                }
+                //const objMatrix = new DOMMatrix(getComputedStyle(ref.current).transform);
+                //const tempMatrix = new DOMMatrix(getComputedStyle(tempRef.current).transform);
+                //const point = objMatrix.transformPoint(new DOMPoint(temp.position.x, temp.position.y));
+                //const resMatrix = tempMatrix.multiply(objMatrix);
+                const point = {
+                    x: getCurrentTransform().translate.x + temp.position.x,//temp.angle == 0 ? resMatrix.e : getCurrentTransform().translate.x,
+                    y: getCurrentTransform().translate.y + temp.position.y//temp.angle == 0 ? resMatrix.f : getCurrentTransform().translate.y
+                }
+                const currentTransform = getCurrentTransform();
+                //const angle = Math.atan2(resMatrix.b, resMatrix.a) * 180 / Math.PI;
+                //objMatrix.tra
+                //const m = new DOMMatrix(getComputedStyle(ref.current).transform);
+                //const rotation = Math.atan2(m.b, m.a);
+                console.log(temp.angle, currentTransform)
+                /*onChange?.(objectData.id, {
+                    position: {
+                        x: point.x,//temp.position.x,//_temp.current.position.x + Number(getComputedStyle(ref.current).left.replace('px', "")),
+                        y: point.y//temp.position.y//_temp.current.position.y + Number(getComputedStyle(ref.current).top.replace('px', "")),
+                    },
+                    angle: temp.angle + currentTransform.rotate,
+                    scale: {
+                        x: getCurrentTransform().scale.x * temp.scale.x,//temp.angle == 0 ? resMatrix.e : getCurrentTransform().translate.x,
+                        y: getCurrentTransform().scale.y * temp.scale.y
+                    }
+                });*/
+                const data = {
+                    position: {
+                        x: point.x,//temp.position.x,//_temp.current.position.x + Number(getComputedStyle(ref.current).left.replace('px', "")),
+                        y: point.y//temp.position.y//_temp.current.position.y + Number(getComputedStyle(ref.current).top.replace('px', "")),
+                    },
+                    angle: temp.angle + currentTransform.rotate,
+                    scale: {
+                        x: getCurrentTransform().scale.x * temp.scale.x,//temp.angle == 0 ? resMatrix.e : getCurrentTransform().translate.x,
+                        y: getCurrentTransform().scale.y * temp.scale.y
+                    }
+                }
+                setObjectKeyframe(activeObject.id, time, data)
+                setTemp({ position: { x: 0, y: 0 }, angle: 0, scale: {x: 1, y: 1} });
+            }
+            //window.addEventListener('mousemove', moveHandler);
+            window.addEventListener('mouseup', upHandler);
+            return () => {
+                //window.removeEventListener('mousemove', moveHandler);
+                window.removeEventListener('mouseup', upHandler);
+            }
+        }, [dragStart, temp, model, activeObject])
+
+
+           const handleMarkerSize = (downEvent: React.MouseEvent, setter: (value: any, moveEvent: MouseEvent) => any) => {
+                downEvent.stopPropagation();
+                console.log('down marker')
+                const moveHandler = (moveEvent: MouseEvent) => {
+                    setTemp(last => {
+                        return setter(last, moveEvent)
+                    });
+                    /*setObjects(last=>{
+                        return setter(last, moveEvent)
+                    });*/
+                }
+                const upHandler = (moveEvent: MouseEvent) => {
+                    window.removeEventListener('mousemove', moveHandler);
+                    window.removeEventListener('mouseup', upHandler);
+                }
+                window.addEventListener('mousemove', moveHandler);
+                window.addEventListener('mouseup', upHandler);
+            }
+        
+
 
     useEffect(()=>{
         if (!viewRef.current){
@@ -71,11 +259,11 @@ export const BoneCanvas = ({children, refMap}: React.PropsWithChildren<{refMap: 
     }, []);
 
     const getWorldFromLocal = (
-    it: IBoneNode,
+    el: HTMLElement,//it: IBoneNode,
     localPos: { x: number; y: number }
 ): { x: number; y: number } | undefined =>{
-    if (!refMap.current[it?.name]) return;
-
+    if (!el) return;
+    console.log('loc')
     // трансформация объекта
     //new DOMMatrix(getComputedStyle(refMap.current[it.name]).transform)
         //.translate(it.width / 2, it.height / 2);
@@ -83,7 +271,7 @@ export const BoneCanvas = ({children, refMap}: React.PropsWithChildren<{refMap: 
     // трансформация камеры
     //const cameraBounds = cameraRef.current.parentElement.getBoundingClientRect();
     //const cameraTransform = getGlobalTransform(cameraRef.current);
-    const objectTransform = getGlobalTransform2(viewRef.current).inverse().multiply(getGlobalTransform2(refMap.current[it.name]));
+    const objectTransform = getGlobalTransform2(viewRef.current).inverse().multiply(getGlobalTransform2(el));
     // смещение относительно окна камеры
     //const trans = new DOMMatrix().translate(cameraBounds.left*0 + cameraBounds.width / 2, cameraBounds.top *0 + cameraBounds.height / 2);
     //const trans2 = new DOMMatrix().translate(cameraBounds.width / 2, cameraBounds.height / 2);
@@ -105,8 +293,9 @@ export const BoneCanvas = ({children, refMap}: React.PropsWithChildren<{refMap: 
     return objectTransform.transformPoint(new DOMPoint(localPos.x, localPos.y))//trans2.transformPoint(localPoint);//{ x: finalPoint.x, y: finalPoint.y };
 }
 
-const centerPos = getWorldFromLocal(activeObject, {x:0, y:0}) || {x:0, y:0}
-    
+const centerPos = getWorldFromLocal(refMap.current[activeObject?.name]?.children[0], {x:activeObject?.width/2, y:activeObject?.height/2}) || {x:0, y:0}
+const rotatePos = getWorldFromLocal(refMap.current[activeObject?.name]?.children[0], {x:activeObject?.width/2, y:0}) || {x:0, y:0}    
+const scalePos = getWorldFromLocal(refMap.current[activeObject?.name]?.children[0], {x:activeObject?.width, y:0}) || {x:0, y:0}   
     const getLocalCursor = (it: IBoneNode, pos: {x: number, y: number})=>{
          //if (i !=0 ) return;
             if (!refMap.current[it.name]) return;
@@ -127,7 +316,7 @@ const centerPos = getWorldFromLocal(activeObject, {x:0, y:0}) || {x:0, y:0}
             return localPoint;//(Math.abs(localPoint.x) <= it.width / 2 && Math.abs(localPoint.y) <= it.height / 2)
     }
 
-    return <canvasContext.Provider value={{getLocalCursor: getLocalCursor}}><div ref={viewRef} className="boneCanvas" onMouseMove={(e) => {
+    return <canvasContext.Provider value={{getLocalCursor: getLocalCursor, dragStart, setDragStart, temp, setTemp}}><div ref={viewRef} className="boneCanvas" onMouseMove={(e) => {
         //console.log(e);
         //getGlobalTransform()
         
@@ -158,15 +347,183 @@ const centerPos = getWorldFromLocal(activeObject, {x:0, y:0}) || {x:0, y:0}
             {children}
         </div>
         {activeObject && <div className="boneMarkers">
-            <div className="boneMarkersRotate">
+            <div className="boneMarkersRotate"  style={{
+                left: (rotatePos.x /*+ cameraRef.current.getBoundingClientRect().width * cameraData.scale*/)  + 'px',
+                top: (rotatePos.y /*+ cameraRef.current.getBoundingClientRect().height * cameraData.scale*/)  + 'px'
+            }} onDragStart={(e) => e.preventDefault()}
+            onMouseDown={(downEvent) => {
+                                    //downEvent.stopPropagation();
+                                    //const it = objectData;
+                                    /*const m = new DOMMatrix(getComputedStyle(ref.current).transform);
+                                    const rotation = Math.atan2(m.b, m.a);
+                                    const scaleX = Math.hypot(m.a, m.b);
+                                    const scaleY = Math.hypot(m.c, m.d);*/
+                                    const trs = getCurrentTransform();
+                                    console.log(trs.rotate)
+                                    const objectData =activeObject;
+                                    const it = {
+                                        //angle: rotation / Math.PI * 180,
+                                        //position: {x: m.m41, y: m.m42},
+                                        angle: trs.rotate,
+                                        position: trs.translate,
+                                        width: objectData.width,
+                                        height: objectData.height
+                                    }
+                                    console.log(objectData);
+                                    const ang = it.angle / 180 * Math.PI;
+                                    /*const startPoint = {
+                                        x: (it.position.x + it.width / 2) + Math.sin(ang) * (it.height / 2),
+                                        y: (it.position.y + it.height / 2) - Math.cos(ang) * (it.height / 2)
+                                    }
+                                    const centerPoint = {
+                                        x: it.position.x + it.width / 2,
+                                        y: it.position.y + it.height / 2
+                                    }*/
+            
+                                    const startPoint = {
+                                        x: (it.width / 2) + Math.sin(ang) * (it.height / 2) * trs.scale.y,
+                                        y: (it.height / 2) - Math.cos(ang) * (it.height / 2) * trs.scale.y
+                                    }
+                                    const centerPoint = {
+                                        x: it.width / 2,
+                                        y: it.height / 2
+                                    }
+            
+                                    const lastAng = (it.angle + 3600000 + 180) % 360 - 180;
+                                    //setCursorPoint(startPoint);
+                                    let lastInputAngle = 0;
+                                    let sumAngle = 0;
+                                    //let startMove = getLocalCursor(objectData, { x: downEvent.clientX, y: downEvent.clientY })
+            
+                                    let lastPosX = downEvent.clientX;
+                                    let lastPosY = downEvent.clientY;
+                                    //dragStart.stopPropagation();
+                                    const tempRef = {current: refMap.current[objectData?.name].parentElement};
+                                    const matrix = getGlobalTransform(tempRef.current.parentElement);
+                                    //const moveHandler = (moveEvent: MouseEvent) => {
+            
+                                    //console.log(dx, tempRef.current.style.left);
+                                    //setTemp(last => {
+                                    handleMarkerSize(downEvent, (last, moveEvent) => {
+                                        const dx = moveEvent.clientX - lastPosX;
+                                        const dy = moveEvent.clientY - lastPosY;
+                                        lastPosX = moveEvent.clientX;
+                                        lastPosY = moveEvent.clientY;
+                                        const globalPos = matrix.transformPoint(new DOMPoint(startPoint.x, startPoint.y));
+                                        const localPos = matrix.inverse().transformPoint(new DOMPoint(globalPos.x + dx, globalPos.y + dy));
+            
+                                        //const currentMove = getLocalCursor(objectData, { x: moveEvent.clientX, y: moveEvent.clientY })
+                                        //console.log(startPoint, last.angle, it.angle);
+                                        //startPoint.x += currentMove.x - startMove.x;//moveEvent.movementX;
+                                        //startPoint.y += currentMove.y - startMove.y;//moveEvent.movementY;
+                                        //startMove = currentMove;
+                                        //startPoint.x += moveEvent.movementX * 3;
+                                        //startPoint.y += moveEvent.movementY * 3;
+                                        startPoint.x = localPos.x
+                                        startPoint.y = localPos.y
+                                        const next = { ...last };
+                                        //console.log(Math.sin(next[i].angle / 180 * Math.PI) + Math.cos(next[i].angle / 180 * Math.PI), );
+                                        const inputAngle = Math.atan2(startPoint.x - centerPoint.x, -(startPoint.y - centerPoint.y)) / Math.PI * 180 //- it.angle;
+                                        const diff1 = inputAngle - lastInputAngle;
+                                        const diff2 = inputAngle - lastInputAngle + 360;
+                                        const diff3 = inputAngle - lastInputAngle - 360;
+                                        const difs = [
+                                            { abs: Math.abs(diff1), val: diff1 },
+                                            { abs: Math.abs(diff2), val: diff2 },
+                                            { abs: Math.abs(diff3), val: diff3 },
+                                        ];
+                                        difs.sort((a, b) => a.abs - b.abs);
+                                        const minInputDiff = difs[0].val;
+                                        lastInputAngle = inputAngle;
+                                        //const difAng2 = next.angle - lastAng;
+                                        // Приводим разницу к [-180, 180]
+                                        // Новый угол, максимально близкий к oldAngle
+                                        //const nextAngle1 = inputAngle - it.angle
+                                        //const nextAngle2 = inputAngle - it.angle + 360;
+                                        //next.angle = inputAngle - it.angle//last.angle + minInputDiff//Math.abs(nextAngle1 - last.angle) < Math.abs(nextAngle2 - last.angle) ? nextAngle1 : nextAngle2;
+                                        sumAngle = sumAngle + minInputDiff;
+                                        next.angle = sumAngle - lastAng;
+                                        //console.log(sumAngle, lastAng, next.angle);
+                                        //console.log(sumAngle)
+                                        //next[i].position.x += Math.cos(difAng) * moveEvent.movementY + Math.sin(difAng) * moveEvent.movementX;
+                                        //next[i].position.y += Math.cos(difAng) * moveEvent.movementX - Math.sin(difAng) * moveEvent.movementY;
+                                        return next
+                                    })
+                                }}>
             
             </div>
-            <div className="boneMarkersScale">
+            <div className="boneMarkersScale" style={{
+                left: (scalePos.x /*+ cameraRef.current.getBoundingClientRect().width * cameraData.scale*/)  + 'px',
+                top: (scalePos.y /*+ cameraRef.current.getBoundingClientRect().height * cameraData.scale*/)  + 'px'
+            }} onDragStart={(e) => e.preventDefault()}  onMouseDown={(downEvent) => {
+                                    downEvent.stopPropagation();
+                                    const trs = getCurrentTransform();
+                                    console.log(trs.rotate)
+                                      const objectData =activeObject;
+                                    const it = {
+                                        //angle: rotation / Math.PI * 180,
+                                        //position: {x: m.m41, y: m.m42},
+                                        angle: trs.rotate,
+                                        position: trs.translate,
+                                        scale: trs.scale,
+                                        width: objectData.width,
+                                        height: objectData.height
+                                    }
+                                    //console.log(it);
+                                    //const ang = it.angle / 180 * Math.PI;
+                                    let lastPosX = downEvent.clientX;
+                                    let lastPosY = downEvent.clientY;
+                                    //dragStart.stopPropagation();
+                                    const scaleRef = {current: refMap.current[objectData?.name].children[0]};
+                                    const matrix = getGlobalTransform(scaleRef.current.parentElement);
+                                    const ang = it.angle / 180 * Math.PI;
+                                    //console.log('ang', ang)
+                                    const startPoint = {
+                                        x: (it.width / 1), //+ Math.sin(ang) * (it.height / 2)  + Math.cos(ang) * (it.width / 2) ,
+                                        y: -(it.height / 1)// - Math.cos(ang) * (it.height / 2)  + Math.sin(ang) * (it.width / 2) 
+                                        //x: (it.width),// * Math.sin(ang), //* (it.height / 2),
+                                        //y: (it.height)// * Math.cos(ang)// * (it.height / 2)
+                                    }
+                                    const centerPoint = {
+                                        x: it.width / 2,
+                                        y: it.height / 2
+                                    }
+            
+                                    handleMarkerSize(downEvent, (last, moveEvent) => {
+                                        const next = {...last, scale: {...last.scale}};
+                                        const dx = moveEvent.clientX - lastPosX;
+                                        const dy = moveEvent.clientY - lastPosY;
+                                        lastPosX = moveEvent.clientX;
+                                        lastPosY = moveEvent.clientY;
+                                        const globalPos = matrix.transformPoint(new DOMPoint(startPoint.x, startPoint.y));
+                                        const localPos = matrix.inverse().transformPoint(new DOMPoint(globalPos.x + dx/* * Math.cos(ang) + dy * Math.sin(ang)*/ , globalPos.y/* + dx * Math.sin(ang)*/ + dy/* * Math.cos(ang) */));
+                                        startPoint.x = localPos.x,
+                                        startPoint.y = localPos.y
+            
+                                        next.scale.x = startPoint.x / objectData.width * 2 - 1; //(startPoint.x) / objectData.width * 2 // it.scale.x;
+                                        next.scale.y = -(startPoint.y) / objectData.height * 2 -1;// / it.scale.y;
+                                        //next.scale.y = localPos.y/10;
+                                        //const mx = moveEvent.movementX * Math.cos(ang) + moveEvent.movementY * Math.sin(ang);
+                                        //const my = moveEvent.movementY * Math.cos(ang) - moveEvent.movementX * Math.sin(ang);
+                                        //next.scale.x += mx;
+                                        //next.position.x += -my * Math.sin(ang) / 2 + mx * Math.cos(ang) / 2;
+                                        //next.scale.y -= my;
+                                        //next.position.y += my * Math.cos(ang) / 2 + mx * Math.sin(ang) / 2;
+                                        return next
+                                    })
+                                }}>
             
             </div>
             <div className="boneMarkersMove" style={{
                 left: (centerPos.x /*+ cameraRef.current.getBoundingClientRect().width * cameraData.scale*/)  + 'px',
                 top: (centerPos.y /*+ cameraRef.current.getBoundingClientRect().height * cameraData.scale*/)  + 'px'
+            }} onDragStart={(e) => e.preventDefault()}
+            onMouseDown={(e) => {
+                e.stopPropagation()
+                //onSelect(objectData);
+                //if (isActive){
+                    setDragStart(e);
+                //}
             }}>
             
             </div>

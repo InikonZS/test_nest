@@ -76,10 +76,10 @@ export const BoneContent = () => {
     return <div className="boneRoot">
         <div className="boneVerticalCenter">
             <div className="boneMain">
-                <BoneCanvas refMap={refMap}>
+                <BoneCanvas refMap={refMap} time={time}>
                     {
                         model.objects.map((objectData, i)=>{
-                            return <BoneObject onSelect={data=>setActiveObject(data)} objectData={objectData} time={time} playState={playState} refMap={refMap} onChange={(id, data)=>{
+                            return <BoneObject key={objectData.id} onSelect={data=>setActiveObject(data)} objectData={objectData} time={time} playState={playState} refMap={refMap} onChange={(id, data)=>{
                                 console.log(JSON.stringify(data));
                                 /*setModel((last)=>{
                                     const next = {...last}
@@ -99,7 +99,7 @@ export const BoneContent = () => {
                                     console.log(next);
                                     return next;
                                 })*/
-                               setObjectKeyframe(id, time, data)
+                               //setObjectKeyframe(id, time, data)
                             }}></BoneObject>
                         })
                     }

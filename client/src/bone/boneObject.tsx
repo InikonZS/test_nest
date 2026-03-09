@@ -9,14 +9,18 @@ export const BoneObject = ({ objectData, time, playState, onChange, onSelect, re
     const tempRef = useRef<HTMLDivElement>();
     const scaleRef = useRef<HTMLDivElement>();
     const [animation, setAnimation] = useState<Animation>(null);
-    const [dragStart, setDragStart] = useState<React.MouseEvent>(null);
-    const [temp, setTemp] = useState({ position: { x: 0, y: 0 }, angle: 0, scale: {x:0, y:0} })
+    //const [dragStart, setDragStart] = useState<React.MouseEvent>(null);
+    //const [temp, setTemp] = useState({ position: { x: 0, y: 0 }, angle: 0, scale: {x:0, y:0} })
     const {activeObject} = useBoneContext();
     const isActive = activeObject?.id == objectData.id;
     //const _temp = useRef<any>()
 
-    const { getLocalCursor } = useCanvasContext();
+    const { getLocalCursor, dragStart: _dragStart, setDragStart: _setDragStart, temp: _temp, setTemp: _setTemp } = useCanvasContext();
 
+    let dragStart: any = null;
+    const setDragStart = (a:any)=>{}
+    const setTemp = isActive ? _setTemp : ()=>{};
+    const temp = isActive ? _temp : { position: { x: 0, y: 0 }, angle: 0, scale: {x:1, y:1} };
     const getCurrentTransform = () => {
         if (!objectData.keyframes || !objectData.keyframes.length) {
             return {
@@ -68,6 +72,7 @@ export const BoneObject = ({ objectData, time, playState, onChange, onSelect, re
     }, []);
 
     const handleMarkerSize = (downEvent: React.MouseEvent, setter: (value: any, moveEvent: MouseEvent) => any) => {
+        return;
         downEvent.stopPropagation();
         console.log('down marker')
         const moveHandler = (moveEvent: MouseEvent) => {
@@ -82,8 +87,8 @@ export const BoneObject = ({ objectData, time, playState, onChange, onSelect, re
             window.removeEventListener('mousemove', moveHandler);
             window.removeEventListener('mouseup', upHandler);
         }
-        window.addEventListener('mousemove', moveHandler);
-        window.addEventListener('mouseup', upHandler);
+        //window.addEventListener('mousemove', moveHandler);
+        //window.addEventListener('mouseup', upHandler);
     }
 
 
@@ -136,7 +141,7 @@ export const BoneObject = ({ objectData, time, playState, onChange, onSelect, re
             }});
             setTemp({position: {x: 0, y: 0}});
         }*/
-        window.addEventListener('mousemove', moveHandler);
+        //window.addEventListener('mousemove', moveHandler);
         //window.addEventListener('mouseup', upHandler);
         return () => {
             window.removeEventListener('mousemove', moveHandler);
@@ -177,7 +182,7 @@ export const BoneObject = ({ objectData, time, playState, onChange, onSelect, re
             setTemp({ position: { x: 0, y: 0 }, angle: 0, scale: {x: 1, y: 1} });
         }
         //window.addEventListener('mousemove', moveHandler);
-        window.addEventListener('mouseup', upHandler);
+        //window.addEventListener('mouseup', upHandler);
         return () => {
             //window.removeEventListener('mousemove', moveHandler);
             window.removeEventListener('mouseup', upHandler);
@@ -293,7 +298,7 @@ export const BoneObject = ({ objectData, time, playState, onChange, onSelect, re
            
             <div>
                 {objectData.objects && objectData.objects.map(it => {
-                    return <BoneObject onSelect={(data)=>{onSelect(data)}} objectData={it} time={time} playState={playState} onChange={onChange} refMap={refMap}></BoneObject>
+                    return <BoneObject key={it.id} onSelect={(data)=>{onSelect(data)}} objectData={it} time={time} playState={playState} onChange={onChange} refMap={refMap}></BoneObject>
                 })}
             </div>
             <div className="MindmapEditor_object_markers">
@@ -405,6 +410,7 @@ export const BoneObject = ({ objectData, time, playState, onChange, onSelect, re
 
                 {isActive &&<div className="MindmapEditor_object_marker MindmapEditor_object_marker_rotate"
                     onMouseDown={(downEvent) => {
+                        return;
                         //downEvent.stopPropagation();
                         //const it = objectData;
                         /*const m = new DOMMatrix(getComputedStyle(ref.current).transform);

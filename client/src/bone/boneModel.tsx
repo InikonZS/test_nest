@@ -93,15 +93,20 @@ export const boneContext = React.createContext<{
     history: {action: string, model: IBoneNode}[],
     setModel?: React.Dispatch<React.SetStateAction<IBoneNode>>,
     setObjectKeyframe?: (id: string, time: number, data: IKeyFrame) => void;
+    activeObject: IBoneNode,
+    setActiveObject: React.Dispatch<React.SetStateAction<IBoneNode>>,
 }>({
     model: testMock,
     history: [],
     setModel: null,
-    setObjectKeyframe: null
+    setObjectKeyframe: null,
+    activeObject: null,
+    setActiveObject: null
 });
 
 export const BoneModelProvider = ({ children }: React.PropsWithChildren<{}>) => {
     const [model, setModel] = useState<IBoneNode>(testMock);
+    const [activeObject, setActiveObject] = useState<IBoneNode>(null);
     const [history, setHistory] = useState<{action: string, model: IBoneNode}[]>([{action: 'Init', model: testMock}]);
 
     const setObjectKeyframe = (id: string, time: number, data: IKeyFrame) => {
@@ -159,7 +164,9 @@ export const BoneModelProvider = ({ children }: React.PropsWithChildren<{}>) => 
         model,
         history,
         setModel,
-        setObjectKeyframe
+        setObjectKeyframe,
+        activeObject,
+        setActiveObject
     }}>
         {children}
     </boneContext.Provider>

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 //import "./TimeTrack.css";
 
-export const KeyFrameBar = ({framePosition, keyframeData, onTime}: {framePosition: number, keyframeData: any, onTime: (time: number)=>void}) => {
+export const KeyFrameBar = ({framePosition, keyframeData, isSelected, onTime, onSelect}: { isSelected:boolean, framePosition: number, keyframeData: any, onTime: (time: number)=>void, onSelect: ()=>void}) => {
       const [dragStart, setDragStart] = useState<React.MouseEvent>(null);
         const [position, setPosition] = useState<number>(keyframeData.time ?? 0);
         const trackRef = useRef<HTMLDivElement>();
@@ -62,9 +62,10 @@ export const KeyFrameBar = ({framePosition, keyframeData, onTime}: {framePositio
             }
         }, [dragStart, _framePosition])
 
-    return <div className={`boneTimeTrackListKey ${framePosition == keyframeData.time ? "boneTimeTrackListKeyCurrent" : ''}`} style={{ "--time": /*keyframeData.time*/ _framePosition  }}
+    return <div className={`boneTimeTrackListKey ${framePosition == keyframeData.time ? "boneTimeTrackListKeyCurrent" : ''} ${isSelected ? "boneTimeTrackListKeySelected" : ""}`} style={{ "--time": /*keyframeData.time*/ _framePosition  }}
         onDragStart={(e)=>e.preventDefault()} onMouseDown={(e)=>{
                     setDragStart(e);
+                    onSelect();
                 }}
     >
 

@@ -20,7 +20,7 @@ export const BoneContent = () => {
     const cameraRef = useRef<HTMLDivElement>();
     const refMap = useRef<Record<string, HTMLDivElement>>({});
     const [playState, setPlayState] = useState(false);
-    const {model, history, setModel, setObjectKeyframe} = useBoneContext();
+    const {model, history, activeObject, setActiveObject, setModel, setObjectKeyframe} = useBoneContext();
     /*useEffect(()=>{
         setObjectKeyframe("4");
     }, [])*/
@@ -79,7 +79,7 @@ export const BoneContent = () => {
                 <BoneCanvas refMap={refMap}>
                     {
                         model.objects.map((objectData, i)=>{
-                            return <BoneObject objectData={objectData} time={time} playState={playState} refMap={refMap} onChange={(id, data)=>{
+                            return <BoneObject onSelect={data=>setActiveObject(data)} objectData={objectData} time={time} playState={playState} refMap={refMap} onChange={(id, data)=>{
                                 console.log(JSON.stringify(data));
                                 /*setModel((last)=>{
                                     const next = {...last}
@@ -144,6 +144,13 @@ export const BoneContent = () => {
         </div>
 
         <div className="boneRight">
+            <div className="boneObjectStates">
+                { activeObject &&
+                <div>
+                    {activeObject.name}
+                </div>
+                }
+            </div>
             <div className="boneHistory">
                 {history.map((it, i)=>{
                     const histIndex = history.findIndex(jt=>jt.model == model);

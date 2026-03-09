@@ -1,17 +1,19 @@
 import React, { useEffect, useRef, useState } from "react"
 import { getGlobalTransform } from "./utils";
 import "./boneObject.css";
-import { IBoneNode, IKeyFrame } from "./boneModel";
+import { IBoneNode, IKeyFrame, useBoneContext } from "./boneModel";
 import { useCanvasContext } from "./boneCanvas";
 
-export const BoneObject = ({ objectData, time, playState, onChange, refMap }: { objectData: IBoneNode, time: number, playState:boolean, onChange: (id: string, data: Omit<IKeyFrame, 'time'>) => void, refMap: React.MutableRefObject<Record<string, HTMLDivElement>> }) => {
+export const BoneObject = ({ objectData, time, playState, onChange, onSelect, refMap }: { onSelect: (data: IBoneNode)=>void, objectData: IBoneNode, time: number, playState:boolean, onChange: (id: string, data: Omit<IKeyFrame, 'time'>) => void, refMap: React.MutableRefObject<Record<string, HTMLDivElement>> }) => {
     const ref = useRef<HTMLDivElement>();
     const tempRef = useRef<HTMLDivElement>();
     const scaleRef = useRef<HTMLDivElement>();
     const [animation, setAnimation] = useState<Animation>(null);
     const [dragStart, setDragStart] = useState<React.MouseEvent>(null);
     const [temp, setTemp] = useState({ position: { x: 0, y: 0 }, angle: 0, scale: {x:0, y:0} })
-    const _temp = useRef<any>()
+    const {activeObject} = useBoneContext();
+    const isActive = activeObject?.id == objectData.id;
+    //const _temp = useRef<any>()
 
     const { getLocalCursor } = useCanvasContext();
 
@@ -86,7 +88,7 @@ export const BoneObject = ({ objectData, time, playState, onChange, refMap }: { 
 
 
     useEffect(() => {
-        _temp.current = temp;
+     //   _temp.current = temp;
     }, [temp]);
     useEffect(() => {
         if (!dragStart) {
@@ -245,7 +247,10 @@ export const BoneObject = ({ objectData, time, playState, onChange, refMap }: { 
             onDragStart={(e) => e.preventDefault()}
             onMouseDown={(e) => {
                 e.stopPropagation()
-                setDragStart(e);
+                onSelect(objectData);
+                if (isActive){
+                    setDragStart(e);
+                }
             }}
             ref={ref}
             style={{
@@ -261,8 +266,8 @@ export const BoneObject = ({ objectData, time, playState, onChange, refMap }: { 
                 //transform: `translate(${objectData.position.x / 1 + 'px'}, ${objectData.position.y / 1 + 'px'}) rotate(${objectData.angle || 0}deg)`,
                 transform: `translate(${currentTransform.translate.x / 1 + 'px'}, ${currentTransform.translate.y / 1 + 'px'}) rotate(${currentTransform.rotate || 0}deg) scale(${currentTransform.scale.x}, ${currentTransform.scale.y})`,
                 transformOrigin: `50% 50%`,
-                backgroundImage: `url(${objectData.imageURL})`,
-                backgroundColor: objectData.imageURL ? "transparent" : ""
+                //backgroundImage: `url(${objectData.imageURL})`,
+                //backgroundColor: objectData.imageURL ? "transparent" : ""
             }}>
             <div className="boneScaleWrapper"
             ref={scaleRef}
@@ -272,6 +277,7 @@ export const BoneObject = ({ objectData, time, playState, onChange, refMap }: { 
                 visibility: (objectData.visible ?? true) ? '' : 'hidden',
                 width: objectData.width / 1 + 'px',
                 height: objectData.height / 1 + 'px',
+                outline: isActive ? '1px solid #f00' : '',
                 //left: objectData.position.x / 1 + 'px',
                 //top: objectData.position.y / 1 + 'px',
                 top: 0,
@@ -287,12 +293,12 @@ export const BoneObject = ({ objectData, time, playState, onChange, refMap }: { 
            
             <div>
                 {objectData.objects && objectData.objects.map(it => {
-                    return <BoneObject objectData={it} time={time} playState={playState} onChange={onChange} refMap={refMap}></BoneObject>
+                    return <BoneObject onSelect={(data)=>{onSelect(data)}} objectData={it} time={time} playState={playState} onChange={onChange} refMap={refMap}></BoneObject>
                 })}
             </div>
             <div className="MindmapEditor_object_markers">
 
-                <div className="MindmapEditor_object_marker MindmapEditor_object_marker_rt"
+                {isActive && <div className="MindmapEditor_object_marker MindmapEditor_object_marker_rt"
                     onMouseDown={(downEvent) => {
                         downEvent.stopPropagation();
                         const trs = getCurrentTransform();
@@ -349,7 +355,7 @@ export const BoneObject = ({ objectData, time, playState, onChange, refMap }: { 
                         })
                     }}
                 >
-                </div>
+                </div>}
                 <div className="MindmapEditor_object_marker MindmapEditor_object_marker_rb"
                     onMouseDown={(downEvent) => {
                         /*const ang = it.angle / 180 * Math.PI;
@@ -397,7 +403,7 @@ export const BoneObject = ({ objectData, time, playState, onChange, refMap }: { 
                     }}
                 ></div>
 
-                <div className="MindmapEditor_object_marker MindmapEditor_object_marker_rotate"
+                {isActive &&<div className="MindmapEditor_object_marker MindmapEditor_object_marker_rotate"
                     onMouseDown={(downEvent) => {
                         //downEvent.stopPropagation();
                         //const it = objectData;
@@ -495,7 +501,7 @@ export const BoneObject = ({ objectData, time, playState, onChange, refMap }: { 
                             return next
                         })
                     }}
-                ></div>
+                ></div>}
  </div>
             </div>
         </div>

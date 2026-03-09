@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./LayersTree.css";
+import { IBoneNode } from "../../boneModel";
 
 export const LayersTree = ({ model, onChange, selected, setSelected }: { model: any, onChange: (model: any) => void, setSelected: React.Dispatch<React.SetStateAction<any[]>>, selected: Array<any> }) => {
     return <div className="boneLayersTree">
@@ -110,11 +111,19 @@ const groupItems = ( model: any, selected: Array<any>) => {
         position: {x: 0, y: 0},
         objects: selected
     });*/
-    nextObjects.splice(insertIndex, 0, {
-        name: Math.random().toString(),
-        position: {x: 0, y: 0},
-        objects: selected
-    });
+    const nm = Math.random().toString();
+    const obj: IBoneNode = {
+        name: nm,
+        position: { x: 0, y: 0 },
+        angle: 0,
+        id: nm,
+        objects: selected,
+        width: 100,
+        height: 100,
+        style: "box",
+        keyframes: []
+    }
+    nextObjects.splice(insertIndex, 0, obj);
     //console.log(nextObjects)
 }
 

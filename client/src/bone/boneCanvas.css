@@ -1,0 +1,33 @@
+.boneMarkers{
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    pointer-events: none;
+}
+.boneMarkersRotate{
+    pointer-events: none;
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 100%;
+    background-color: #090;
+}
+.boneMarkersScale{
+    pointer-events: all;
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 100%;
+    background-color: #900;
+}
+.boneMarkersMove{
+    pointer-events: all;
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 100%;
+    background-color: #009;
+    transform: translate(-50%, -50%);
+}

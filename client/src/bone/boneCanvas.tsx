@@ -1,7 +1,8 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { IBoneNode, useBoneContext } from "./boneModel";
-import { getGlobalTransform } from "./utils";
+import { getGlobalTransform, getGlobalTransform2 } from "./utils";
 import React from "react";
+import "./boneCanvas.css";
 
 const canvasContext = React.createContext<{getLocalCursor: (it: IBoneNode, pos: {x: number, y: number})=>{x: number, y: number}}>({getLocalCursor: null});
 
@@ -11,11 +12,24 @@ export const BoneCanvas = ({children, refMap}: React.PropsWithChildren<{refMap: 
     const cameraRef = useRef<HTMLDivElement>();
     const viewRef = useRef<HTMLDivElement>();
     //const refMap = useRef<Record<string, HTMLDivElement>>({});
-    const {model, setModel} = useBoneContext();
+    const {model, setModel, activeObject} = useBoneContext();
     const [cameraData, setCameraData] = useState({
         scale: 0.5,
         position: {x: 0, y: 0}
     });
+
+    const activeElement = refMap.current[activeObject?.name];
+    //console.log(activeElement);
+    const activeTransform = activeElement ? getGlobalTransform(activeElement) : null;
+   // const centerPos = activeTransform ? activeTransform.transformPoint(new DOMPoint(0, 0)) : {x:0, y:0};
+    /*const cameraBounds = cameraRef.current.parentElement.getBoundingClientRect();
+    const trans = new DOMMatrix().translate(- cameraBounds.left - cameraBounds.width / 2, - cameraBounds.top - cameraBounds.height / 2);
+    const trans2 = new DOMMatrix().translate(cameraBounds.width / 2, cameraBounds.height / 2);
+    const centerPos = activeTransform ? (activeTransform.multiply(trans2)).transformPoint(new DOMPoint(0, 0)) : {x:0, y:0};
+    /*let localPoint = trans2.multiply(activeTransform.multiply(trans))
+    const centerPos = */
+            //console.log(cameraTransform.multiply(trans))
+    //let localPoint = trans2.multiply(cameraTransform.inverse().multiply(trans)
 
     useEffect(()=>{
         if (!viewRef.current){
@@ -55,6 +69,43 @@ export const BoneCanvas = ({children, refMap}: React.PropsWithChildren<{refMap: 
             viewRef.current.removeEventListener("wheel", handler);
         }
     }, []);
+
+    const getWorldFromLocal = (
+    it: IBoneNode,
+    localPos: { x: number; y: number }
+): { x: number; y: number } | undefined =>{
+    if (!refMap.current[it?.name]) return;
+
+    // трансформация объекта
+    //new DOMMatrix(getComputedStyle(refMap.current[it.name]).transform)
+        //.translate(it.width / 2, it.height / 2);
+
+    // трансформация камеры
+    //const cameraBounds = cameraRef.current.parentElement.getBoundingClientRect();
+    //const cameraTransform = getGlobalTransform(cameraRef.current);
+    const objectTransform = getGlobalTransform2(viewRef.current).inverse().multiply(getGlobalTransform2(refMap.current[it.name]));
+    // смещение относительно окна камеры
+    //const trans = new DOMMatrix().translate(cameraBounds.left*0 + cameraBounds.width / 2, cameraBounds.top *0 + cameraBounds.height / 2);
+    //const trans2 = new DOMMatrix().translate(cameraBounds.width / 2, cameraBounds.height / 2);
+
+    // комбинируем: сначала локальные координаты объекта → world → экран
+    /*const worldPoint = cameraTransform
+        .multiply(objectTransform)
+        .transformPoint(new DOMPoint(localPos.x, localPos.y));
+
+    // компенсируем смещение камеры в окне
+    const finalPoint = trans2.multiply(objectTransform).translate(-trans.e, -trans.f).transformPoint(new DOMPoint(localPos.x, localPos.y));
+*/
+ // let localPoint = trans2.multiply(cameraTransform.inverse().multiply(trans))/*.multiply(cameraTransform)*/.transformPoint(new DOMPoint(pos.x, pos.y))//(new DOMPoint(e.clientX - cameraBounds.left - 0*cameraBounds.width / 2, e.clientY - cameraBounds.top - 0*cameraBounds.height / 2)) 
+   //         let finalPoint = objectTransform.inverse().transformPoint(localPoint);
+    /*let localPoint = cameraTransform.multiply(trans.inverse())
+        .multiply(objectTransform)
+        .transformPoint(new DOMPoint(localPos.x, localPos.y));*///trans2.inverse().multiply(cameraTransform.multiply(trans.inverse())).transformPoint(new DOMPoint(localPos.x, localPos.y));/*.multiply(cameraTransform)*///.transformPoint(new DOMPoint(e.clientX, e.clientY))//(new DOMPoint(e.clientX - cameraBounds.left - 0*cameraBounds.width / 2, e.clientY - cameraBounds.top - 0*cameraBounds.height / 2)) 
+            //localPoint = objectTransform.transformPoint(localPoint);
+    return objectTransform.transformPoint(new DOMPoint(localPos.x, localPos.y))//trans2.transformPoint(localPoint);//{ x: finalPoint.x, y: finalPoint.y };
+}
+
+const centerPos = getWorldFromLocal(activeObject, {x:0, y:0}) || {x:0, y:0}
     
     const getLocalCursor = (it: IBoneNode, pos: {x: number, y: number})=>{
          //if (i !=0 ) return;
@@ -106,6 +157,20 @@ export const BoneCanvas = ({children, refMap}: React.PropsWithChildren<{refMap: 
         }}>
             {children}
         </div>
+        {activeObject && <div className="boneMarkers">
+            <div className="boneMarkersRotate">
+            
+            </div>
+            <div className="boneMarkersScale">
+            
+            </div>
+            <div className="boneMarkersMove" style={{
+                left: (centerPos.x /*+ cameraRef.current.getBoundingClientRect().width * cameraData.scale*/)  + 'px',
+                top: (centerPos.y /*+ cameraRef.current.getBoundingClientRect().height * cameraData.scale*/)  + 'px'
+            }}>
+            
+            </div>
+        </div>}
     </div>
     </canvasContext.Provider>
 }

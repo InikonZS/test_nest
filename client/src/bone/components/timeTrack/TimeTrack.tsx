@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { KeyFrameBar } from "./KeyFrameBar";
 import "./TimeTrack.css";
+import { IBoneNode } from "../../boneModel";
 
 export const TimeTrack = ({onTime, model, onChange}: {onTime:(time: number)=>void, model: any, onChange: (model: any)=>void}) => {
     const [dragStart, setDragStart] = useState<React.MouseEvent>(null);
@@ -8,7 +9,22 @@ export const TimeTrack = ({onTime, model, onChange}: {onTime:(time: number)=>voi
     const trackRef = useRef<HTMLDivElement>();
     const namesRef = useRef<HTMLDivElement>();
     const scrollRef = useRef<HTMLDivElement>();
+    const [selected, setSelected] = useState<any>(null);
 
+    const linearModel = useMemo(()=>{
+        const linear:Array<IBoneNode> = [];
+        const rec = (root: IBoneNode)=>{
+            if (!root.objects){
+                return;
+            }
+            root.objects.forEach(it=>{
+                linear.push(it);
+                rec(it);
+            })
+        }
+        rec(model);
+        return linear;
+    }, [model]);
     const framePosition = Math.floor(position / 10) * 10;
     useEffect(()=>{
         onTime(framePosition);
@@ -40,7 +56,7 @@ export const TimeTrack = ({onTime, model, onChange}: {onTime:(time: number)=>voi
         <div ref={namesRef} className="boneTimeTrackNameList">
              <div className="boneTimeTrackNameListContent">
             {
-                model.objects.map((objectData: any)=>{
+                linearModel.map((objectData: any)=>{
                         return <div className="boneTimeTrackNameListItem">
                             {objectData.name}
                         </div>
@@ -86,11 +102,11 @@ export const TimeTrack = ({onTime, model, onChange}: {onTime:(time: number)=>voi
                     item 2
                 </div> */}
                 {
-                    model.objects.map((objectData: any)=>{
+                    linearModel.map((objectData: any)=>{
                         return <div className="boneTimeTrackListItem">
                             {
                                 (objectData.keyframes || []).map((keyframeData: any, kfindex:number)=>{
-                                    return <KeyFrameBar keyframeData={keyframeData} framePosition={framePosition} onTime={(time)=>{
+                                    return <KeyFrameBar isSelected={keyframeData==selected} keyframeData={keyframeData} framePosition={framePosition} onSelect={()=>{setSelected(keyframeData)}} onTime={(time)=>{
                                         onChange(()=>{
                                             const nextModel = {...model};
                                             const ind = model.objects.findIndex((it: any)=>it == objectData);

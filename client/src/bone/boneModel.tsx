@@ -141,7 +141,7 @@ export const BoneModelProvider = ({ children }: React.PropsWithChildren<{}>) => 
                 currentObject.objects[pathIndex] = { ...currentObject.objects[pathIndex] }
                 currentObject = currentObject.objects[pathIndex];
                 //bad
-                if (currentObject.id == activeObject.id){
+                if (currentObject.id == activeObject?.id){
                     setActiveObject(currentObject);
                 }
                 //

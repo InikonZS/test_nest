@@ -12,6 +12,55 @@
     }
     return result;
 }*/
+
+import { IBoneNode } from "./boneModel";
+
+export const getCurrentTransform = (activeObject: IBoneNode, refMap: any) => {
+        //    console.log(activeObject)
+            const objectData = activeObject;
+            const ref = {current: refMap.current[objectData?.name]};
+        if (!objectData || !objectData.keyframes || !objectData.keyframes.length) {
+            return {
+                translate: { x: objectData.position.x, y: objectData.position.y },
+                rotate: 0,
+                scale: { x: 1, y: 1 }
+            }
+        }
+        const transformTRS = {
+            translate: { x: 0, y: 0 },
+            rotate: 0,
+            scale: { x: 1, y: 1 }
+        }
+        if (!ref.current) {
+            return transformTRS;
+        }
+        const transforms = ref.current.computedStyleMap().get('transform');
+        if (transforms instanceof CSSTransformValue) {
+            let trs = '';
+
+            transforms.forEach((value) => {
+                if (value instanceof CSSTranslate) {
+                    trs = trs + 't';
+                    transformTRS.translate.x = value.x.to('px').value;
+                    transformTRS.translate.y = value.y.to('px').value;
+                }
+                if (value instanceof CSSRotate) {
+                    trs = trs + 'r';
+                    transformTRS.rotate = value.angle.to('deg').value;
+                }
+                if (value instanceof CSSScale) {
+                    trs = trs + 's';
+                    transformTRS.scale.x = Number(value.x);
+                    transformTRS.scale.y = Number(value.y);
+                }
+            });
+            if (!['trs', 'rs', 'ts', 'tr', 't', 'r', 's'].includes(trs)) {
+                console.log('unsupported transform, readed partially');
+            }
+            return transformTRS;
+        }
+    }
+
 export function getGlobalTransform2(el: HTMLElement | null) {
     const result = new DOMMatrix();
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { KeyFrameBar } from "./KeyFrameBar";
 import "./TimeTrack.css";
-import { IBoneNode } from "../../boneModel";
+import { IBoneNode, useBoneContext } from "../../boneModel";
 
 export const TimeTrack = ({onTime, model, onChange}: {onTime:(time: number)=>void, model: any, onChange: (model: any)=>void}) => {
     const [dragStart, setDragStart] = useState<React.MouseEvent>(null);
@@ -10,6 +10,7 @@ export const TimeTrack = ({onTime, model, onChange}: {onTime:(time: number)=>voi
     const namesRef = useRef<HTMLDivElement>();
     const scrollRef = useRef<HTMLDivElement>();
     const [selected, setSelected] = useState<any>(null);
+    const {setObjectKeyframe} = useBoneContext();
 
     const linearModel = useMemo(()=>{
         const linear:Array<IBoneNode> = [];
@@ -106,14 +107,18 @@ export const TimeTrack = ({onTime, model, onChange}: {onTime:(time: number)=>voi
                         return <div className="boneTimeTrackListItem">
                             {
                                 (objectData.keyframes || []).map((keyframeData: any, kfindex:number)=>{
-                                    return <KeyFrameBar isSelected={keyframeData==selected} keyframeData={keyframeData} framePosition={framePosition} onSelect={()=>{setSelected(keyframeData)}} onTime={(time)=>{
-                                        onChange(()=>{
-                                            const nextModel = {...model};
-                                            const ind = model.objects.findIndex((it: any)=>it == objectData);
-                                            model.objects[ind] = {...objectData, keyframes: [...model.objects[ind].keyframes]}
-                                            model.objects[ind].keyframes[kfindex] = {...model.objects[ind].keyframes[kfindex], time:time}
-                                            return nextModel;
-                                        })
+                                    return <KeyFrameBar isSelected={keyframeData==selected} keyframeData={keyframeData} framePosition={framePosition} onSelect={()=>{setSelected(keyframeData)}} onTime={(time, lastTime)=>{
+                                        //onChange(()=>{
+                                            const ind = linearModel.findIndex((it: any)=>it.id == objectData.id);
+                                            linearModel[ind] = {...objectData, keyframes: [...linearModel[ind].keyframes]}
+                                            linearModel[ind].keyframes[kfindex] = {...linearModel[ind].keyframes[kfindex], time:time}
+                                            console.log(linearModel[ind], time, framePosition, model)
+                                            
+                                            setObjectKeyframe(objectData.id, lastTime, linearModel[ind].keyframes[kfindex]);
+                                            //const nextModel = {...model};
+            
+                                            //return nextModel;
+                                        //})
                                     }}></KeyFrameBar>/*<div className={`boneTimeTrackListKey ${framePosition == keyframeData.time ? "boneTimeTrackListKeyCurrent" : ''}`} style={{"--time": keyframeData.time}}
                                         onMouseDown={()=>{
 

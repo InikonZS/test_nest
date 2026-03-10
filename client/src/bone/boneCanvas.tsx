@@ -42,7 +42,7 @@ export const BoneCanvas = ({children, refMap, time}: React.PropsWithChildren<{re
     });
 
         const getCurrentTransform = () => {
-            console.log(activeObject)
+            //console.log(activeObject)
             const objectData = activeObject;
             const ref = {current: refMap.current[objectData?.name]};
         if (!objectData.keyframes || !objectData.keyframes.length) {
@@ -87,7 +87,7 @@ export const BoneCanvas = ({children, refMap, time}: React.PropsWithChildren<{re
         }
     }
       useEffect(() => {
-        console.log('drag ', dragStart)
+        //console.log('drag ', dragStart)
             if (!dragStart) {
                 return;
             }
@@ -142,9 +142,9 @@ export const BoneCanvas = ({children, refMap, time}: React.PropsWithChildren<{re
         }, [dragStart, model, activeObject]);
     
         useEffect(() => {
-             console.log('drag setup')
+            //console.log('drag setup')
             const upHandler = (moveEvent: MouseEvent) => {
-                console.log('dragup')
+                //console.log('dragup')
                 //window.removeEventListener('mouseup', upHandler);
                 setDragStart(null);
                 if (temp.position.x == 0 && temp.position.y == 0 && temp.angle == 0 && temp.scale.x == 1 && temp.scale.y == 1) {
@@ -263,7 +263,7 @@ export const BoneCanvas = ({children, refMap, time}: React.PropsWithChildren<{re
     localPos: { x: number; y: number }
 ): { x: number; y: number } | undefined =>{
     if (!el) return;
-    console.log('loc')
+    //console.log('loc')
     // трансформация объекта
     //new DOMMatrix(getComputedStyle(refMap.current[it.name]).transform)
         //.translate(it.width / 2, it.height / 2);

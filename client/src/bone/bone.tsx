@@ -7,8 +7,9 @@ import { SceneLoader } from "./components/sceneLoader/SceneLoader";
 import { LayersTree, LayersTreeEditor } from "./components/layersTree/LayersTree";
 import { boneContext, BoneModelProvider, IBoneNode, useBoneContext } from "./boneModel";
 import { BoneCanvas } from "./boneCanvas";
+import { getCurrentTransform, getGlobalTransform } from "./utils";
 import "./bone.css";
-import { getGlobalTransform } from "./utils";
+import "./boneStateGroup.css";
 
 export const Bone = ()=>{
     return <BoneModelProvider>
@@ -21,6 +22,7 @@ export const BoneContent = () => {
     const refMap = useRef<Record<string, HTMLDivElement>>({});
     const [playState, setPlayState] = useState(false);
     const {model, history, activeObject, setActiveObject, setModel, setObjectKeyframe} = useBoneContext();
+    const [currentTransform, setCurrentTransform] = useState<any>(null)
     /*useEffect(()=>{
         setObjectKeyframe("4");
     }, [])*/
@@ -73,6 +75,12 @@ export const BoneContent = () => {
     });*/
     const [time, setTime] = useState(0);
     useWheelFix();
+    useEffect(()=>{
+        const currentTransform = activeObject ? getCurrentTransform(activeObject, refMap) : null;
+        setCurrentTransform(currentTransform);
+    }, [activeObject, time]);
+
+    //console.log('cupdate', model, JSON.stringify(activeObject))
     return <div className="boneRoot">
         <div className="boneVerticalCenter">
             <div className="boneMain">
@@ -125,7 +133,7 @@ export const BoneContent = () => {
                     <div onClick={()=>{
                         setPlayState(last =>!last);
                     }}>{playState?'stop':'play'}</div>
-                      <TimeTrack onTime = {(currentTime)=>setTime(currentTime)} model={model} onChange={(model)=>setModel(model)}></TimeTrack>
+                      <TimeTrack onTime = {(currentTime)=>setTime(currentTime)} model={model} onChange={(model)=>{/*setModel(model)*/}}></TimeTrack>
                     {/* <div className="boneAnimationsTimeline">
                         <TimeTrack></TimeTrack>
                     </div>
@@ -144,13 +152,68 @@ export const BoneContent = () => {
         </div>
 
         <div className="boneRight">
-            <div className="boneObjectStates">
-                { activeObject &&
-                <div>
+            { activeObject && currentTransform &&<div className="boneObjectStates">
+                
+            
                     {activeObject.name}
+                    <div className="boneObjectStateGroup">
+                        <div className="boneObjectStateGroupName">
+                            Translate
+                        </div>
+                        <div className="boneObjectStateLine">
+                            <div className="boneObjectStateLineName">
+                                x:
+                            </div>
+                            <div className="boneObjectStateLineValue">
+                                {currentTransform.translate.x}
+                            </div>
+                        </div>
+                        <div className="boneObjectStateLine">
+                            <div className="boneObjectStateLineName">
+                                y:
+                            </div>
+                            <div className="boneObjectStateLineValue">
+                                {currentTransform.translate.y}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="boneObjectStateGroup">
+                        <div className="boneObjectStateGroupName">
+                            Rotate
+                        </div>
+                        <div className="boneObjectStateLine">
+                            <div className="boneObjectStateLineName">
+                                angle:
+                            </div>
+                            <div className="boneObjectStateLineValue">
+                                {currentTransform.rotate}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="boneObjectStateGroup">
+                        <div className="boneObjectStateGroupName">
+                            Scale
+                        </div>
+                        <div className="boneObjectStateLine">
+                            <div className="boneObjectStateLineName">
+                                x:
+                            </div>
+                            <div className="boneObjectStateLineValue">
+                                {currentTransform.scale.x}
+                            </div>
+                        </div>
+                        <div className="boneObjectStateLine">
+                            <div className="boneObjectStateLineName">
+                                y:
+                            </div>
+                            <div className="boneObjectStateLineValue">
+                                {currentTransform.scale.y}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                }
-            </div>
+                
+            }
             <div className="boneHistory">
                 {history.map((it, i)=>{
                     const histIndex = history.findIndex(jt=>jt.model == model);

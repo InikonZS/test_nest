@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { IBoneNode, useBoneContext } from "./boneModel";
 import { getCurrentTransform as _getCurrentTransform, getGlobalTransform, getGlobalTransform2 } from "./utils";
 import React from "react";
+import { RotationMarker } from "./components/dragStick/dragStick";
 import "./boneCanvas.css";
 
 const canvasContext = React.createContext<{
@@ -233,7 +234,11 @@ export const BoneCanvas = ({children, refMap, time}: React.PropsWithChildren<{re
             {children}
         </div>
         {activeObject && <div className="boneMarkers">
-            <div className="boneMarkersRotate"  style={{
+            <RotationMarker className="boneMarkersRotate"  style={{
+                left: (rotatePos.x /*+ cameraRef.current.getBoundingClientRect().width * cameraData.scale*/)  + 'px',
+                top: (rotatePos.y /*+ cameraRef.current.getBoundingClientRect().height * cameraData.scale*/)  + 'px'
+            }}></RotationMarker>
+            {false && `<div className="boneMarkersRotate"  style={{
                 left: (rotatePos.x /*+ cameraRef.current.getBoundingClientRect().width * cameraData.scale*/)  + 'px',
                 top: (rotatePos.y /*+ cameraRef.current.getBoundingClientRect().height * cameraData.scale*/)  + 'px'
             }} onDragStart={(e) => e.preventDefault()}
@@ -337,7 +342,7 @@ export const BoneCanvas = ({children, refMap, time}: React.PropsWithChildren<{re
                                     })
                                 }}>
             
-            </div>
+            </div>`}
             <div className="boneMarkersScale" style={{
                 left: (scalePos.x /*+ cameraRef.current.getBoundingClientRect().width * cameraData.scale*/)  + 'px',
                 top: (scalePos.y /*+ cameraRef.current.getBoundingClientRect().height * cameraData.scale*/)  + 'px'

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 
 export interface IKeyFrame {
     time?: number,
@@ -95,19 +95,22 @@ export const boneContext = React.createContext<{
     setObjectKeyframe?: (id: string, time: number, data: IKeyFrame) => void;
     activeObject: IBoneNode,
     setActiveObject: React.Dispatch<React.SetStateAction<IBoneNode>>,
+    refMap: React.MutableRefObject<Record<string, HTMLDivElement>>
 }>({
     model: testMock,
     history: [],
     setModel: null,
     setObjectKeyframe: null,
     activeObject: null,
-    setActiveObject: null
+    setActiveObject: null,
+    refMap: null
 });
 
 export const BoneModelProvider = ({ children }: React.PropsWithChildren<{}>) => {
     const [model, setModel] = useState<IBoneNode>(testMock);
     const [activeObject, setActiveObject] = useState<IBoneNode>(null);
     const [history, setHistory] = useState<{action: string, model: IBoneNode}[]>([{action: 'Init', model: testMock}]);
+    const refMap = useRef<Record<string, HTMLDivElement>>({});
 
     const setObjectKeyframe = (id: string, time: number, data: IKeyFrame) => {
         const findRecursive = (item: IBoneNode, path: Array<number>) => {
@@ -171,7 +174,8 @@ export const BoneModelProvider = ({ children }: React.PropsWithChildren<{}>) => 
         setModel,
         setObjectKeyframe,
         activeObject,
-        setActiveObject
+        setActiveObject,
+        refMap
     }}>
         {children}
     </boneContext.Provider>

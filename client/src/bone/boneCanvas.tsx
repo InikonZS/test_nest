@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { IBoneNode, useBoneContext } from "./boneModel";
-import { getGlobalTransform, getGlobalTransform2 } from "./utils";
+import { getCurrentTransform as _getCurrentTransform, getGlobalTransform, getGlobalTransform2 } from "./utils";
 import React from "react";
 import "./boneCanvas.css";
 
@@ -41,53 +41,8 @@ export const BoneCanvas = ({children, refMap, time}: React.PropsWithChildren<{re
         position: {x: 0, y: 0}
     });
 
-        const getCurrentTransform = () => {
-            //console.log(activeObject)
-            const objectData = activeObject;
-            const ref = {current: refMap.current[objectData?.name]};
-        if (!objectData.keyframes || !objectData.keyframes.length) {
-            return {
-                translate: { x: objectData.position.x, y: objectData.position.y },
-                rotate: 0,
-                scale: { x: 1, y: 1 }
-            }
-        }
-        const transformTRS = {
-            translate: { x: 0, y: 0 },
-            rotate: 0,
-            scale: { x: 1, y: 1 }
-        }
-        if (!ref.current) {
-            return transformTRS;
-        }
-        const transforms = ref.current.computedStyleMap().get('transform');
-        if (transforms instanceof CSSTransformValue) {
-            let trs = '';
-
-            transforms.forEach((value) => {
-                if (value instanceof CSSTranslate) {
-                    trs = trs + 't';
-                    transformTRS.translate.x = value.x.to('px').value;
-                    transformTRS.translate.y = value.y.to('px').value;
-                }
-                if (value instanceof CSSRotate) {
-                    trs = trs + 'r';
-                    transformTRS.rotate = value.angle.to('deg').value;
-                }
-                if (value instanceof CSSScale) {
-                    trs = trs + 's';
-                    transformTRS.scale.x = Number(value.x);
-                    transformTRS.scale.y = Number(value.y);
-                }
-            });
-            if (!['trs', 'rs', 'ts', 'tr', 't', 'r', 's'].includes(trs)) {
-                console.log('unsupported transform, readed partially');
-            }
-            return transformTRS;
-        }
-    }
+    const getCurrentTransform = ()=>_getCurrentTransform(activeObject, refMap);
       useEffect(() => {
-        //console.log('drag ', dragStart)
             if (!dragStart) {
                 return;
             }
@@ -100,14 +55,9 @@ export const BoneCanvas = ({children, refMap, time}: React.PropsWithChildren<{re
                 const dy = moveEvent.clientY - lastPosY;
                 lastPosX = moveEvent.clientX;
                 lastPosY = moveEvent.clientY;
-                //console.log(dx, tempRef.current.style.left);
                 setTemp(last => {
                     const globalPos = matrix.transformPoint(new DOMPoint(last.position.x, last.position.y));
                     const localPos = matrix.inverse().transformPoint(new DOMPoint(globalPos.x + dx, globalPos.y + dy));
-                    /*return {position: {
-                        x: last.position.x + dx,
-                        y: last.position.y + dy,
-                    }}*/
                     return {
                         position: {
                             x: localPos.x,
@@ -120,79 +70,40 @@ export const BoneCanvas = ({children, refMap, time}: React.PropsWithChildren<{re
                         }
                     }
                 })
-                //console.log(JSON.stringify(_temp));
-                //tempRef.current.style.left = tempRef.current.clientLeft + dx + 'px',
-                //tempRef.current.style.top = tempRef.current.clientTop + dy + 'px'
-                // setPosition(last => last + dx);
             }
-            /*const upHandler = (moveEvent: MouseEvent)=>{
-                setDragStart(null);
-                onChange?.({position: {
-                    x: _temp.current.position.x + Number(getComputedStyle(ref.current).left.replace('px', "")),
-                    y: _temp.current.position.y + Number(getComputedStyle(ref.current).top.replace('px', "")),
-                }});
-                setTemp({position: {x: 0, y: 0}});
-            }*/
             window.addEventListener('mousemove', moveHandler);
-            //window.addEventListener('mouseup', upHandler);
             return () => {
                 window.removeEventListener('mousemove', moveHandler);
-                // window.removeEventListener('mouseup', upHandler);
             }
         }, [dragStart, model, activeObject]);
     
         useEffect(() => {
-            //console.log('drag setup')
             const upHandler = (moveEvent: MouseEvent) => {
-                //console.log('dragup')
-                //window.removeEventListener('mouseup', upHandler);
                 setDragStart(null);
                 if (temp.position.x == 0 && temp.position.y == 0 && temp.angle == 0 && temp.scale.x == 1 && temp.scale.y == 1) {
                     return;
                 }
-                //const objMatrix = new DOMMatrix(getComputedStyle(ref.current).transform);
-                //const tempMatrix = new DOMMatrix(getComputedStyle(tempRef.current).transform);
-                //const point = objMatrix.transformPoint(new DOMPoint(temp.position.x, temp.position.y));
-                //const resMatrix = tempMatrix.multiply(objMatrix);
                 const point = {
-                    x: getCurrentTransform().translate.x + temp.position.x,//temp.angle == 0 ? resMatrix.e : getCurrentTransform().translate.x,
-                    y: getCurrentTransform().translate.y + temp.position.y//temp.angle == 0 ? resMatrix.f : getCurrentTransform().translate.y
+                    x: getCurrentTransform().translate.x + temp.position.x,
+                    y: getCurrentTransform().translate.y + temp.position.y
                 }
                 const currentTransform = getCurrentTransform();
-                //const angle = Math.atan2(resMatrix.b, resMatrix.a) * 180 / Math.PI;
-                //objMatrix.tra
-                //const m = new DOMMatrix(getComputedStyle(ref.current).transform);
-                //const rotation = Math.atan2(m.b, m.a);
-                console.log(temp.angle, currentTransform)
-                /*onChange?.(objectData.id, {
-                    position: {
-                        x: point.x,//temp.position.x,//_temp.current.position.x + Number(getComputedStyle(ref.current).left.replace('px', "")),
-                        y: point.y//temp.position.y//_temp.current.position.y + Number(getComputedStyle(ref.current).top.replace('px', "")),
-                    },
-                    angle: temp.angle + currentTransform.rotate,
-                    scale: {
-                        x: getCurrentTransform().scale.x * temp.scale.x,//temp.angle == 0 ? resMatrix.e : getCurrentTransform().translate.x,
-                        y: getCurrentTransform().scale.y * temp.scale.y
-                    }
-                });*/
                 const data = {
                     position: {
-                        x: point.x,//temp.position.x,//_temp.current.position.x + Number(getComputedStyle(ref.current).left.replace('px', "")),
-                        y: point.y//temp.position.y//_temp.current.position.y + Number(getComputedStyle(ref.current).top.replace('px', "")),
+                        x: point.x,
+                        y: point.y
                     },
                     angle: temp.angle + currentTransform.rotate,
                     scale: {
-                        x: getCurrentTransform().scale.x * temp.scale.x,//temp.angle == 0 ? resMatrix.e : getCurrentTransform().translate.x,
+                        x: getCurrentTransform().scale.x * temp.scale.x,
                         y: getCurrentTransform().scale.y * temp.scale.y
                     }
                 }
                 setObjectKeyframe(activeObject.id, time, data)
                 setTemp({ position: { x: 0, y: 0 }, angle: 0, scale: {x: 1, y: 1} });
             }
-            //window.addEventListener('mousemove', moveHandler);
             window.addEventListener('mouseup', upHandler);
             return () => {
-                //window.removeEventListener('mousemove', moveHandler);
                 window.removeEventListener('mouseup', upHandler);
             }
         }, [dragStart, temp, model, activeObject])
@@ -259,43 +170,18 @@ export const BoneCanvas = ({children, refMap, time}: React.PropsWithChildren<{re
     }, []);
 
     const getWorldFromLocal = (
-    el: HTMLElement,//it: IBoneNode,
-    localPos: { x: number; y: number }
-): { x: number; y: number } | undefined =>{
-    if (!el) return;
-    //console.log('loc')
-    // трансформация объекта
-    //new DOMMatrix(getComputedStyle(refMap.current[it.name]).transform)
-        //.translate(it.width / 2, it.height / 2);
+        el: HTMLElement,
+        localPos: { x: number; y: number }
+    ): { x: number; y: number } | undefined => {
+        if (!el) return;
+        const objectTransform = getGlobalTransform2(viewRef.current).inverse().multiply(getGlobalTransform2(el));
+        return objectTransform.transformPoint(new DOMPoint(localPos.x, localPos.y))
+    }
 
-    // трансформация камеры
-    //const cameraBounds = cameraRef.current.parentElement.getBoundingClientRect();
-    //const cameraTransform = getGlobalTransform(cameraRef.current);
-    const objectTransform = getGlobalTransform2(viewRef.current).inverse().multiply(getGlobalTransform2(el));
-    // смещение относительно окна камеры
-    //const trans = new DOMMatrix().translate(cameraBounds.left*0 + cameraBounds.width / 2, cameraBounds.top *0 + cameraBounds.height / 2);
-    //const trans2 = new DOMMatrix().translate(cameraBounds.width / 2, cameraBounds.height / 2);
-
-    // комбинируем: сначала локальные координаты объекта → world → экран
-    /*const worldPoint = cameraTransform
-        .multiply(objectTransform)
-        .transformPoint(new DOMPoint(localPos.x, localPos.y));
-
-    // компенсируем смещение камеры в окне
-    const finalPoint = trans2.multiply(objectTransform).translate(-trans.e, -trans.f).transformPoint(new DOMPoint(localPos.x, localPos.y));
-*/
- // let localPoint = trans2.multiply(cameraTransform.inverse().multiply(trans))/*.multiply(cameraTransform)*/.transformPoint(new DOMPoint(pos.x, pos.y))//(new DOMPoint(e.clientX - cameraBounds.left - 0*cameraBounds.width / 2, e.clientY - cameraBounds.top - 0*cameraBounds.height / 2)) 
-   //         let finalPoint = objectTransform.inverse().transformPoint(localPoint);
-    /*let localPoint = cameraTransform.multiply(trans.inverse())
-        .multiply(objectTransform)
-        .transformPoint(new DOMPoint(localPos.x, localPos.y));*///trans2.inverse().multiply(cameraTransform.multiply(trans.inverse())).transformPoint(new DOMPoint(localPos.x, localPos.y));/*.multiply(cameraTransform)*///.transformPoint(new DOMPoint(e.clientX, e.clientY))//(new DOMPoint(e.clientX - cameraBounds.left - 0*cameraBounds.width / 2, e.clientY - cameraBounds.top - 0*cameraBounds.height / 2)) 
-            //localPoint = objectTransform.transformPoint(localPoint);
-    return objectTransform.transformPoint(new DOMPoint(localPos.x, localPos.y))//trans2.transformPoint(localPoint);//{ x: finalPoint.x, y: finalPoint.y };
-}
-
-const centerPos = getWorldFromLocal(refMap.current[activeObject?.name]?.children[0], {x:activeObject?.width/2, y:activeObject?.height/2}) || {x:0, y:0}
-const rotatePos = getWorldFromLocal(refMap.current[activeObject?.name]?.children[0], {x:activeObject?.width/2, y:0}) || {x:0, y:0}    
-const scalePos = getWorldFromLocal(refMap.current[activeObject?.name]?.children[0], {x:activeObject?.width, y:0}) || {x:0, y:0}   
+    const centerPos = getWorldFromLocal(refMap.current[activeObject?.name]?.children[0], {x:activeObject?.width/2, y:activeObject?.height/2}) || {x:0, y:0}
+    const rotatePos = getWorldFromLocal(refMap.current[activeObject?.name]?.children[0], {x:activeObject?.width/2, y:0}) || {x:0, y:0}    
+    const scalePos = getWorldFromLocal(refMap.current[activeObject?.name]?.children[0], {x:activeObject?.width, y:0}) || {x:0, y:0}   
+    
     const getLocalCursor = (it: IBoneNode, pos: {x: number, y: number})=>{
          //if (i !=0 ) return;
             if (!refMap.current[it.name]) return;

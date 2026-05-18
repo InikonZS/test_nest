@@ -43,7 +43,20 @@ const config = {
             },
             {
                 test: /\.css$/i,
+                exclude: /\.(m|module)\.css$/,
                 use: [stylesHandler,'css-loader'],
+            },
+            {
+                test: /\.(m|module)\.css$/i,
+                use: [stylesHandler, {
+                    loader: "css-loader",
+                    options: {
+                        modules: {
+                            localIdentName: '[local]_[hash:base64:5]'
+                        }
+                    }
+                },
+            ],
             },
             {
                 test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif|wjs)$/i,

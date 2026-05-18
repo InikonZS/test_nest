@@ -8,7 +8,7 @@ import { App as Ani} from "./ani/app";
 import { App as Word} from "./word/app";
 import { App as Ui} from "./ui/app";
 import { App as Wf} from "./wf/app";
-import { Vectorizer } from "./vectorizer/vectorizer";
+import { Vectorizer } from "./vectorizer2/vectorizer";
 import { NeirView } from './neir/app';
 import { App as MainPage} from "./pg/app";
 import { App as GlPage} from "./gl/app";

@@ -41,6 +41,7 @@
 .preview{
     background-color: var(--text-color);
     width: 100%;
+    opacity: 0.4;
 }
 .previewBound{
     border: 1px solid #f006;
@@ -53,4 +54,5 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
 }

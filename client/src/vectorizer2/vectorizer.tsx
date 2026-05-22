@@ -2,11 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { useWheelFix } from "./useWheelFix";
 import { FileImageInput } from "./components/fileInput/fileInput";
 import { getBounds, getPoly, optimizePolyDynamic, toBitmap, toClipPolygon } from "./core";
+import { toClipPath } from "./spline";
+import { SplineTest } from "./spliteTest";
 import style from "./vectorizer.m.css";
 
 export const Vectorizer = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const previewRef = useRef<HTMLDivElement>(null);
+    const previewSVGRef = useRef<SVGSVGElement>(null);
     const previewBoundRef = useRef<HTMLDivElement>(null);
     const [sourceImage, setSourceImage] = useState<HTMLImageElement>(null);
     const [selectedPoint, setSelectedPoint] = useState<{ x: number, y: number }>(null);
@@ -14,6 +17,8 @@ export const Vectorizer = () => {
     const [val1, setVal1] = useState(15);
     const [val2, setVal2] = useState(30);
     const [generatedPath, setGeneratedPath] = useState<Array<number>>(null);
+    const [fullPoly, setFullPoly] = useState<Array<{ x: number, y: number }>>();
+    const [pathCurve, setPathCurve] = useState<{d: string, box: string}>({d: '', box: ''});
 
     useEffect(() => {
         if (!canvasRef.current) { return; }
@@ -44,6 +49,7 @@ export const Vectorizer = () => {
         const { bitmap: btm, color } = toBitmap(sourceImage, selectedPoint, presize, 60);
         const poly1 = getPoly(btm, selectedPoint).map(it => ({ x: it.x / presize, y: it.y / presize }));
         console.log(poly1);
+        setFullPoly(poly1);
         //const optimized = optimizePolySoft1(optimizePolyHard(poly1));
         //const optimized = optimizePolySoft(poly1);
         //const optimized = optimizePolyDynamic(optimizePolyDynamic(poly1));
@@ -103,6 +109,19 @@ export const Vectorizer = () => {
         previewRef.current.style.aspectRatio = (areaBounds.width / areaBounds.height).toString();
     }, [generatedPath]);
 
+    useEffect(()=>{
+        if (!generatedPath){
+            previewSVGRef.current.style.clipPath = '';
+            return;
+        }
+        const pathCurve = toClipPath(generatedPath, fullPoly);
+        //previewSVGRef.current.style.clipPath = pathCurve;
+        const areaBounds = getBounds(generatedPath);
+        setPathCurve({d: pathCurve, box: `${areaBounds.minX} ${areaBounds.minY} ${areaBounds.width} ${areaBounds.height}`});
+        //setPathCurve({d: pathCurve, box: `${0} ${0} ${areaBounds.width} ${areaBounds.height}`});
+        //previewSVGRef.current.style.aspectRatio = (areaBounds.width / areaBounds.height).toString();
+    }, [generatedPath]);
+
     useEffect(() => {
         if (!generatedPath){
             return;
@@ -120,6 +139,8 @@ export const Vectorizer = () => {
             const size = Math.min(heightParent / aspect, widthParent);
             previewRef.current.style.width = `${size}px`;
             previewRef.current.style.height = `${aspect * size}px`;
+            previewSVGRef.current.style.width = `${size}px`;
+            previewSVGRef.current.style.height = `${aspect * size}px`;
             previewBoundRef.current.style.width = `${size}px`;
             previewBoundRef.current.style.height = `${aspect * size}px`;
         }
@@ -187,8 +208,12 @@ export const Vectorizer = () => {
                 }} />
             </div>
             <div className={style.mainHalf}>
-                 {<div ref={previewBoundRef} className={style.previewBound}></div>}
+                {<div ref={previewBoundRef} className={style.previewBound}></div>}
                 <div ref={previewRef} className={style.preview}></div>
+                <svg ref={previewSVGRef} style={{position: 'absolute', width: '100%', opacity: 0.5}} viewBox={pathCurve.box}>
+                    <path d={pathCurve.d} fill="#000000"></path>
+                </svg>
+                {/* <SplineTest></SplineTest> */}
             </div>
         </div>
     </div>
